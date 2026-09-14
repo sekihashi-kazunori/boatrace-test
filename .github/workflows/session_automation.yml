@@ -1,0 +1,75 @@
+name: kyoutei test yosou 3-bu-sei jidou jikkou
+
+on:
+  schedule:
+    - cron: "50 23 * * *"
+    - cron: "30 1  * * *"
+    - cron: "30 6  * * *"
+    - cron: "30 3  * * *"
+    - cron: "0  7  * * *"
+    - cron: "0  14 * * *"
+  workflow_dispatch:
+    inputs:
+      session:
+        description: "taishou session"
+        required: true
+        default: "morning"
+        type: choice
+        options: [morning, day, nighter]
+      action:
+        description: "predict or settle"
+        required: true
+        default: "predict"
+        type: choice
+        options: [predict, settle]
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -e .
+
+      - name: session/action hantei
+        id: vars
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "session=${{ inputs.session }}" >> "$GITHUB_OUTPUT"
+            echo "action=${{ inputs.action }}" >> "$GITHUB_OUTPUT"
+          else
+            HOUR_UTC=$(date -u +%H:%M)
+            case "$HOUR_UTC" in
+              "23:50") echo "session=morning" >> "$GITHUB_OUTPUT"; echo "action=predict" >> "$GITHUB_OUTPUT" ;;
+              "01:30") echo "session=day"     >> "$GITHUB_OUTPUT"; echo "action=predict" >> "$GITHUB_OUTPUT" ;;
+              "06:30") echo "session=nighter" >> "$GITHUB_OUTPUT"; echo "action=predict" >> "$GITHUB_OUTPUT" ;;
+              "03:30") echo "session=morning" >> "$GITHUB_OUTPUT"; echo "action=settle"  >> "$GITHUB_OUTPUT" ;;
+              "07:00") echo "session=day"     >> "$GITHUB_OUTPUT"; echo "action=settle"  >> "$GITHUB_OUTPUT" ;;
+              "14:00") echo "session=nighter" >> "$GITHUB_OUTPUT"; echo "action=settle"  >> "$GITHUB_OUTPUT" ;;
+            esac
+          fi
+
+      - name: yosou kaime seisei
+        if: steps.vars.outputs.action == 'predict'
+        run: python -m src.pipeline.session_pipeline --session ${{ steps.vars.outputs.session }}
+
+      - name: kekka kakutei shuushi houkoku
+        if: steps.vars.outputs.action == 'settle'
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        run: |
+          if [ "${{ steps.vars.outputs.session }}" = "nighter" ]; then
+            python -m src.pipeline.settle_pipeline --session nighter --last-of-day
+          else
+            python -m src.pipeline.settle_pipeline --session ${{ steps.vars.outputs.session }}
+          fi
+
+      - name: DB eizokuka
+        run: |
+          git config user.name "predictor-bot"
+          git config user.email "bot@example.com"
+          git add boatrace.db
+          git commit -m "chore: ${{ steps.vars.outputs.session }} ${{ steps.vars.outputs.action }} $(date +'%Y-%m-%d %H:%M')" || echo "no changes"
+          git push
