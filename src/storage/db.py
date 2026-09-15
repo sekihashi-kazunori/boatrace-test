@@ -90,56 +90,6 @@ def init_db(engine):
 def get_session(engine):
     Session = sessionmaker(bind=engine)
     return Session()
-
-
-# ============================================================
-# ここから下のコードを src/storage/db.py に追加してください。
-# 追加場所: class BetTicket の直前(9行目の上あたり)がおすすめです。
-# ============================================================
-
-
-class RaceEntry(Base):
-    __tablename__ = "race_entries"
-
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    race_date = Column(String)
-    stadium_code = Column(String)
-    race_number = Column(Integer)
-    lane_number = Column(Integer)
-    racer_id = Column(String, nullable=True)
-    national_win_rate = Column(Float, nullable=True)
-    local_win_rate = Column(Float, nullable=True)
-    motor_2rate = Column(Float, nullable=True)
-    boat_2rate = Column(Float, nullable=True)
-    exhibition_time = Column(Float, nullable=True)
-    tilt = Column(Float, nullable=True)
-    start_timing = Column(Float, nullable=True)
-    win_odds = Column(Float, nullable=True)
-    finish_position = Column(Integer, nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
-
-
-# ============================================================
-# 既存の save_entries 関数を、以下の内容で置き換えてください。
-# (今は print するだけで実際にDB保存していないため)
-# ============================================================
-
-
-def save_entries(engine, entries: list) -> None:
-    # entries は src/pipeline/session_pipeline.py の to_race_entries() が返す
-    # RaceEntry オブジェクトのリストがそのまま渡ってくる想定。
-    session = get_session(engine)
-    try:
-        for entry in entries:
-            entry.race_date = str(entry.race_date)
-            session.add(entry)
-        session.commit()
-        print(f"[save_entries] {len(entries)} entries saved")
-    finally:
-        session.close()
-
-
-
 def save_bet_tickets(engine, tickets: list[dict]):
     session = get_session(engine)
     try:
