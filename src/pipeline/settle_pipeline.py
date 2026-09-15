@@ -17,12 +17,13 @@ def run_settle(session_name: str, target_date: date | None = None, db_path: str 
     engine = get_engine(db_path)
     init_db(engine)
 
+    session_name_ja = {"morning": "モーニング", "day": "デイ", "nighter": "ナイター"}.get(session_name, session_name)
+
     with OrmSession(engine) as db:
         stmt = select(BetTicket).where(
             BetTicket.race_date == target_date,
             BetTicket.session == session_name,
             BetTicket.result.is_(None),
-
         )
         pending_tickets = list(db.scalars(stmt).all())
 
@@ -34,7 +35,7 @@ def run_settle(session_name: str, target_date: date | None = None, db_path: str 
             try:
                 result = fetch_race_result(target_date, stadium_code, race_number)
             except Exception as e:
-                print(f"kekka shutoku shippai {stadium_code=} {race_number=}: {e}")
+                print(f"結果取得失敗 {stadium_code=} {race_number=}: {e}")
                 continue
             settle_tickets(tickets, result)
             save_race_result(engine, RaceResult(
@@ -47,18 +48,17 @@ def run_settle(session_name: str, target_date: date | None = None, db_path: str 
         db.commit()
 
     summary = session_report(engine, target_date, session_name)
-    notify_console(format_report(summary, f"{session_name} shuushi houkoku"))
-    notify_discord(format_report(summary, f"{session_name} shuushi houkoku"))
+    notify_console(format_report(summary, f"{session_name_ja} 収支報告"))
+    notify_discord(format_report(summary, f"{session_name_ja} 収支報告"))
 
     if is_last_session_of_day:
         daily = daily_report(engine, target_date)
-        notify_console(format_report(daily, "honjitsu souzuushi"))
-        notify_discord(format_report(daily, "honjitsu souzuushi"))
+        notify_console(format_report(daily, "本日総収支"))
+        notify_discord(format_report(daily, "本日総収支"))
 
         cumulative = cumulative_report(engine, target_date)
-        notify_console(format_report(cumulative, "ruiseki shuushi"))
-        notify_discord(format_report(cumulative, "ruiseki shuushi"))
-
+        notify_console(format_report(cumulative, "累積収支"))
+        notify_discord(format_report(cumulative, "累積収支"))
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
