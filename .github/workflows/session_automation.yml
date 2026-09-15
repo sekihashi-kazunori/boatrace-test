@@ -63,7 +63,7 @@ jobs:
           if [ "${{ steps.vars.outputs.session }}" = "nighter" ]; then
             python -m src.pipeline.settle_pipeline --session nighter --last-of-day
           else
-            python -m src.pipeline.settle_pipeline --session ${の{ steps.vars.outputs.session }}
+            python -m src.pipeline.settle_pipeline --session ${{ steps.vars.outputs.session }}
           fi
 
       - name: DB eizokuka
