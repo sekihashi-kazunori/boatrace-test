@@ -35,7 +35,7 @@ def run_session(session_name: str, target_date: date | None = None, model_path: 
             try:
                 card = fetch_race_card(target_date, stadium_code, race_number)
             print(f"取得失敗 {stadium_code=} {race_number=}: {e}")
-                print(f"shutoku shippai {stadium_code=} {race_number=}: {e}")
+                
                 continue
 
             entries = to_race_entries(card, target_date, stadium_code, race_number)
