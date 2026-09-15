@@ -6,7 +6,7 @@ from datetime import date
 from sqlalchemy import select
 from sqlalchemy.orm import Session as OrmSession
 
-from src.storage.db import get_engine, BetTicket, save_race_result, RaceResult
+from src.storage.db import get_engine, BetTicket, save_race_result, RaceResult, init_db
 from src.results.fetch_results import fetch_race_result, settle_tickets
 from src.reporting.report import session_report, daily_report, cumulative_report, format_report
 from src.notify.notifier import notify_console, notify_discord
@@ -15,6 +15,7 @@ from src.notify.notifier import notify_console, notify_discord
 def run_settle(session_name: str, target_date: date | None = None, db_path: str = "boatrace.db", is_last_session_of_day: bool = False) -> None:
     target_date = target_date or date.today()
     engine = get_engine(db_path)
+    init_db(engine)
 
     with OrmSession(engine) as db:
         stmt = select(BetTicket).where(
