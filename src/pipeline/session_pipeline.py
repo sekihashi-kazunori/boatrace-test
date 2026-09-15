@@ -24,6 +24,7 @@ def run_session(session_name: str, target_date: date | None = None, model_path: 
     target_date = target_date or date.today()
     engine = get_engine(db_path)
     init_db(engine)
+    session_name_ja = {"morning": "モーニング", "day": "デイ", "nighter": "ナイター"}.get(session_name, session_name)
 
     stadium_codes = fetch_today_stadiums(target_date)
     model = lgb.Booster(model_file=model_path) if os.path.exists(model_path) else None
@@ -33,7 +34,7 @@ def run_session(session_name: str, target_date: date | None = None, model_path: 
         for race_number in SESSION_RACE_NUMBERS[session_name]:
             try:
                 card = fetch_race_card(target_date, stadium_code, race_number)
-            except Exception as e:
+            print(f"取得失敗 {stadium_code=} {race_number=}: {e}")
                 print(f"shutoku shippai {stadium_code=} {race_number=}: {e}")
                 continue
 
@@ -51,7 +52,7 @@ def run_session(session_name: str, target_date: date | None = None, model_path: 
             indexed = add_original_index(predicted)
             bet_plans = build_bet_plan(indexed, total_stake=1000, min_points=5, max_points=8)
 
-            message_lines = [f"[{session_name} {stadium_code} {race_number}R kaime]"]
+            message_lines = [f"【{session_name_ja} {stadium_code} {race_number}R 買い目生成】"]
             for plan in bet_plans:
                 ticket = BetTicket(
                     race_date=target_date,
@@ -66,8 +67,8 @@ def run_session(session_name: str, target_date: date | None = None, model_path: 
                 )
                 all_tickets.append(ticket)
                 message_lines.append(
-                    f"[{plan.category}] {plan.combination} {plan.stake}en "
-                    f"(yosoku tekichuritsu {plan.predicted_prob}%) riyuu: {plan.reason}"
+                    f"【{plan.category}】{plan.combination} {plan.stake}円 "
+                    f"(予測勝率 {plan.predicted_prob}%) 理由: {plan.reason}"
                 )
             message = "\n".join(message_lines)
             notify_console(message)
