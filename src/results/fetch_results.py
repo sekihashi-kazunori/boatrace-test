@@ -31,12 +31,12 @@ def fetch_race_result(race_date: date, stadium_code: int, race_number: int) -> R
     )
     def settle_tickets(tickets: list, result: RaceResultData) -> None:
         for ticket in tickets:
-        if ticket.combination == result.finish_order:
-            ticket.result = "hit"
-            ticket.payout = int(result.trifecta_payout * (ticket.amount / 100))
-        else:
-            ticket.result = "miss"
-            ticket.payout = 0
+            if ticket.combination == result.finish_order:
+                ticket.result = "hit"
+                ticket.payout = int(result.trifecta_payout * (ticket.amount / 100))
+            else:
+                ticket.result = "miss"
+                ticket.payout = 0
 
 
 
