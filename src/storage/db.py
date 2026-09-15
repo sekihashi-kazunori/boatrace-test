@@ -12,6 +12,17 @@ Base = declarative_base()
 # ============================================================
 
 
+class RaceResult(Base):
+    __tablename__ = "race_results"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    race_date = Column(String)
+    stadium_code = Column(String)
+    race_number = Column(Integer)
+    finish_order = Column(String)
+    trifecta_payout = Column(Integer)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    
 class RaceEntry(Base):
     __tablename__ = "race_entries"
 
@@ -143,6 +154,21 @@ def save_bet_tickets(engine, tickets: list[dict]):
                 odds=t.get("odds"),
             )
             session.add(ticket)
+        session.commit()
+    finally:
+        session.close()
+
+def save_race_result(engine, result) -> None:
+    session = get_session(engine)
+    try:
+        row = RaceResult(
+            race_date=str(result.race_date),
+            stadium_code=str(result.stadium_code),
+            race_number=result.race_number,
+            finish_order=result.finish_order,
+            trifecta_payout=result.trifecta_payout,
+        )
+        session.add(row)
         session.commit()
     finally:
         session.close()
