@@ -28,7 +28,8 @@ def fetch_race_result(race_date: date, stadium_code: int, race_number: int) -> R
         race_number=race_number,
         finish_order=finish_order,
         trifecta_payout=trifecta_payout,
-    )def settle_tickets(tickets: list, result: RaceResultData) -> None:
+    )
+    def settle_tickets(tickets: list, result: RaceResultData) -> None:
     for ticket in tickets:
         if ticket.combination == result.finish_order:
             ticket.result = "hit"
