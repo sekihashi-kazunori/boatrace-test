@@ -9,7 +9,7 @@ from src.storage.db import BetTicket
 
 
 def _summarize(tickets: list[BetTicket]) -> dict:
-    total_stake = sum(t.stake for t in tickets)
+    total_stake = sum(t.amount for t in tickets)
     total_payout = sum((t.payout or 0) for t in tickets)
 
     races = {}
@@ -17,7 +17,7 @@ def _summarize(tickets: list[BetTicket]) -> dict:
         key = (t.race_date, t.stadium_code, t.race_number)
         races.setdefault(key, []).append(t)
     race_count = len(races)
-    hit_race_count = sum(1 for ts in races.values() if any(t.is_hit == 1 for t in ts))
+    hit_race_count = sum(1 for ts in races.values() if any(t.result == "hit" for t in ts))
 
     return {
         "race_count": race_count,
