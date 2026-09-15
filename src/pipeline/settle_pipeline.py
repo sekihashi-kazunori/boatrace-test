@@ -20,7 +20,8 @@ def run_settle(session_name: str, target_date: date | None = None, db_path: str 
         stmt = select(BetTicket).where(
             BetTicket.race_date == target_date,
             BetTicket.session == session_name,
-            BetTicket.is_hit.is_(None),
+            BetTicket.result.is_(None),
+
         )
         pending_tickets = list(db.scalars(stmt).all())
 
