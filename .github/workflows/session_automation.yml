@@ -67,7 +67,7 @@ jobs:
           fi
 
       - name: DB eizokuka
-      if: hashFiles('boatrace.db') != ''
+        if: hashFiles('boatrace.db') != ''      
         run: |
           git config user.name "predictor-bot"
           git config user.email "bot@example.com"
