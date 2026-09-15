@@ -30,7 +30,7 @@ def fetch_race_result(race_date: date, stadium_code: int, race_number: int) -> R
         trifecta_payout=trifecta_payout,
     )
     def settle_tickets(tickets: list, result: RaceResultData) -> None:
-    for ticket in tickets:
+        for ticket in tickets:
         if ticket.combination == result.finish_order:
             ticket.result = "hit"
             ticket.payout = int(result.trifecta_payout * (ticket.amount / 100))
