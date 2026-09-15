@@ -68,6 +68,7 @@ class BetTicket(Base):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     session = Column(String)
+    race_date = Column(String)
     stadium_code = Column(String)
     race_number = Column(Integer)
     bet_type = Column(String)
@@ -96,6 +97,7 @@ def save_bet_tickets(engine, tickets: list[dict]):
         for t in tickets:
             ticket = BetTicket(
                 session=t.get("session"),
+                race_date=t.get("race_date"),
                 stadium_code=t.get("stadium_code"),
                 race_number=t.get("race_number"),
                 bet_type=t.get("bet_type"),
