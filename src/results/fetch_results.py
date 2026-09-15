@@ -38,5 +38,6 @@ def fetch_race_result(race_date: date, stadium_code: int, race_number: int) -> R
             ticket.result = "miss"
             ticket.payout = 0
 
+    
 
 
