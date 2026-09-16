@@ -36,11 +36,11 @@ jobs:
       - name: session/action hantei
         id: vars
         run: |
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+        if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             echo "session=${{ inputs.session }}" >> "$GITHUB_OUTPUT"
             echo "action=${{ inputs.action }}" >> "$GITHUB_OUTPUT"
-            else
-            case "${{ github.event.schedule }}" in
+          fi
+          case "${{ github.event.schedule }}" in
             "50 23 * * *") echo "session=morning" >> "$GITHUB_OUTPUT"; echo "action=predict" >> "$GITHUB_OUTPUT" ;;
             "30 1 * * *")  echo "session=day"     >> "$GITHUB_OUTPUT"; echo "action=predict" >> "$GITHUB_OUTPUT" ;;
             "30 6 * * *")  echo "session=nighter" >> "$GITHUB_OUTPUT"; echo "action=predict" >> "$GITHUB_OUTPUT" ;;
@@ -48,7 +48,7 @@ jobs:
             "0 7 * * *")   echo "session=day"     >> "$GITHUB_OUTPUT"; echo "action=settle"  >> "$GITHUB_OUTPUT" ;;
             "0 14 * * *")  echo "session=nighter" >> "$GITHUB_OUTPUT"; echo "action=settle"  >> "$GITHUB_OUTPUT" ;;
           esac
-        fi
+
 
 
       - name: yosou kaime seisei
