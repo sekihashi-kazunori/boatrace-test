@@ -100,8 +100,8 @@ def fetch_race_card(stadium_code: str, race_number: int, target_date: Optional[d
     racers = []
 
     # 出走表テーブルの各艇(1〜6号艇)をパース
-        racer_links = soup.select('a[href*="profile?toban="]')
-　　　　　for idx, link in enumerate(racer_links[:6], start=1):
+    racer_links = soup.select('a[href*="profile?toban="]')
+    for idx, link in enumerate(racer_links[:6], start=1):
         name = link.get_text(strip=True)
         href = link.get("href", "")
         m = re.search(r"toban=(\d+)", href)
