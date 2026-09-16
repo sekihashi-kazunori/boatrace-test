@@ -1,4 +1,5 @@
 from __future__ import annotations
+raise SystemExit("ここまで来た印")
 
 import argparse
 import os
