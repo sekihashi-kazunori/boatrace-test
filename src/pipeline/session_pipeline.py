@@ -22,6 +22,8 @@ SESSION_RACE_NUMBERS = {
 
 def run_session(session_name: str, target_date: date | None = None, model_path: str = "model.txt", db_path: str = "boatrace.db") -> None:
     target_date = target_date or date.today()
+    print("run_session開始")
+
     engine = get_engine(db_path)
     init_db(engine)
     session_name_ja = {"morning": "モーニング", "day": "デイ", "nighter": "ナイター"}.get(session_name, session_name)
