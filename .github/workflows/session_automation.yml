@@ -56,7 +56,7 @@ jobs:
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
 
-        run: python -m src.pipeline.session_pipeline --session ${{ steps.vars.outputs.session }}
+        run: python -u -m src.pipeline.session_pipeline --session ${{ steps.vars.outputs.session }}
 
       - name: kekka kakutei shuushi houkoku
         if: steps.vars.outputs.action == 'settle'
