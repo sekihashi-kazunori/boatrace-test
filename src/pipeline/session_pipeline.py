@@ -100,12 +100,10 @@ def to_race_entries(card, target_date, stadium_code, race_number):
     odds_by_lane = {g(o, "lane_number", "boat_number", default=None): g(o, "odds", "win_odds", default=None) for o in card.get("odds", [])}
 
 
-    for entry in card.entries:
+    for entry in card.get("racers", []):
+
         lane = g(entry, "lane_number", "boat_number", "pit_number")
-        before = next(
-            (b for b in card.before_info if g(b, "lane_number", "boat_number") == lane),
-            None,
-        )
+        before = None
         entries.append(RaceEntry(
             race_date=target_date,
             stadium_code=stadium_code,
