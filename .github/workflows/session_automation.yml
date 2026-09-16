@@ -39,17 +39,17 @@ jobs:
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             echo "session=${{ inputs.session }}" >> "$GITHUB_OUTPUT"
             echo "action=${{ inputs.action }}" >> "$GITHUB_OUTPUT"
-          else
-            HOUR_UTC=$(date -u +%H:%M)
-            case "$HOUR_UTC" in
-              "23:50") echo "session=morning" >> "$GITHUB_OUTPUT"; echo "action=predict" >> "$GITHUB_OUTPUT" ;;
-              "01:30") echo "session=day"     >> "$GITHUB_OUTPUT"; echo "action=predict" >> "$GITHUB_OUTPUT" ;;
-              "06:30") echo "session=nighter" >> "$GITHUB_OUTPUT"; echo "action=predict" >> "$GITHUB_OUTPUT" ;;
-              "03:30") echo "session=morning" >> "$GITHUB_OUTPUT"; echo "action=settle"  >> "$GITHUB_OUTPUT" ;;
-              "07:00") echo "session=day"     >> "$GITHUB_OUTPUT"; echo "action=settle"  >> "$GITHUB_OUTPUT" ;;
-              "14:00") echo "session=nighter" >> "$GITHUB_OUTPUT"; echo "action=settle"  >> "$GITHUB_OUTPUT" ;;
-            esac
-          fi
+            else
+            case "${{ github.event.schedule }}" in
+            "50 23 * * *") echo "session=morning" >> "$GITHUB_OUTPUT"; echo "action=predict" >> "$GITHUB_OUTPUT" ;;
+            "30 1 * * *")  echo "session=day"     >> "$GITHUB_OUTPUT"; echo "action=predict" >> "$GITHUB_OUTPUT" ;;
+            "30 6 * * *")  echo "session=nighter" >> "$GITHUB_OUTPUT"; echo "action=predict" >> "$GITHUB_OUTPUT" ;;
+            "30 3 * * *")  echo "session=morning" >> "$GITHUB_OUTPUT"; echo "action=settle"  >> "$GITHUB_OUTPUT" ;;
+            "0 7 * * *")   echo "session=day"     >> "$GITHUB_OUTPUT"; echo "action=settle"  >> "$GITHUB_OUTPUT" ;;
+            "0 14 * * *")  echo "session=nighter" >> "$GITHUB_OUTPUT"; echo "action=settle"  >> "$GITHUB_OUTPUT" ;;
+          esac
+        fi
+
 
       - name: yosou kaime seisei
         if: steps.vars.outputs.action == 'predict'
