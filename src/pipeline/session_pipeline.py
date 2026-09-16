@@ -22,14 +22,14 @@ SESSION_RACE_NUMBERS = {
 
 def run_session(session_name: str, target_date: date | None = None, model_path: str = "model.txt", db_path: str = "boatrace.db") -> None:
     target_date = target_date or date.today()
-    print("run_session開始")
+    
 
     engine = get_engine(db_path)
     init_db(engine)
     session_name_ja = {"morning": "モーニング", "day": "デイ", "nighter": "ナイター"}.get(session_name, session_name)
 
     stadium_codes = fetch_today_stadiums(target_date)
-    raise SystemExit(f"stadium_codes件数={len(stadium_codes)} 中身={stadium_codes}")
+    
 
 
     model = lgb.Booster(model_file=model_path) if os.path.exists(model_path) else None
