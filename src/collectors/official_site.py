@@ -38,7 +38,8 @@ def fetch_today_stadiums(target_date: Optional[date] = None) -> list[dict]:
     stadiums = []
 
     # 開催場一覧のテーブル行をパース
-    for link in soup.select("a[href*='racelist'][href*='jcd=']"):
+    for link in soup.select("a[href*='raceindex'][href*='jcd=']"):
+
         href = link.get("href", "")
         m = re.search(r"jcd=(\d+)", href)
         if not m:
