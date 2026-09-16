@@ -100,18 +100,31 @@ def fetch_race_card(stadium_code: str, race_number: int, target_date: Optional[d
     racers = []
 
     # 出走表テーブルの各艇(1〜6号艇)をパース
-    racer_links = soup.select('a[href*="profile?toban="]')
-    for idx, link in enumerate(racer_links[:6], start=1):
-        name = link.get_text(strip=True)
-        href = link.get("href", "")
-        m = re.search(r"toban=(\d+)", href)
-        racer_number = m.group(1) if m else None
+        for row in soup.select("tbody.is-fs12 tr.is-fs12"):
+        cells = row.find_all("td")
+        if len(cells) < 2:
+            continue
+        try:
+            lane = int(cells[0].get_text(strip=True))
+        except ValueError:
+            continue
+
+        name_tag = cells[1].find("a")
+        name = name_tag.get_text(strip=True) if name_tag else None
+
+        number_tag = cells[1].find("div", class_="is-fs11")
+        racer_number = None
+        if number_tag:
+            m = re.search(r"\d{4}", number_tag.get_text())
+            if m:
+                racer_number = m.group(0)
 
         racers.append({
-            "lane": idx,
+            "lane": lane,
             "name": name,
             "number": racer_number,
         })
+
 
 
 
