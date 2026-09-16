@@ -97,7 +97,8 @@ def to_race_entries(card, target_date, stadium_code, race_number):
         return default
 
     entries = []
-    odds_by_lane = {g(o, "lane_number", "boat_number", default=None): g(o, "odds", "win_odds", default=None) for o in getattr(card.odds, "items", card.odds) if hasattr(card, "odds")} if card.odds else {}
+    odds_by_lane = {g(o, "lane_number", "boat_number", default=None): g(o, "odds", "win_odds", default=None) for o in card.get("odds", [])}
+
 
     for entry in card.entries:
         lane = g(entry, "lane_number", "boat_number", "pit_number")
