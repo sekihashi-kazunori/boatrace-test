@@ -24,4 +24,6 @@ def notify_discord(message: str) -> None:
     webhook_url = os.environ.get("DISCORD_WEBHOOK_URL")
     if not webhook_url:
         return
-    requests.post(webhook_url, json={"content": message})
+    resp = requests.post(webhook_url, json={"content": message})
+    print(f"Discord response: {resp.status_code} {resp.text}")
+
