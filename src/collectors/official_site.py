@@ -100,7 +100,8 @@ def fetch_race_card(stadium_code: str, race_number: int, target_date: Optional[d
     racers = []
 
     # 出走表テーブルの各艇(1〜6号艇)をパース
-    rows = soup.select("tbody.is-fs12")
+    rows = soup.select("tr.is-fs12")
+
     for idx, row in enumerate(rows[:6], start=1):
         name_tag = row.select_one(".is-fs18 a")
         name = name_tag.get_text(strip=True) if name_tag else None
