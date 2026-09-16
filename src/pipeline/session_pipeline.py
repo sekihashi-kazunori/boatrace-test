@@ -126,3 +126,7 @@ def to_race_entries(card, target_date, stadium_code, race_number):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--session", choices=["morning", "day", "nighter"], required=True)
+    parser.add_argument("--action", choices=["predict", "settle"], default="predict")
+    args = parser.parse_args()
+    run_session(args.session, model_path="model.txt")
+
