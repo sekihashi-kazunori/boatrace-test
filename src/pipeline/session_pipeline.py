@@ -29,7 +29,7 @@ def run_session(session_name: str, target_date: date | None = None, model_path: 
     session_name_ja = {"morning": "モーニング", "day": "デイ", "nighter": "ナイター"}.get(session_name, session_name)
 
     stadium_codes = fetch_today_stadiums(target_date)
-    print(f"stadium_codes件数={len(stadium_codes)} 中身={stadium_codes}")
+    notify_discord(f"デバッグ: stadium_codes件数={len(stadium_codes)} 中身={stadium_codes}")
 
     model = lgb.Booster(model_file=model_path) if os.path.exists(model_path) else None
 
