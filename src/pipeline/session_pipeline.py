@@ -47,7 +47,9 @@ def run_session(session_name: str, target_date: date | None = None, model_path: 
                 (df.stadium_code == stadium_code) & (df.race_number == race_number)
             ]
             if race_df.empty:
+                print(f"race_df空 stadium_code={stadium_code} race_number={race_number} df全体件数={len(df)}")
                 continue
+
 
             predicted = predict_win_probabilities(model, race_df)
             indexed = add_original_index(predicted)
