@@ -97,6 +97,8 @@ def fetch_race_card(stadium_code: str, race_number: int, target_date: Optional[d
     res.encoding = res.apparent_encoding
 
     soup = BeautifulSoup(res.text, "html.parser")
+    print(f"取得url={url} タイトル={soup.title.get_text() if soup.title else 'なし'} 本文長={len(res.text)}")
+
     racers = []
 
     # 出走表テーブルの各艇(1〜6号艇)をパース
