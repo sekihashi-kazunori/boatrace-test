@@ -54,6 +54,7 @@ def build_bet_plan(
     min_points: int = 5,
     max_points: int = 8,
 ) -> list[BetPlan]:
+    print(f"race_df lane_number列: {race_df['lane_number'].tolist()}")
     win_probs = dict(zip(race_df["lane_number"], race_df["predicted_win_prob"]))
     print(f"win_probs件数: {len(win_probs)} 中身={win_probs}")
     combo_probs = _harville_trifecta_probs(win_probs)
