@@ -55,6 +55,7 @@ def build_bet_plan(
     max_points: int = 8,
 ) -> list[BetPlan]:
     win_probs = dict(zip(race_df["lane_number"], race_df["predicted_win_prob"]))
+    print(f"win_probs件数: {len(win_probs)} 中身={win_probs}")
     combo_probs = _harville_trifecta_probs(win_probs)
 
     ranked = sorted(combo_probs.items(), key=lambda x: x[1], reverse=True)
