@@ -31,7 +31,7 @@ def predict_win_probabilities(model: lgb.Booster | None, race_df: pd.DataFrame) 
 
 def add_original_index(race_df: pd.DataFrame) -> pd.DataFrame:
     df = race_df.copy()
-    implied_prob = 1 / df["win_odds"]
+    implied_prob = 1 / df["win_odds"].fillna(10)
     market_prob = implied_prob / implied_prob.sum()
 
     df["market_prob"] = market_prob
