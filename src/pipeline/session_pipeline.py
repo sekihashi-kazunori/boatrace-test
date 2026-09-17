@@ -46,6 +46,8 @@ def run_session(session_name: str, target_date: date | None = None, model_path: 
                 continue
 
             entries = to_race_entries(card, target_date, stadium_code, race_number)
+            print(f"抽出結果: {len(entries)}件 中身={entries[:1]}")
+
             save_entries(engine, entries)
 
             df = build_feature_dataframe(engine, race_date=target_date)
