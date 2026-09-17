@@ -96,11 +96,15 @@ def run_session(session_name: str, target_date: date | None = None, model_path: 
 def to_race_entries(card, target_date, stadium_code, race_number):
     from src.storage.db import RaceEntry
 
-    def g(obj, *names, default=None):
-        for name in names:
-            if hasattr(obj, name):
-                return getattr(obj, name)
-        return default
+        def g(obj, *names, default=None):
+            for name in names:
+                if isinstance(obj, dict):
+                    if name in obj:
+                        return obj[name]
+                elif hasattr(obj, name):
+                    return getattr(obj, name)
+            return default
+
 
     entries = []
     odds_by_lane = {g(o, "lane_number", "boat_number", default=None): g(o, "odds", "win_odds", default=None) for o in card.get("odds", [])}
