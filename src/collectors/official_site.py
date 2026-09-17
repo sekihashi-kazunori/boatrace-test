@@ -129,13 +129,39 @@ def fetch_race_card(stadium_code: str, race_number: int, target_date: Optional[d
         if number_tag:
             m = re.search(r"\d{4}", number_tag.get_text())
             if m:
-                racer_number = m.group(0)
+                                     lineh2 = row.find_all("td", class_="is-lineH2")
+                    national_win_rate = None
+                    local_win_rate = None
+                    motor_2rate = None
+                    boat_2rate = None
+                    if len(lineh2) >= 5:
+                        try:
+                            national_win_rate = float(lineh2[1].get_text(separator="|").split("|")[0])
+                        except (ValueError, IndexError):
+                            pass
+                        try:
+                            local_win_rate = float(lineh2[2].get_text(separator="|").split("|")[0])
+                        except (ValueError, IndexError):
+                            pass
+                        try:
+                            motor_2rate = float(lineh2[3].get_text(separator="|").split("|")[1])
+                        except (ValueError, IndexError):
+                            pass
+                        try:
+                            boat_2rate = float(lineh2[4].get_text(separator="|").split("|")[1])
+                        except (ValueError, IndexError):
+                            pass
 
-        racers.append({
-            "lane": lane,
-            "name": name,
-            "number": racer_number,
-        })
+                    racers.append({
+                        "lane": lane,
+                        "name": name,
+                        "number": racer_number,
+                        "national_win_rate": national_win_rate,
+                        "local_win_rate": local_win_rate,
+                        "motor_2rate": motor_2rate,
+                        "boat_2rate": boat_2rate,
+                    })
+
 
 
 
