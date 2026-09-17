@@ -64,6 +64,8 @@ def run_session(session_name: str, target_date: date | None = None, model_path: 
             predicted = predict_win_probabilities(model, race_df)
             indexed = add_original_index(predicted)
             bet_plans = build_bet_plan(indexed, total_stake=1000, min_points=5, max_points=8)
+            print(f"買い目件数: {len(bet_plans)}件 indexed件数={len(indexed)}")
+
 
             message_lines = [f"【{session_name_ja} {stadium_code} {race_number}R 買い目生成】"]
             for plan in bet_plans:
