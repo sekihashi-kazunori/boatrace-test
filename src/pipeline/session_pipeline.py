@@ -35,7 +35,9 @@ def run_session(session_name: str, target_date: date | None = None, model_path: 
     model = lgb.Booster(model_file=model_path) if os.path.exists(model_path) else None
 
     all_tickets: list[BetTicket] = []
-    for stadium_code in stadium_codes:
+        for stadium in stadium_codes:
+            stadium_code = stadium["stadium_code"]
+
         for race_number in SESSION_RACE_NUMBERS[session_name]:
             try:
                 card = fetch_race_card(stadium_code, race_number, target_date)
