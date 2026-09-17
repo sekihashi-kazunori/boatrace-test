@@ -55,8 +55,8 @@ def save_entries(engine, entries: list) -> None:
     # RaceEntry オブジェクトのリストがそのまま渡ってくる想定。
     session = get_session(engine)
     try:
-            if entries:
-                first = entries[0]
+        if entries:
+            first = entries[0]
             session.query(RaceEntry).filter(
                 RaceEntry.race_date == str(first.race_date),
                 RaceEntry.stadium_code == first.stadium_code,
@@ -69,6 +69,7 @@ def save_entries(engine, entries: list) -> None:
         print(f"[save_entries] {len(entries)} entries saved")
     finally:
         session.close()
+
 
 class BetTicket(Base):
     __tablename__ = "bet_tickets"
