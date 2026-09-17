@@ -106,7 +106,7 @@ def to_race_entries(card, target_date, stadium_code, race_number):
 
     for entry in card.get("racers", []):
 
-        lane = g(entry, "lane_number", "boat_number", "pit_number")
+        lane = g(entry, "lane", "lane_number", "boat_number", "pit_number")
         before = None
         entries.append(RaceEntry(
             race_date=target_date,
