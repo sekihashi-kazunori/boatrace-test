@@ -76,9 +76,8 @@ def run_session(session_name: str, target_date: date | None = None, model_path: 
                     race_number=race_number,
                     
                     combination=plan.combination,
-                    stake=plan.stake,
-                    predicted_prob=plan.predicted_prob,
-                    reason=plan.reason,
+                    amount=plan.stake,
+
                 )
                 all_tickets.append(ticket)
                 message_lines.append(
