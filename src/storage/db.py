@@ -55,6 +55,13 @@ def save_entries(engine, entries: list) -> None:
     # RaceEntry オブジェクトのリストがそのまま渡ってくる想定。
     session = get_session(engine)
     try:
+                if entries:
+            first = entries[0]
+            session.query(RaceEntry).filter(
+                RaceEntry.race_date == str(first.race_date),
+                RaceEntry.stadium_code == first.stadium_code,
+                RaceEntry.race_number == first.race_number,
+            ).delete()
         for entry in entries:
             entry.race_date = str(entry.race_date)
             session.add(entry)
