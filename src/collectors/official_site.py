@@ -99,7 +99,7 @@ def fetch_race_card(stadium_code: str, race_number: int, target_date: Optional[d
     soup = BeautifulSoup(res.text, "html.parser")
     print(f"取得url={url} タイトル={soup.title.get_text() if soup.title else 'なし'} 本文長={len(res.text)}")
     print("is-fs12 の有無:", "is-fs12" in res.text)
-    idx = res.text.find("racer")
+    idx = res.text.find("is-fs12")
     print(res.text[idx-200:idx+2000] if idx != -1 else "racerという文字列が見つかりません")
 
 
