@@ -74,7 +74,7 @@ def run_session(session_name: str, target_date: date | None = None, model_path: 
                     session=session_name,
                     stadium_code=stadium_code,
                     race_number=race_number,
-                    category=plan.category,
+                    
                     combination=plan.combination,
                     stake=plan.stake,
                     predicted_prob=plan.predicted_prob,
