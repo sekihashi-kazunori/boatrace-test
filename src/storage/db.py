@@ -103,7 +103,7 @@ def save_bet_tickets(engine, tickets: list[dict]):
     session = get_session(engine)
     try:
         for t in tickets:
-                        ticket = BetTicket(
+            ticket = BetTicket(
                 session=t.session,
                 race_date=t.race_date,
                 stadium_code=t.stadium_code,
