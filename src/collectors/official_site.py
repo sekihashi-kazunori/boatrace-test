@@ -129,7 +129,7 @@ def fetch_race_card(stadium_code: str, race_number: int, target_date: Optional[d
         if number_tag:
             m = re.search(r"\d{4}", number_tag.get_text())
             if m:
-                                     lineh2 = row.find_all("td", class_="is-lineH2")
+                    lineh2 = row.find_all("td", class_="is-lineH2")
                     national_win_rate = None
                     local_win_rate = None
                     motor_2rate = None
