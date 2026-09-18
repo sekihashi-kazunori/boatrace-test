@@ -105,30 +105,29 @@ def fetch_race_card(stadium_code: str, race_number: int, target_date: Optional[d
 
     racers = []
 
-    # 出走表テーブルの各艇(1〜6号艇)をパース
-    for row in soup.select("tbody.is-fs12 tr"):
-        cells = row.find_all("td")
-        
+            # 出走表テーブルの各艇(1〜6号艇)をパース
+        for row in soup.select("tbody.is-fs12 tr"):
+            cells = row.find_all("td")
 
-        boat_color_cell = next(
-    (c for c in cells if any(
-        cls.startswith("is-boatColor") for cls in c.get("class", [])
-    )),
-    None
-)
-if boat_color_cell is None:
-    continue
+            boat_color_cell = next(
+                (c for c in cells if any(
+                    cls.startswith("is-boatColor") for cls in c.get("class", [])
+                )),
+                None
+            )
+            if boat_color_cell is None:
+                continue
 
-if len(cells) < 2:
-    continue
-try:
-    lane = int(boat_color_cell.get_text(strip=True))
-except ValueError:
-    continue
+            if len(cells) < 2:
+                continue
+            try:
+                lane = int(boat_color_cell.get_text(strip=True))
+            except ValueError:
+                continue
 
+            name_tag = cells[1].find("a")
+            name = name_tag.get_text(strip=True) if name_tag else None
 
-        name_tag = cells[1].find("a")
-        name = name_tag.get_text(strip=True) if name_tag else None
 
         number_tag = cells[1].find("div", class_="is-fs11")
         racer_number = None
