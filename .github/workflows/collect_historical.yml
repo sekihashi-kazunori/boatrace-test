@@ -1,0 +1,46 @@
+name: kyoutei kako data shuushuu
+
+on:
+  workflow_dispatch:
+    inputs:
+      start:
+        description: "kaishi bi (YYYYMMDD)"
+        required: true
+        default: "20260101"
+        type: string
+      end:
+        description: "shuuryo bi (YYYYMMDD, kuuhaku nara kinou)"
+        required: false
+        default: ""
+        type: string
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -e .
+
+      - name: hi hantei
+        id: vars
+        run: |
+          END="${{ inputs.end }}"
+          if [ -z "$END" ]; then
+            END=$(date -d "yesterday" +%Y%m%d)
+          fi
+          echo "end=$END" >> "$GITHUB_OUTPUT"
+
+      - name: kako data shuushuu
+        run: python -u -m src.tools.collect_historical --start ${{ inputs.start }} --end ${{ steps.vars.outputs.end }}
+
+      - name: DB eizokuka
+        if: hashFiles('boatrace.db') != ''
+        run: |
+          git config user.name "predictor-bot"
+          git config user.email "bot@example.com"
+          git add boatrace.db
+          git commit -m "chore: historical data collect ${{ inputs.start }} - ${{ steps.vars.outputs.end }}" || echo "no changes"
+          git push
