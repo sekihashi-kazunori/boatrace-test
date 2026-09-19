@@ -8,7 +8,7 @@ from zoneinfo import ZoneInfo
 
 import lightgbm as lgb
 
-from src.collectors.official_site import fetch_today_stadiums, fetch_race_card
+from src.collectors.official_site import fetch_today_stadiums, fetch_race_card, fetch_odds_3rentan
 from src.storage.db import get_engine, init_db, save_entries, save_bet_tickets, BetTicket
 from src.features.build_features import build_feature_dataframe
 from src.models.predict import predict_win_probabilities, add_original_index
@@ -36,7 +36,8 @@ def build_message(session_name_ja: str, stadium_name: str, race_number: int, bet
     stake_total = sum(plan.stake for plan in bet_plans)
 
     combo_lines = "\n".join(
-        f"・{plan.combination}：{plan.stake}円（予測勝率 {plan.predicted_prob}%）"
+        f"・{plan.combination}：{plan.stake}円"
+        + (f"（{plan.odds}倍）" if plan.odds is not None else "（オッズ取得失敗）")
         for plan in bet_plans
     )
 
@@ -100,9 +101,21 @@ def run_session(session_name: str, target_date: date | None = None, model_path: 
                 continue
 
             try:
+                odds_map = fetch_odds_3rentan(stadium_code, race_number, target_date)
+            except Exception as e:
+                print(f"オッズ取得失敗 {stadium_code=} {race_number=}: {e}")
+                odds_map = {}
+
+            try:
                 predicted = predict_win_probabilities(model, race_df)
                 indexed = add_original_index(predicted)
-                bet_plans = build_bet_plan(indexed, total_stake=1000, min_points=5, max_points=8)
+                bet_plans = build_bet_plan(
+                    indexed,
+                    total_stake=1000,
+                    min_points=6,
+                    max_points=8,
+                    odds_map=odds_map,
+                )
             except Exception as e:
                 print(f"予想/買い目生成失敗 {stadium_code=} {race_number=}: {e}")
                 continue
@@ -191,5 +204,4 @@ if __name__ == "__main__":
         print("settleアクションは未実装です。結果照合・回収率集計ロジックを別途実装する必要があります。")
     else:
         run_session(args.session, model_path="model.txt")
-
 
