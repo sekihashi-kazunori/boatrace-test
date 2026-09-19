@@ -35,17 +35,17 @@ def _harville_trifecta_probs(win_probs: dict[int, float]) -> dict[tuple[int, int
 
 def _reason_for(combo: tuple[int, int, int], race_df: pd.DataFrame, category: str) -> str:
     first = race_df[race_df["lane_number"] == combo[0]].iloc[0]
-    parts = [f"{combo[0]}gouTei ga jiku"]
+    parts = [f"{combo[0]}号艇が軸"]
     if (first.get("course_base_win_rate") or 0) >= 0.5:
-        parts.append("in nige no shinraido ga takai")
+        parts.append("イン・逃げの信頼度が高い")
     if (first.get("exhibition_rank") or 99) <= 2:
-        parts.append("tenji time joui de ashi ga yoi")
+        parts.append("展示タイム上位で足が良い")
     if (first.get("motor_2rate") or 0) >= 40:
-        parts.append("motor 2renritsu ga yoi")
+        parts.append("モーター2連率が良い")
     if category == "大穴":
-        parts.append("ninkiusu daga shisu")
+        parts.append("人気薄だが狙い目")
     elif category == "中穴":
-        parts.append("2 3chaku arasoi no")
+        parts.append("2・3着争いの中穴")
     return " / ".join(parts)
 
 
@@ -116,3 +116,4 @@ def build_bet_plan(
         plans[0].stake += shortfall
 
     return plans
+
