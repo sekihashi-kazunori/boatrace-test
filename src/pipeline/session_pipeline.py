@@ -84,6 +84,12 @@ def run_session(session_name: str, target_date: date | None = None, model_path: 
 
             print(f"買い目件数: {len(bet_plans)}件 indexed件数={len(indexed)}")
 
+            # 見送り(買い目が0件)のレースはDiscordに通知しない。コンソールログには残す。
+            if not bet_plans:
+                stadium_name = STADIUM_NAMES.get(stadium_code, stadium_code)
+                print(f"【{session_name_ja} {stadium_name} {race_number}R】見送りのため通知スキップ")
+                continue
+
             stadium_name = STADIUM_NAMES.get(stadium_code, stadium_code)
             message_lines = [f"【{session_name_ja} {stadium_name} {race_number}R 買い目生成】"]
             for plan in bet_plans:
@@ -164,3 +170,4 @@ if __name__ == "__main__":
         print("settleアクションは未実装です。結果照合・回収率集計ロジックを別途実装する必要があります。")
     else:
         run_session(args.session, model_path="model.txt")
+
