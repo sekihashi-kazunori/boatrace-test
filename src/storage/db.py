@@ -109,7 +109,7 @@ def save_bet_tickets(engine, tickets: list[dict]):
                 stadium_code=t.stadium_code,
                 race_number=t.race_number,
                 combination=t.combination,
-                amount=t.stake,
+                amount=t.amount,
             )
 
             session.add(ticket)
