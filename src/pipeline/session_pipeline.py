@@ -22,37 +22,44 @@ SESSION_RACE_NUMBERS = {
 
 def run_session(session_name: str, target_date: date | None = None, model_path: str = "model.txt", db_path: str = "boatrace.db") -> None:
     target_date = target_date or date.today()
-    
 
     engine = get_engine(db_path)
     init_db(engine)
     session_name_ja = {"morning": "モーニング", "day": "デイ", "nighter": "ナイター"}.get(session_name, session_name)
 
     stadium_codes = fetch_today_stadiums(target_date)
-    
 
-
-    model = lgb.Booster(model_file=model_path) if os.path.exists(model_path) else None
+    # モデルが無いと予想不能なので、ここで即座に中断する（レースごとに無言でスキップさせない）
+    if not os.path.exists(model_path):
+        print(f"モデルファイルが見つかりません: {model_path} セッションを中断します。")
+        return
+    model = lgb.Booster(model_file=model_path)
 
     all_tickets: list[BetTicket] = []
     for stadium in stadium_codes:
         stadium_code = stadium["stadium_code"]
 
+        # そのスタジアムの全レースのエントリを先に取得・保存してから、
+        # 特徴量は1回だけビルドする（レースごとの再ビルドは無駄が大きい）
+        fetched_race_numbers = []
         for race_number in SESSION_RACE_NUMBERS[session_name]:
             try:
                 card = fetch_race_card(stadium_code, race_number, target_date)
-
             except Exception as e:
                 print(f"取得失敗 {stadium_code=} {race_number=}: {e}")
-                
                 continue
 
             entries = to_race_entries(card, target_date, stadium_code, race_number)
             print(f"抽出結果: {len(entries)}件 中身={entries[:1]}")
-
             save_entries(engine, entries)
+            fetched_race_numbers.append(race_number)
 
-            df = build_feature_dataframe(engine, race_date=target_date)
+        if not fetched_race_numbers:
+            continue
+
+        df = build_feature_dataframe(engine, race_date=target_date)
+
+        for race_number in fetched_race_numbers:
             race_df = df[
                 (df.stadium_code == stadium_code) & (df.race_number == race_number)
             ]
@@ -60,12 +67,15 @@ def run_session(session_name: str, target_date: date | None = None, model_path: 
                 print(f"race_df空 stadium_code={stadium_code} race_number={race_number} df全体件数={len(df)}")
                 continue
 
+            try:
+                predicted = predict_win_probabilities(model, race_df)
+                indexed = add_original_index(predicted)
+                bet_plans = build_bet_plan(indexed, total_stake=1000, min_points=5, max_points=8)
+            except Exception as e:
+                print(f"予想/買い目生成失敗 {stadium_code=} {race_number=}: {e}")
+                continue
 
-            predicted = predict_win_probabilities(model, race_df)
-            indexed = add_original_index(predicted)
-            bet_plans = build_bet_plan(indexed, total_stake=1000, min_points=5, max_points=8)
             print(f"買い目件数: {len(bet_plans)}件 indexed件数={len(indexed)}")
-
 
             message_lines = [f"【{session_name_ja} {stadium_code} {race_number}R 買い目生成】"]
             for plan in bet_plans:
@@ -74,10 +84,8 @@ def run_session(session_name: str, target_date: date | None = None, model_path: 
                     session=session_name,
                     stadium_code=stadium_code,
                     race_number=race_number,
-                    
                     combination=plan.combination,
                     amount=plan.stake,
-
                 )
                 all_tickets.append(ticket)
                 message_lines.append(
@@ -85,8 +93,11 @@ def run_session(session_name: str, target_date: date | None = None, model_path: 
                     f"(予測勝率 {plan.predicted_prob}%) 理由: {plan.reason}"
                 )
             message = "\n".join(message_lines)
-            notify_console(message)
-            notify_discord(message)
+            try:
+                notify_console(message)
+                notify_discord(message)
+            except Exception as e:
+                print(f"通知失敗 {stadium_code=} {race_number=}: {e}")
 
     if all_tickets:
         save_bet_tickets(engine, all_tickets)
@@ -105,14 +116,21 @@ def to_race_entries(card, target_date, stadium_code, race_number):
         return default
 
     entries = []
-    odds_by_lane = {g(o, "lane_number", "boat_number", default=None): g(o, "odds", default=None) for o in card.get("odds", [])}
+    odds_by_lane = {
+        g(o, "lane_number", "boat_number", default=None): g(o, "odds", default=None)
+        for o in card.get("odds", [])
+    }
+    # 直前情報（展示タイム・チルト・平均ST）をレーン別に引けるようにする。
+    # card内のキー名が違う可能性があるので候補を複数持たせておく。
+    before_by_lane = {
+        g(b, "lane_number", "boat_number", "pit_number", default=None): b
+        for b in card.get("before_info", card.get("before", []))
+    }
 
     for entry in card.get("racers", []):
-
         lane = g(entry, "lane", "lane_number", "boat_number", "pit_number")
-        before = None
+        before = before_by_lane.get(lane)
         entries.append(RaceEntry(
-
             race_date=target_date,
             stadium_code=stadium_code,
             race_number=race_number,
@@ -136,5 +154,8 @@ if __name__ == "__main__":
     parser.add_argument("--session", choices=["morning", "day", "nighter"], required=True)
     parser.add_argument("--action", choices=["predict", "settle"], default="predict")
     args = parser.parse_args()
-    run_session(args.session, model_path="model.txt")
 
+    if args.action == "settle":
+        print("settleアクションは未実装です。結果照合・回収率集計ロジックを別途実装する必要があります。")
+    else:
+        run_session(args.session, model_path="model.txt")
