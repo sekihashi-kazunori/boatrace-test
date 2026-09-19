@@ -1,25 +1,49 @@
 from __future__ import annotations
 
+import argparse
+
 import lightgbm as lgb
 import pandas as pd
-from sklearn.model_selection import GroupShuffleSplit
 
-from src.features.build_features import FEATURE_COLUMNS
+from src.features.build_features import build_feature_dataframe, FEATURE_COLUMNS
+from src.storage.db import get_engine
 
 
-def train_win_probability_model(df: pd.DataFrame) -> lgb.Booster:
-    df = df.dropna(subset=FEATURE_COLUMNS + ["target_win"])
-    race_group = df["race_date"].astype(str) + "_" + df["stadium_code"].astype(str) + "_" + df["race_number"].astype(str)
+def load_training_data(engine) -> pd.DataFrame:
+    df = build_feature_dataframe(engine, race_date=None)
+    if df.empty:
+        raise SystemExit("学習データが1件もありません。先にデータ収集を実行してください。")
 
-    splitter = GroupShuffleSplit(test_size=0.2, n_splits=1, random_state=42)
-    train_idx, valid_idx = next(splitter.split(df, groups=race_group))
+    df = df[df["target_win"].notna()].copy()
+    df["target_win"] = df["target_win"].astype(int)
+    return df
 
-    train_set = lgb.Dataset(df.iloc[train_idx][FEATURE_COLUMNS], label=df.iloc[train_idx]["target_win"])
-    valid_set = lgb.Dataset(df.iloc[valid_idx][FEATURE_COLUMNS], label=df.iloc[valid_idx]["target_win"])
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--db-path", type=str, default="boatrace.db")
+    parser.add_argument("--output", type=str, default="model.txt")
+    parser.add_argument("--test-size", type=float, default=0.2)
+    args = parser.parse_args()
+
+    engine = get_engine(args.db_path)
+    df = load_training_data(engine)
+
+    print(f"学習に使えるデータ: {len(df)}件 (1着になった割合の平均 {df['target_win'].mean():.3%})")
+
+    df_sorted = df.sort_values("race_date")
+    split_idx = int(len(df_sorted) * (1 - args.test_size))
+    train_df = df_sorted.iloc[:split_idx]
+    valid_df = df_sorted.iloc[split_idx:]
+
+    print(f"学習用: {len(train_df)}件 / 検証用: {len(valid_df)}件")
+
+    train_set = lgb.Dataset(train_df[FEATURE_COLUMNS], label=train_df["target_win"])
+    valid_set = lgb.Dataset(valid_df[FEATURE_COLUMNS], label=valid_df["target_win"], reference=train_set)
 
     params = {
         "objective": "binary",
-        "metric": "auc",
+        "metric": "binary_logloss",
         "learning_rate": 0.05,
         "num_leaves": 31,
         "verbose": -1,
@@ -30,10 +54,23 @@ def train_win_probability_model(df: pd.DataFrame) -> lgb.Booster:
         train_set,
         num_boost_round=500,
         valid_sets=[valid_set],
-        callbacks=[lgb.early_stopping(30), lgb.log_evaluation(50)],
+        callbacks=[lgb.early_stopping(stopping_rounds=30), lgb.log_evaluation(50)],
     )
-    return model
+
+    model.save_model(args.output)
+    print(f"モデルを保存しました: {args.output} (best_iteration={model.best_iteration})")
+
+    valid_df = valid_df.copy()
+    valid_df["pred"] = model.predict(valid_df[FEATURE_COLUMNS], num_iteration=model.best_iteration)
+    top_pick = (
+        valid_df.sort_values("pred", ascending=False)
+        .groupby(["race_date", "stadium_code", "race_number"])
+        .head(1)
+    )
+    hit_rate = top_pick["target_win"].mean()
+    print(f"検証データでの単勝的中率(モデル1番評価艇が実際に1着だった割合): {hit_rate:.3%} ({len(top_pick)}レース)")
 
 
-def save_model(model: lgb.Booster, path: str = "model.txt") -> None:
-    model.save_model(path)
+if __name__ == "__main__":
+    main()
+
