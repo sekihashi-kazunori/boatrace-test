@@ -3,7 +3,8 @@ from __future__ import annotations
 import argparse
 import os
 import time
-from datetime import date
+from datetime import date, datetime
+from zoneinfo import ZoneInfo
 
 import lightgbm as lgb
 
@@ -28,6 +29,30 @@ STADIUM_NAMES = {
     "17": "宮島", "18": "徳山", "19": "下関", "20": "若松",
     "21": "芦屋", "22": "福岡", "23": "唐津", "24": "大村",
 }
+
+
+def build_message(session_name_ja: str, stadium_name: str, race_number: int, bet_plans) -> str:
+    now_str = datetime.now(ZoneInfo("Asia/Tokyo")).strftime("%H:%M")
+    stake_total = sum(plan.stake for plan in bet_plans)
+
+    combo_lines = "\n".join(
+        f"・{plan.combination}：{plan.stake}円（予測勝率 {plan.predicted_prob}%）"
+        for plan in bet_plans
+    )
+
+    unique_reasons = []
+    for plan in bet_plans:
+        if plan.reason not in unique_reasons:
+            unique_reasons.append(plan.reason)
+    reason_text = " / ".join(unique_reasons)
+
+    return (
+        f"【{now_str} 予想生成】\n\n"
+        f"{session_name_ja}　{stadium_name}{race_number}R\n\n"
+        f"{combo_lines}\n\n"
+        f"投資：{stake_total}円／{len(bet_plans)}点\n\n"
+        f"根拠\n{reason_text}"
+    )
 
 
 def run_session(session_name: str, target_date: date | None = None, model_path: str = "model.txt", db_path: str = "boatrace.db") -> None:
@@ -84,14 +109,13 @@ def run_session(session_name: str, target_date: date | None = None, model_path: 
 
             print(f"買い目件数: {len(bet_plans)}件 indexed件数={len(indexed)}")
 
+            stadium_name = STADIUM_NAMES.get(stadium_code, stadium_code)
+
             # 見送り(買い目が0件)のレースはDiscordに通知しない。コンソールログには残す。
             if not bet_plans:
-                stadium_name = STADIUM_NAMES.get(stadium_code, stadium_code)
                 print(f"【{session_name_ja} {stadium_name} {race_number}R】見送りのため通知スキップ")
                 continue
 
-            stadium_name = STADIUM_NAMES.get(stadium_code, stadium_code)
-            message_lines = [f"【{session_name_ja} {stadium_name} {race_number}R 買い目生成】"]
             for plan in bet_plans:
                 ticket = BetTicket(
                     race_date=target_date,
@@ -102,11 +126,8 @@ def run_session(session_name: str, target_date: date | None = None, model_path: 
                     amount=plan.stake,
                 )
                 all_tickets.append(ticket)
-                message_lines.append(
-                    f"【{plan.category}】{plan.combination} {plan.stake}円 "
-                    f"(予測勝率 {plan.predicted_prob}%) 理由: {plan.reason}"
-                )
-            message = "\n".join(message_lines)
+
+            message = build_message(session_name_ja, stadium_name, race_number, bet_plans)
             try:
                 notify_console(message)
                 notify_discord(message)
@@ -170,4 +191,5 @@ if __name__ == "__main__":
         print("settleアクションは未実装です。結果照合・回収率集計ロジックを別途実装する必要があります。")
     else:
         run_session(args.session, model_path="model.txt")
+
 
