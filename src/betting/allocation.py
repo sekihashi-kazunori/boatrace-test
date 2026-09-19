@@ -108,4 +108,11 @@ def build_bet_plan(
                 reason=_reason_for(combo, race_df, category),
             )
         )
+
+    # 100円単位への丸めで合計がtotal_stakeとズレることがあるため、
+    # 差額を一番信頼度の高い(鉄板の1点目)買い目にまとめて足して調整する。
+    shortfall = total_stake - sum(plan.stake for plan in plans)
+    if shortfall != 0 and plans:
+        plans[0].stake += shortfall
+
     return plans
