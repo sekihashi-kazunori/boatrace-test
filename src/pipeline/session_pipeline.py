@@ -19,6 +19,15 @@ SESSION_RACE_NUMBERS = {
     "nighter": range(1, 13),
 }
 
+STADIUM_NAMES = {
+    "01": "桐生", "02": "戸田", "03": "江戸川", "04": "平和島",
+    "05": "多摩川", "06": "浜名湖", "07": "蒲郡", "08": "常滑",
+    "09": "津", "10": "三国", "11": "びわこ", "12": "住之江",
+    "13": "尼崎", "14": "鳴門", "15": "丸亀", "16": "児島",
+    "17": "宮島", "18": "徳山", "19": "下関", "20": "若松",
+    "21": "芦屋", "22": "福岡", "23": "唐津", "24": "大村",
+}
+
 
 def run_session(session_name: str, target_date: date | None = None, model_path: str = "model.txt", db_path: str = "boatrace.db") -> None:
     target_date = target_date or date.today()
@@ -29,7 +38,6 @@ def run_session(session_name: str, target_date: date | None = None, model_path: 
 
     stadium_codes = fetch_today_stadiums(target_date)
 
-    # モデルが無いと予想不能なので、ここで即座に中断する（レースごとに無言でスキップさせない）
     if not os.path.exists(model_path):
         print(f"モデルファイルが見つかりません: {model_path} セッションを中断します。")
         return
@@ -39,8 +47,6 @@ def run_session(session_name: str, target_date: date | None = None, model_path: 
     for stadium in stadium_codes:
         stadium_code = stadium["stadium_code"]
 
-        # そのスタジアムの全レースのエントリを先に取得・保存してから、
-        # 特徴量は1回だけビルドする（レースごとの再ビルドは無駄が大きい）
         fetched_race_numbers = []
         for race_number in SESSION_RACE_NUMBERS[session_name]:
             try:
@@ -77,7 +83,8 @@ def run_session(session_name: str, target_date: date | None = None, model_path: 
 
             print(f"買い目件数: {len(bet_plans)}件 indexed件数={len(indexed)}")
 
-            message_lines = [f"【{session_name_ja} {stadium_code} {race_number}R 買い目生成】"]
+            stadium_name = STADIUM_NAMES.get(stadium_code, stadium_code)
+            message_lines = [f"【{session_name_ja} {stadium_name} {race_number}R 買い目生成】"]
             for plan in bet_plans:
                 ticket = BetTicket(
                     race_date=target_date,
@@ -116,12 +123,7 @@ def to_race_entries(card, target_date, stadium_code, race_number):
         return default
 
     entries = []
-    odds_by_lane = {
-        g(o, "lane_number", "boat_number", default=None): g(o, "odds", default=None)
-        for o in card.get("odds", [])
-    }
-    # 直前情報（展示タイム・チルト・平均ST）をレーン別に引けるようにする。
-    # card内のキー名が違う可能性があるので候補を複数持たせておく。
+    odds_by_lane = {g(o, "lane_number", "boat_number", default=None): g(o, "odds", default=None) for o in card.get("odds", [])}
     before_by_lane = {
         g(b, "lane_number", "boat_number", "pit_number", default=None): b
         for b in card.get("before_info", card.get("before", []))
