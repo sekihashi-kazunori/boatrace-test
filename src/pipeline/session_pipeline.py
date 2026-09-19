@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import os
+import time
 from datetime import date
 
 import lightgbm as lgb
@@ -103,6 +104,8 @@ def run_session(session_name: str, target_date: date | None = None, model_path: 
             try:
                 notify_console(message)
                 notify_discord(message)
+                # Discordのレート制限(429)を避けるため、通知の間隔を空ける
+                time.sleep(1.2)
             except Exception as e:
                 print(f"通知失敗 {stadium_code=} {race_number=}: {e}")
 
