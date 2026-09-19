@@ -1,0 +1,25 @@
+name: kyoutei model gakushuu
+
+on:
+  workflow_dispatch:
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -e .
+
+      - name: model gakushuu
+        run: python -u -m src.models.train
+
+      - name: model eizokuka
+        run: |
+          git config user.name "predictor-bot"
+          git config user.email "bot@example.com"
+          git add model.txt
+          git commit -m "chore: model gakushuu $(date +'%Y-%m-%d %H:%M')" || echo "no changes"
+          git push
