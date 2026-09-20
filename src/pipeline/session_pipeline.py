@@ -7,6 +7,7 @@ from datetime import date, datetime
 from zoneinfo import ZoneInfo
 
 import lightgbm as lgb
+import pandas as pd
 
 from src.collectors.official_site import fetch_today_stadiums, fetch_race_card, fetch_odds_3rentan
 from src.storage.db import get_engine, init_db, save_entries, save_bet_tickets, BetTicket
@@ -91,6 +92,14 @@ def run_session(session_name: str, target_date: date | None = None, model_path: 
             continue
 
         df = build_feature_dataframe(engine, race_date=target_date)
+
+        # exhibition_time/tilt/start_timingがDB上は文字列(object型)で
+        # 保存されてしまい、LightGBMの予測時に
+        # "pandas dtypes must be int, float or bool" で全滅する問題への対処。
+        # 数値化できない値はNaNにしてモデル側の欠損値処理に任せる。
+        for col in ("exhibition_time", "tilt", "start_timing"):
+            if col in df.columns:
+                df[col] = pd.to_numeric(df[col], errors="coerce")
 
         for race_number in fetched_race_numbers:
             race_df = df[
@@ -204,4 +213,3 @@ if __name__ == "__main__":
         print("settleアクションは未実装です。結果照合・回収率集計ロジックを別途実装する必要があります。")
     else:
         run_session(args.session, model_path="model.txt")
-
