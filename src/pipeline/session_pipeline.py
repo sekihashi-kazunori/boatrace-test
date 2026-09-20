@@ -9,7 +9,12 @@ from zoneinfo import ZoneInfo
 import lightgbm as lgb
 import pandas as pd
 
-from src.collectors.official_site import fetch_today_stadiums, fetch_race_card, fetch_odds_3rentan
+from src.collectors.official_site import (
+    fetch_today_stadiums,
+    fetch_race_card,
+    fetch_odds_3rentan,
+    fetch_race_deadline_times,
+)
 from src.storage.db import get_engine, init_db, save_entries, save_bet_tickets, BetTicket
 from src.features.build_features import build_feature_dataframe
 from src.models.predict import predict_win_probabilities, add_original_index
@@ -32,7 +37,13 @@ STADIUM_NAMES = {
 }
 
 
-def build_message(session_name_ja: str, stadium_name: str, race_number: int, bet_plans) -> str:
+def build_message(
+    session_name_ja: str,
+    stadium_name: str,
+    race_number: int,
+    bet_plans,
+    deadline_time: str | None = None,
+) -> str:
     now_str = datetime.now(ZoneInfo("Asia/Tokyo")).strftime("%H:%M")
     stake_total = sum(plan.stake for plan in bet_plans)
 
@@ -48,9 +59,13 @@ def build_message(session_name_ja: str, stadium_name: str, race_number: int, bet
             unique_reasons.append(plan.reason)
     reason_text = " / ".join(unique_reasons)
 
+    race_header = f"{stadium_name}{race_number}R"
+    if deadline_time:
+        race_header += f"（締切{deadline_time}）"
+
     return (
         f"【{now_str} 予想生成】\n\n"
-        f"{session_name_ja}　{stadium_name}{race_number}R\n\n"
+        f"{session_name_ja}　{race_header}\n\n"
         f"{combo_lines}\n\n"
         f"投資：{stake_total}円／{len(bet_plans)}点\n\n"
         f"根拠\n{reason_text}"
@@ -101,6 +116,12 @@ def run_session(session_name: str, target_date: date | None = None, model_path: 
             if col in df.columns:
                 df[col] = pd.to_numeric(df[col], errors="coerce")
 
+        try:
+            deadline_times = fetch_race_deadline_times(stadium_code, target_date)
+        except Exception as e:
+            print(f"締切予定時刻取得失敗 {stadium_code=}: {e}")
+            deadline_times = {}
+
         for race_number in fetched_race_numbers:
             race_df = df[
                 (df.stadium_code == stadium_code) & (df.race_number == race_number)
@@ -149,7 +170,13 @@ def run_session(session_name: str, target_date: date | None = None, model_path: 
                 )
                 all_tickets.append(ticket)
 
-            message = build_message(session_name_ja, stadium_name, race_number, bet_plans)
+            message = build_message(
+                session_name_ja,
+                stadium_name,
+                race_number,
+                bet_plans,
+                deadline_time=deadline_times.get(race_number),
+            )
             try:
                 notify_console(message)
                 notify_discord(message)
