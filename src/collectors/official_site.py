@@ -171,6 +171,37 @@ def fetch_race_card(stadium_code: str, race_number: int, target_date: Optional[d
     }
 
 
+def fetch_race_deadline_times(stadium_code: str, target_date: Optional[date] = None) -> dict[int, str]:
+    """
+    指定場のその日の締切予定時刻(1R〜12R)を取得する。
+    出走表ページ上部の「締切予定時刻」の行から、レース番号ごとの
+    時刻(HH:MM)をまとめて取ってくる。1回のリクエストで場全体の
+    12レース分が載っているので、レースごとに呼ぶ必要はない。
+
+    Returns:
+        {1: "10:10", 2: "10:41", ...}
+    """
+    if target_date is None:
+        target_date = date.today()
+    hd = target_date.strftime("%Y%m%d")
+
+    url = f"{BASE_URL}/owpc/pc/race/racelist?rno=1&jcd={stadium_code}&hd={hd}"
+    res = requests.get(url, headers=HEADERS, timeout=15)
+    res.raise_for_status()
+    res.encoding = res.apparent_encoding
+
+    idx = res.text.find("締切予定時刻")
+    if idx == -1:
+        print("締切予定時刻の行が見つかりませんでした")
+        return {}
+
+    chunk = res.text[idx: idx + 4000]
+    times = re.findall(r"\d{1,2}:\d{2}", chunk)
+    print(f"締切予定時刻取得件数: {len(times)}件（本来12件）")
+
+    return {race_number: t for race_number, t in enumerate(times[:12], start=1)}
+
+
 def fetch_odds_3rentan(stadium_code: str, race_number: int, target_date: Optional[date] = None) -> dict[tuple[int, int, int], float]:
     """
     指定場・指定レースの3連単オッズを取得する。
@@ -236,8 +267,3 @@ def fetch_odds_3rentan(stadium_code: str, race_number: int, target_date: Optiona
 
     print(f"3連単オッズ取得件数: {len(odds_map)}件（本来120件）")
     return odds_map
-
-      
-        
-
-    
