@@ -14,6 +14,7 @@ from src.collectors.official_site import (
     fetch_race_card,
     fetch_odds_3rentan,
     fetch_race_deadline_times,
+    fetch_before_info,
 )
 from src.storage.db import get_engine, init_db, save_entries, save_bet_tickets, BetTicket
 from src.features.build_features import build_feature_dataframe
@@ -101,7 +102,13 @@ def run_session(session_name: str, target_date: date | None = None, model_path: 
                 print(f"取得失敗 {stadium_code=} {race_number=}: {e}")
                 continue
 
-            entries = to_race_entries(card, target_date, stadium_code, race_number)
+            try:
+                before_info = fetch_before_info(stadium_code, race_number, target_date)
+            except Exception as e:
+                print(f"直前情報取得失敗 {stadium_code=} {race_number=}: {e}")
+                before_info = None
+
+            entries = to_race_entries(card, target_date, stadium_code, race_number, before_info=before_info)
             print(f"抽出結果: {len(entries)}件 中身={entries[:1]}")
             save_entries(engine, entries)
             fetched_race_numbers.append(race_number)
@@ -192,7 +199,7 @@ def run_session(session_name: str, target_date: date | None = None, model_path: 
         save_bet_tickets(engine, all_tickets)
 
 
-def to_race_entries(card, target_date, stadium_code, race_number):
+def to_race_entries(card, target_date, stadium_code, race_number, before_info=None):
     from src.storage.db import RaceEntry
 
     def g(obj, *names, default=None):
@@ -206,9 +213,11 @@ def to_race_entries(card, target_date, stadium_code, race_number):
 
     entries = []
     odds_by_lane = {g(o, "lane_number", "boat_number", default=None): g(o, "odds", default=None) for o in card.get("odds", [])}
+    # before_infoはcardの中身ではなく、fetch_before_info()で別途取得した
+    # 直前情報(展示タイム/チルト)をrun_session側から渡してもらう。
     before_by_lane = {
-        g(b, "lane_number", "boat_number", "pit_number", default=None): b
-        for b in card.get("before_info", card.get("before", []))
+        g(b, "lane_number", "boat_number", "pit_number", "lane", default=None): b
+        for b in (before_info or [])
     }
 
     for entry in card.get("racers", []):
