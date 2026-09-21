@@ -171,6 +171,56 @@ def fetch_race_card(stadium_code: str, race_number: int, target_date: Optional[d
     }
 
 
+def fetch_before_info(stadium_code: str, race_number: int, target_date: Optional[date] = None) -> list[dict]:
+    """
+    直前情報ページから、各艇の展示タイム・チルトを取得する。
+
+    NOTE: このページのHTML構造も未検証。締切直前(だいたい15〜20分前)に
+    ならないと展示タイム自体がまだ発表されていないので、それより早い
+    時間に呼ぶと0件になるのは異常ではない。取得件数が0件かどうかは
+    ログの「展示タイム取得件数」を見て、時間帯のせいか構造のせいか
+    切り分けること。
+
+    Returns:
+        [{"lane": 1, "exhibition_time": 6.76, "tilt": -0.5}, ...]
+    """
+    if target_date is None:
+        target_date = date.today()
+    hd = target_date.strftime("%Y%m%d")
+
+    url = f"{BASE_URL}/owpc/pc/race/beforeinfo?rno={race_number}&jcd={stadium_code}&hd={hd}"
+    res = requests.get(url, headers=HEADERS, timeout=15)
+    res.raise_for_status()
+    res.encoding = res.apparent_encoding
+
+    print(f"直前情報ページ status_code={res.status_code} 本文長={len(res.text)}文字")
+    print(f"'展示タイム'という文字列が本文に含まれるか: {'展示タイム' in res.text}")
+    print(f"'チルト'という文字列が本文に含まれるか: {'チルト' in res.text}")
+
+    exhibition_times: list[float] = []
+    idx = res.text.find("展示タイム")
+    if idx != -1:
+        chunk = res.text[idx: idx + 4000]
+        exhibition_times = [float(x) for x in re.findall(r"\b[5-8]\.\d{2}\b", chunk)][:6]
+    print(f"展示タイム取得件数: {len(exhibition_times)}件（本来6件）")
+
+    tilts: list[float] = []
+    idx2 = res.text.find("チルト")
+    if idx2 != -1:
+        chunk2 = res.text[idx2: idx2 + 2000]
+        tilts = [float(x) for x in re.findall(r"-?\d(?:\.\d)?(?=°|度)", chunk2)][:6]
+    print(f"チルト取得件数: {len(tilts)}件（本来6件）")
+
+    entries = []
+    for lane in range(1, 7):
+        entries.append({
+            "lane": lane,
+            "exhibition_time": exhibition_times[lane - 1] if lane - 1 < len(exhibition_times) else None,
+            "tilt": tilts[lane - 1] if lane - 1 < len(tilts) else None,
+        })
+    return entries
+
+
 def fetch_race_deadline_times(stadium_code: str, target_date: Optional[date] = None) -> dict[int, str]:
     """
     指定場のその日の締切予定時刻(1R〜12R)を取得する。
@@ -224,6 +274,15 @@ def fetch_odds_3rentan(stadium_code: str, race_number: int, target_date: Optiona
     res.raise_for_status()
     res.encoding = res.apparent_encoding
 
+    # デバッグ: 実際にサーバーから何が返ってきているかを確認する。
+    # レスポンスの長さ、"is-w495"というクラス名が文字列として
+    # 存在するか、代表的な組み合わせ"1-2-3"が含まれているかを見て、
+    # 「ページ構造が違う」のか「そもそも空/別内容が返っている」のか切り分ける。
+    print(f"オッズページ status_code={res.status_code} 本文長={len(res.text)}文字")
+    print(f"'is-w495'という文字列が本文に含まれるか: {'is-w495' in res.text}")
+    print(f"'1-2-3'という文字列が本文に含まれるか: {'1-2-3' in res.text}")
+    print(f"オッズページ本文の先頭500文字:\n{res.text[:500]}")
+
     soup = BeautifulSoup(res.text, "html.parser")
     odds_map: dict[tuple[int, int, int], float] = {}
 
@@ -267,3 +326,7 @@ def fetch_odds_3rentan(stadium_code: str, race_number: int, target_date: Optiona
 
     print(f"3連単オッズ取得件数: {len(odds_map)}件（本来120件）")
     return odds_map
+
+     
+
+
