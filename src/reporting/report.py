@@ -61,11 +61,11 @@ def cumulative_report(engine, up_to_date: date) -> dict:
 
 
 def format_report(summary: dict, title: str) -> str:
-lines = [f"【{title}】"]
+    lines = [f"【{title}】"]
     lines.append(f"対象レース数: {summary['race_count']}R / 的中: {summary['hit_race_count']}R")
     lines.append(f"的中率: {summary['hit_rate']}%")
     lines.append(f"購入: {summary['total_stake']:,}円 / 払戻: {summary['total_payout']:,}円")
     profit_sign = "+" if summary["profit"] >= 0 else ""
     lines.append(f"収支: {profit_sign}{summary['profit']:,}円 / 回収率: {summary['recovery_rate']}%")
     return "\n".join(lines)
-    
+
