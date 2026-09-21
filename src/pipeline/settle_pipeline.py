@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 import argparse
-from datetime import date
+from datetime import date, datetime
+from zoneinfo import ZoneInfo
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session as OrmSession
@@ -13,7 +14,10 @@ from src.notify.notifier import notify_console, notify_discord
 
 
 def run_settle(session_name: str, target_date: date | None = None, db_path: str = "boatrace.db", is_last_session_of_day: bool = False) -> None:
-    target_date = target_date or date.today()
+    # date.today()はサーバー(GitHub Actions)のUTC時刻を使ってしまい、
+    # 日本時間とズレて前日/翌日の日付になることがあるため、
+    # 明示的に日本時間(JST)の「今日」を使う。
+    target_date = target_date or datetime.now(ZoneInfo("Asia/Tokyo")).date()
     engine = get_engine(db_path)
     init_db(engine)
 
