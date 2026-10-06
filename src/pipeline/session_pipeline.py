@@ -83,7 +83,7 @@ def run_session(session_name: str, target_date: date | None = None, model_path: 
     init_db(engine)
     session_name_ja = {"morning": "モーニング", "day": "デイ", "nighter": "ナイター"}.get(session_name, session_name)
 
-    stadium_codes = fetch_today_stadiums(target_date)
+    stadium_codes = fetch_today_stadiums(target_date, session=session_name)
 
     if not os.path.exists(model_path):
         print(f"モデルファイルが見つかりません: {model_path} セッションを中断します。")
