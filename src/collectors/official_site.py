@@ -18,12 +18,21 @@ HEADERS = {
 }
 
 
-def fetch_today_stadiums(target_date: Optional[date] = None) -> list[dict]:
+def fetch_today_stadiums(target_date: Optional[date] = None, session: Optional[str] = None) -> list[dict]:
     """
     指定日(省略時は今日)に開催中のボートレース場一覧を取得する。
 
+    session("morning"/"day"/"nighter")を指定すると、その開催時間帯の
+    場だけに絞り込む。公式サイトには場ごとに「モーニング」「ナイター」
+    などのバッジ画像(alt属性)が付き、バッジが無い場は通常開催(デイ)。
+
+    NOTE: バッジのalt属性がちゃんと取れるかは未検証。「バッジ=」の
+    ログが毎回空っぽなら、alt属性では無く別の方法(画像ファイル名や
+    クラス名)で判定されてる可能性があるので、その場合はログを見て
+    判定方法を調整する。
+
     Returns:
-        [{"stadium_code": "01", "stadium_name": "桐生"}, ...]
+        [{"stadium_code": "01", "stadium_name": "桐生", "session": "morning"}, ...]
     """
     if target_date is None:
         target_date = date.today()
@@ -35,9 +44,15 @@ def fetch_today_stadiums(target_date: Optional[date] = None) -> list[dict]:
     res.encoding = res.apparent_encoding
 
     soup = BeautifulSoup(res.text, "html.parser")
-    stadiums = []
 
-    # 開催場一覧のテーブル行をパース
+    SESSION_BADGE_KEYWORDS = {
+        "morning": ["モーニング", "サマータイム"],
+        "nighter": ["ナイター", "ミッドナイト"],
+    }
+
+    stadiums = []
+    seen = set()
+
     for link in soup.select("a[href*='raceindex'][href*='jcd=']"):
         href = link.get("href", "")
         m = re.search(r"jcd=(\d+)", href)
@@ -45,23 +60,40 @@ def fetch_today_stadiums(target_date: Optional[date] = None) -> list[dict]:
             continue
         stadium_code = m.group(1)
         stadium_name = link.get_text(strip=True)
-        if not stadium_name:
+        if not stadium_name or stadium_code in seen:
             continue
 
+        # 同じ行(<tr>)内のバッジ画像のalt文字列から開催時間帯を判定。
+        # バッジが見つからなければ通常開催(デイ)とみなす。
+        row = link.find_parent("tr")
+        badge_texts = []
+        if row is not None:
+            for img in row.find_all("img"):
+                alt = img.get("alt", "")
+                if alt:
+                    badge_texts.append(alt)
+
+        stadium_session = "day"
+        for sess, keywords in SESSION_BADGE_KEYWORDS.items():
+            if any(kw in badge_texts for kw in keywords):
+                stadium_session = sess
+                break
+
+        print(f"場コード={stadium_code} 場名={stadium_name} バッジ={badge_texts} 判定={stadium_session}")
+
+        seen.add(stadium_code)
         stadiums.append({
             "stadium_code": stadium_code,
             "stadium_name": stadium_name,
+            "session": stadium_session,
         })
 
-    # 重複除去(同じ場が複数リンクに出ることがあるため)
-    seen = set()
-    unique_stadiums = []
-    for s in stadiums:
-        if s["stadium_code"] not in seen:
-            seen.add(s["stadium_code"])
-            unique_stadiums.append(s)
+    if session is not None:
+        filtered = [s for s in stadiums if s["session"] == session]
+        print(f"session={session} 絞り込み後: {len(filtered)}場（全{len(stadiums)}場中）")
+        return filtered
 
-    return unique_stadiums
+    return stadiums
 
 
 def fetch_race_card(stadium_code: str, race_number: int, target_date: Optional[date] = None) -> dict:
@@ -326,7 +358,3 @@ def fetch_odds_3rentan(stadium_code: str, race_number: int, target_date: Optiona
 
     print(f"3連単オッズ取得件数: {len(odds_map)}件（本来120件）")
     return odds_map
-
-     
-
-
