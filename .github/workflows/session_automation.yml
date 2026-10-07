@@ -3,11 +3,11 @@ name: kyoutei test yosou 3-bu-sei jidou jikkou
 on:
   schedule:
     - cron: "50 23 * * *"
-    - cron: "30 1  * * *"
-    - cron: "30 6  * * *"
-    - cron: "30 3  * * *"
-    - cron: "30 8  * * *"
-    - cron: "0  14 * * *"
+    - cron: "30 1 * * *"
+    - cron: "30 6 * * *"
+    - cron: "30 3 * * *"
+    - cron: "30 8 * * *"
+    - cron: "0 14 * * *"
   workflow_dispatch:
     inputs:
       session:
