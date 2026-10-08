@@ -59,19 +59,28 @@ def fetch_today_stadiums(target_date: Optional[date] = None, session: Optional[s
         if not m:
             continue
         stadium_code = m.group(1)
-        stadium_name = link.get_text(strip=True)
-        if not stadium_name or stadium_code in seen:
+        if stadium_code in seen:
             continue
 
-        # 同じ行(<tr>)内のバッジ画像のalt文字列から開催時間帯を判定。
-        # バッジが見つからなければ通常開催(デイ)とみなす。
+        # 場の名前自体は、raceindexリンクのテキスト(実はレースタイトル)
+        # ではなく、同じ行にある場名画像(例: alt="桐生")から取る。
+        # それ以外の画像のalt文字列が、開催時間帯バッジの候補になる。
         row = link.find_parent("tr")
+        stadium_name = None
         badge_texts = []
         if row is not None:
             for img in row.find_all("img"):
                 alt = img.get("alt", "")
-                if alt:
+                src = img.get("src", "")
+                if not alt:
+                    continue
+                if "text_place" in src:
+                    stadium_name = alt
+                else:
                     badge_texts.append(alt)
+
+        if not stadium_name:
+            continue
 
         stadium_session = "day"
         for sess, keywords in SESSION_BADGE_KEYWORDS.items():
