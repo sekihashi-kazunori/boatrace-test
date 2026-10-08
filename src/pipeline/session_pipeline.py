@@ -73,7 +73,13 @@ def build_message(
     )
 
 
-def run_session(session_name: str, target_date: date | None = None, model_path: str = "model.txt", db_path: str = "boatrace.db") -> None:
+def run_session(
+    session_name: str,
+    target_date: date | None = None,
+    model_path: str = "model.txt",
+    db_path: str = "boatrace.db",
+    max_races: int | None = 10,
+) -> None:
     # date.today()はサーバー(GitHub Actions)のUTC時刻を使ってしまい、
     # 日本時間とズレて前日/翌日の日付になることがあるため、
     # 明示的に日本時間(JST)の「今日」を使う。
@@ -90,7 +96,11 @@ def run_session(session_name: str, target_date: date | None = None, model_path: 
         return
     model = lgb.Booster(model_file=model_path)
 
-    all_tickets: list[BetTicket] = []
+    # 厳選ロジック: 全レースをいったんここに貯めて、モデルの確信度(本命の
+    # 予測確率)が高い順に上位 max_races 件だけ後段で通知・ベットする。
+    # (stadium_code, race_number, stadium_name, bet_plans, deadline_time, score)
+    race_candidates: list[tuple[str, int, str, list, str | None, float]] = []
+
     for stadium in stadium_codes:
         stadium_code = stadium["stadium_code"]
 
@@ -164,36 +174,62 @@ def run_session(session_name: str, target_date: date | None = None, model_path: 
 
             stadium_name = STADIUM_NAMES.get(stadium_code, stadium_code)
 
-            # 見送り(買い目が0件)のレースはDiscordに通知しない。コンソールログには残す。
+            # 見送り(買い目が0件)のレースは厳選対象にも入れない。
             if not bet_plans:
-                print(f"【{session_name_ja} {stadium_name} {race_number}R】見送りのため通知スキップ")
+                print(f"【{session_name_ja} {stadium_name} {race_number}R】見送りのため候補外")
                 continue
 
-            for plan in bet_plans:
-                ticket = BetTicket(
-                    race_date=target_date,
-                    session=session_name,
-                    stadium_code=stadium_code,
-                    race_number=race_number,
-                    combination=plan.combination,
-                    amount=plan.stake,
-                )
-                all_tickets.append(ticket)
+            # 厳選スコア = このレースの本命(買い目の中で最も予測確率が高い点)の確率。
+            # build_bet_plan は確率降順で点数を組むため plans[0] が実質的に本命だが、
+            # 念のため全点の最大値を取る。
+            score = max(plan.predicted_prob for plan in bet_plans)
 
-            message = build_message(
-                session_name_ja,
-                stadium_name,
+            race_candidates.append((
+                stadium_code,
                 race_number,
+                stadium_name,
                 bet_plans,
-                deadline_time=deadline_times.get(race_number),
+                deadline_times.get(race_number),
+                score,
+            ))
+
+    # 確信度(本命の予測確率)が高い順に並べ、上位 max_races 件だけを採用する。
+    # max_races が None の場合は厳選せず全レースを対象にする(従来挙動)。
+    race_candidates.sort(key=lambda c: c[5], reverse=True)
+    selected = race_candidates if max_races is None else race_candidates[:max_races]
+    skipped_count = len(race_candidates) - len(selected)
+    print(
+        f"厳選結果: 候補{len(race_candidates)}レース中 "
+        f"{len(selected)}レースを採用 ({skipped_count}レースを見送り)"
+    )
+
+    all_tickets: list[BetTicket] = []
+    for stadium_code, race_number, stadium_name, bet_plans, deadline_time, score in selected:
+        for plan in bet_plans:
+            ticket = BetTicket(
+                race_date=target_date,
+                session=session_name,
+                stadium_code=stadium_code,
+                race_number=race_number,
+                combination=plan.combination,
+                amount=plan.stake,
             )
-            try:
-                notify_console(message)
-                notify_discord(message)
-                # Discordのレート制限(429)を避けるため、通知の間隔を空ける
-                time.sleep(1.2)
-            except Exception as e:
-                print(f"通知失敗 {stadium_code=} {race_number=}: {e}")
+            all_tickets.append(ticket)
+
+        message = build_message(
+            session_name_ja,
+            stadium_name,
+            race_number,
+            bet_plans,
+            deadline_time=deadline_time,
+        )
+        try:
+            notify_console(message)
+            notify_discord(message)
+            # Discordのレート制限(429)を避けるため、通知の間隔を空ける
+            time.sleep(1.2)
+        except Exception as e:
+            print(f"通知失敗 {stadium_code=} {race_number=}: {e}")
 
     if all_tickets:
         save_bet_tickets(engine, all_tickets)
@@ -246,9 +282,16 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--session", choices=["morning", "day", "nighter"], required=True)
     parser.add_argument("--action", choices=["predict", "settle"], default="predict")
+    parser.add_argument(
+        "--max-races",
+        type=int,
+        default=10,
+        help="1セッションあたり厳選して採用するレース数(0以下を指定すると厳選せず全レース対象)",
+    )
     args = parser.parse_args()
 
     if args.action == "settle":
         print("settleアクションは未実装です。結果照合・回収率集計ロジックを別途実装する必要があります。")
     else:
-        run_session(args.session, model_path="model.txt")
+        max_races = args.max_races if args.max_races and args.max_races > 0 else None
+        run_session(args.session, model_path="model.txt", max_races=max_races)
