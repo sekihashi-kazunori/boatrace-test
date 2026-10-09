@@ -18,18 +18,44 @@ HEADERS = {
 }
 
 
+def _classify_session_from_first_deadline(deadline_times: dict[int, str]) -> str:
+    """
+    1Rの締切予定時刻からセッション(morning/day/nighter)を判定する。
+
+    以前はページ上の「モーニング」「ナイター」バッジ画像のalt属性で
+    判定しようとしていたが、実際のHTML構造ではalt属性が常に空で
+    取得できず、全場が「day」判定になってしまうバグがあった
+    (2026-10-09発覚: 12場すべてバッジ=[]でモーニング0件になった)。
+
+    バッジ画像に頼らず、確実に取得できている実データ(締切予定時刻)
+    から判定する方式に変更。1Rの締切時刻帯の目安:
+      - 10時より前 → モーニング
+      - 15時以降   → ナイター(サマータイム/ミッドナイトも含む)
+      - それ以外   → デイ
+    """
+    first_deadline = deadline_times.get(1)
+    if not first_deadline:
+        return "day"
+
+    m = re.match(r"(\d{1,2}):(\d{2})", first_deadline)
+    if not m:
+        return "day"
+
+    hour = int(m.group(1))
+    if hour < 10:
+        return "morning"
+    if hour >= 15:
+        return "nighter"
+    return "day"
+
+
 def fetch_today_stadiums(target_date: Optional[date] = None, session: Optional[str] = None) -> list[dict]:
     """
     指定日(省略時は今日)に開催中のボートレース場一覧を取得する。
 
     session("morning"/"day"/"nighter")を指定すると、その開催時間帯の
-    場だけに絞り込む。公式サイトには場ごとに「モーニング」「ナイター」
-    などのバッジ画像(alt属性)が付き、バッジが無い場は通常開催(デイ)。
-
-    NOTE: バッジのalt属性がちゃんと取れるかは未検証。「バッジ=」の
-    ログが毎回空っぽなら、alt属性では無く別の方法(画像ファイル名や
-    クラス名)で判定されてる可能性があるので、その場合はログを見て
-    判定方法を調整する。
+    場だけに絞り込む。開催時間帯の判定は、場ごとの1Rの締切予定時刻を
+    見て行う(詳細は _classify_session_from_first_deadline を参照)。
 
     Returns:
         [{"stadium_code": "01", "stadium_name": "桐生", "session": "morning"}, ...]
@@ -45,11 +71,6 @@ def fetch_today_stadiums(target_date: Optional[date] = None, session: Optional[s
 
     soup = BeautifulSoup(res.text, "html.parser")
 
-    SESSION_BADGE_KEYWORDS = {
-        "morning": ["モーニング", "サマータイム"],
-        "nighter": ["ナイター", "ミッドナイト"],
-    }
-
     stadiums = []
     seen = set()
 
@@ -64,37 +85,39 @@ def fetch_today_stadiums(target_date: Optional[date] = None, session: Optional[s
 
         # 場の名前自体は、raceindexリンクのテキスト(実はレースタイトル)
         # ではなく、同じ行にある場名画像(例: alt="桐生")から取る。
-        # それ以外の画像のalt文字列が、開催時間帯バッジの候補になる。
         row = link.find_parent("tr")
         stadium_name = None
-        badge_texts = []
         if row is not None:
             for img in row.find_all("img"):
                 alt = img.get("alt", "")
                 src = img.get("src", "")
-                if not alt:
-                    continue
-                if "text_place" in src:
+                if alt and "text_place" in src:
                     stadium_name = alt
-                else:
-                    badge_texts.append(alt)
+                    break
 
         if not stadium_name:
             continue
 
-        stadium_session = "day"
-        for sess, keywords in SESSION_BADGE_KEYWORDS.items():
-            if any(kw in badge_texts for kw in keywords):
-                stadium_session = sess
-                break
-
-        print(f"場コード={stadium_code} 場名={stadium_name} バッジ={badge_texts} 判定={stadium_session}")
-
         seen.add(stadium_code)
+
+        try:
+            deadline_times = fetch_race_deadline_times(stadium_code, target_date)
+        except Exception as e:
+            print(f"締切予定時刻取得失敗(開催時間帯判定用) 場コード={stadium_code}: {e}")
+            deadline_times = {}
+
+        stadium_session = _classify_session_from_first_deadline(deadline_times)
+
+        print(
+            f"場コード={stadium_code} 場名={stadium_name} "
+            f"1R締切={deadline_times.get(1)} 判定={stadium_session}"
+        )
+
         stadiums.append({
             "stadium_code": stadium_code,
             "stadium_name": stadium_name,
             "session": stadium_session,
+            "deadline_times": deadline_times,
         })
 
     if session is not None:

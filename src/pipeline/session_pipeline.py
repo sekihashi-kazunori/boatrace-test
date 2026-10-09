@@ -136,11 +136,15 @@ def run_session(
             if col in df.columns:
                 df[col] = pd.to_numeric(df[col], errors="coerce")
 
-        try:
-            deadline_times = fetch_race_deadline_times(stadium_code, target_date)
-        except Exception as e:
-            print(f"締切予定時刻取得失敗 {stadium_code=}: {e}")
-            deadline_times = {}
+        # fetch_today_stadiums が開催時間帯判定のために既に取得済みなので使い回す
+        # (無ければ念のためここで取り直す)
+        deadline_times = stadium.get("deadline_times") or {}
+        if not deadline_times:
+            try:
+                deadline_times = fetch_race_deadline_times(stadium_code, target_date)
+            except Exception as e:
+                print(f"締切予定時刻取得失敗 {stadium_code=}: {e}")
+                deadline_times = {}
 
         for race_number in fetched_race_numbers:
             race_df = df[
