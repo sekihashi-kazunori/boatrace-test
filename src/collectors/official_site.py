@@ -320,73 +320,42 @@ def fetch_odds_3rentan(stadium_code: str, race_number: int, target_date: Optiona
     """
     指定場・指定レースの3連単オッズを取得する。
 
-    NOTE: このオッズページのHTML構造は未検証。取得件数が0件や
-    120件から大きくズレる場合は、印字されるログをそのまま貼ってもらえれば調整する。
+    以前は独自に "table.is-w495" というCSSクラスでオッズテーブルを
+    探していたが、実際のページでは存在しないクラス名で、常に0件
+    だった(2026-10-09発覚)。公式のmetaboatrace.scrapersライブラリ
+    (odds/trifecta_page)が正しいセレクタ(".table1"の2番目のテーブル、
+    "td.oddsPoint")で実装済みなので、それを使う形に修正。
 
     Returns:
         {(1, 6, 5): 7.4, (1, 5, 6): 8.7, ...}
     """
+    from io import StringIO
+
+    from metaboatrace.models.stadium import StadiumTelCode
+    from metaboatrace.scrapers.official.website.v1707.pages.race.odds.trifecta_page import (
+        location as odds_location,
+    )
+    from metaboatrace.scrapers.official.website.v1707.pages.race.odds.trifecta_page import (
+        scraping as odds_scraping,
+    )
+
     if target_date is None:
         target_date = date.today()
-    hd = target_date.strftime("%Y%m%d")
 
-    url = (
-        f"{BASE_URL}/owpc/pc/race/odds3t"
-        f"?rno={race_number}&jcd={stadium_code}&hd={hd}"
-    )
+    stadium_tel_code = StadiumTelCode(int(stadium_code))
+    url = odds_location.create_odds_page_url(target_date, stadium_tel_code, race_number)
+
     res = requests.get(url, headers=HEADERS, timeout=15)
     res.raise_for_status()
     res.encoding = res.apparent_encoding
 
-    # デバッグ: 実際にサーバーから何が返ってきているかを確認する。
-    # レスポンスの長さ、"is-w495"というクラス名が文字列として
-    # 存在するか、代表的な組み合わせ"1-2-3"が含まれているかを見て、
-    # 「ページ構造が違う」のか「そもそも空/別内容が返っている」のか切り分ける。
-    print(f"オッズページ status_code={res.status_code} 本文長={len(res.text)}文字")
-    print(f"'is-w495'という文字列が本文に含まれるか: {'is-w495' in res.text}")
-    print(f"'1-2-3'という文字列が本文に含まれるか: {'1-2-3' in res.text}")
-    print(f"オッズページ本文の先頭500文字:\n{res.text[:500]}")
+    odds_list = odds_scraping.extract_odds(StringIO(res.text))
 
-    soup = BeautifulSoup(res.text, "html.parser")
-    odds_map: dict[tuple[int, int, int], float] = {}
-
-    tables = soup.select("table.is-w495")
-    print(f"3連単オッズテーブル数: {len(tables)}（本来6）")
-
-    for table in tables:
-        current_first = None
-        current_second = None
-        for row in table.select("tbody tr"):
-            cells = row.find_all("td")
-            if not cells:
-                continue
-
-            idx = 0
-            if len(cells) >= 5:
-                m = re.search(r"\d", cells[0].get_text(strip=True))
-                if m:
-                    current_first = int(m.group())
-                idx = 1
-            if len(cells) - idx >= 4:
-                m = re.search(r"\d", cells[idx].get_text(strip=True))
-                if m:
-                    current_second = int(m.group())
-                idx += 1
-
-            if current_first is None or current_second is None:
-                continue
-
-            remaining = cells[idx:]
-            for i in range(0, len(remaining) - 1, 2):
-                m_third = re.search(r"\d", remaining[i].get_text(strip=True))
-                m_odds = re.search(r"[\d.]+", remaining[i + 1].get_text(strip=True))
-                if not m_third or not m_odds:
-                    continue
-                try:
-                    odds_val = float(m_odds.group())
-                except ValueError:
-                    continue
-                odds_map[(current_first, current_second, int(m_third.group()))] = odds_val
+    odds_map = {
+        tuple(odd.betting_numbers): odd.ratio
+        for odd in odds_list
+        if odd.ratio is not None
+    }
 
     print(f"3連単オッズ取得件数: {len(odds_map)}件（本来120件）")
     return odds_map
