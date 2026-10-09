@@ -183,10 +183,22 @@ def run_session(
                 print(f"【{session_name_ja} {stadium_name} {race_number}R】見送りのため候補外")
                 continue
 
-            # 厳選スコア = このレースの本命(買い目の中で最も予測確率が高い点)の確率。
-            # build_bet_plan は確率降順で点数を組むため plans[0] が実質的に本命だが、
-            # 念のため全点の最大値を取る。
-            score = max(plan.predicted_prob for plan in bet_plans)
+            # 厳選スコア = このレースの買い目の中で最も期待値(確率×オッズ)が
+            # 高い点の期待値。以前は「本命の予測確率」で選んでいたが、それだと
+            # オッズが低い(=当たっても儲からない)本命系のレースばかり選んで
+            # しまい、回収率が伸びなかった(2026-10-09発覚)。
+            # オッズが取れていない点しか無いレースは、確率を期待値の代わりに
+            # 使う(オッズ未取得時のフォールバック。スケールが異なり厳密な
+            # 比較にはならないが、他に手がかりが無いための次善策)。
+            evs = [
+                (plan.predicted_prob / 100) * plan.odds
+                for plan in bet_plans
+                if plan.odds is not None
+            ]
+            if evs:
+                score = max(evs)
+            else:
+                score = max(plan.predicted_prob for plan in bet_plans) / 100
 
             race_candidates.append((
                 stadium_code,
