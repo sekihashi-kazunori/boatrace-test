@@ -166,9 +166,12 @@ def run_session(
                 bet_plans = build_bet_plan(
                     indexed,
                     total_stake=1000,
-                    min_points=6,
-                    max_points=8,
+                    min_points=3,
+                    max_points=5,
                     odds_map=odds_map,
+                    min_odds=10.0,
+                    min_ev=1.0,
+                    max_odds=100.0,
                 )
             except Exception as e:
                 print(f"予想/買い目生成失敗 {stadium_code=} {race_number=}: {e}")
@@ -218,6 +221,14 @@ def run_session(
         f"厳選結果: 候補{len(race_candidates)}レース中 "
         f"{len(selected)}レースを採用 ({skipped_count}レースを見送り)"
     )
+
+    if not selected:
+        msg = f"【{session_name_ja}】条件(オッズ10〜100倍・期待値1.0以上を3点以上)を満たすレースが無いため、全レース見送り"
+        notify_console(msg)
+        try:
+            notify_discord(msg)
+        except Exception as e:
+            print(f"通知失敗: {e}")
 
     all_tickets: list[BetTicket] = []
     for stadium_code, race_number, stadium_name, bet_plans, deadline_time, score in selected:

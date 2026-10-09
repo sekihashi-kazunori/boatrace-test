@@ -67,102 +67,80 @@ def _reason_for(combo: tuple[int, int, int], race_df: pd.DataFrame, category: st
 def build_bet_plan(
     race_df: pd.DataFrame,
     total_stake: int = 1000,
-    min_points: int = 6,
-    max_points: int = 8,
+    min_points: int = 3,
+    max_points: int = 5,
     odds_map: dict[tuple[int, int, int], float] | None = None,
-    max_stake_fraction: float = 0.4,
+    min_odds: float = 10.0,
+    min_ev: float = 1.0,
+    max_odds: float = 100.0,
 ) -> list[BetPlan]:
     """
     レースの買い目と金額配分を決める。
 
-    設計方針(2026-10-09改訂):
-    以前は「予測確率の高さ」だけで上位の買い目を選び、本命(鉄板)に
-    機械的に総額の50%を割り当てていた。これだと、当たっても配当の
-    小さい本命ばかりに資金が寄ってしまい、回収率が伸びなかった
-    (例: 2026-10-09 デイ 10R中3R的中、回収率33.7%)。
+    設計方針(2026-10-10改訂):
+    実績を見ると、的中しても配当が4〜9倍の本命ばかりで、しかも
+    そこに300円など厚めに張っていたため、当たってもトリガミになり
+    回収率が伸びなかった(10/09: 的中3本とも16〜19倍・回収率約30%)。
+    そこで以下の3ルールに変更する。
 
-    オッズ取得が直ったので、「予測確率 × オッズ」= 期待値(1点あたり
-    モデルが見積もる期待配当)が高い買い目を優先して選び、期待値に
-    比例して資金を配分する方式に変更。1点への資金集中は
-    max_stake_fraction で上限を設けて抑える。
+    1. オッズ範囲: min_odds(10倍)未満と max_odds(100倍)超は買わない
+       (超大穴はモデルの確率誤差がそのまま期待値を膨らませるため除外)
+    2. 期待値下限: 予測確率×オッズ が min_ev(1.0)未満の買い目は買わない
+    3. 点数: 条件を満たす買い目から期待値上位 min_points〜max_points 点
+       (3〜5点)だけ買う。3点に満たないレースは「見送り」(空リスト)
 
-    オッズが取得できなかった場合(取得失敗時)は、従来通り確率ベースの
-    選定・配分にフォールバックする。
+    金額配分は「どれが当たっても払戻がほぼ同じになる」ように
+    オッズの逆数に比例させる(高配当ほど少額)。オッズ10倍以上・
+    最大5点なので、どれが当たっても購入額の2倍以上が戻り、
+    トリガミが起きない。
+
+    オッズが取得できなかったレースは期待値を判断できないため見送る。
     """
-    print(f"race_df lane_number列: {race_df['lane_number'].tolist()}")
     win_probs = dict(zip(race_df["lane_number"], race_df["predicted_win_prob"]))
-    print(f"win_probs件数: {len(win_probs)} 中身={win_probs}")
     combo_probs = _harville_trifecta_probs(win_probs)
 
-    # 根拠文言用のカテゴリは、確率順位で決める(採用順=期待値順とは別)。
+    # 根拠文言用のカテゴリは確率順位で決める(採用順=期待値順とは別)。
     prob_ranked = sorted(combo_probs.items(), key=lambda x: x[1], reverse=True)
     prob_rank_of = {combo: rank for rank, (combo, _) in enumerate(prob_ranked)}
 
-    has_odds = bool(odds_map)
-
-    if has_odds:
-        ev_candidates = [
-            (combo, prob, odds_map[combo])
-            for combo, prob in combo_probs.items()
-            if odds_map.get(combo) is not None
-        ]
-        ev_candidates.sort(key=lambda x: x[1] * x[2], reverse=True)
-        print(f"期待値ベース選定: オッズ取得済み{len(ev_candidates)}点/全{len(combo_probs)}点中から選定")
-
-        # オッズが一部の点でしか取れていない場合、min_pointsに届かない
-        # ことがあるため、確率上位の点(オッズ無し)で不足分を補う。
-        if len(ev_candidates) < min_points:
-            existing = {combo for combo, _, _ in ev_candidates}
-            for combo, prob in prob_ranked:
-                if combo in existing:
-                    continue
-                ev_candidates.append((combo, prob, None))
-                existing.add(combo)
-                if len(ev_candidates) >= min_points:
-                    break
-    else:
-        ev_candidates = [(combo, prob, None) for combo, prob in prob_ranked]
-        print("オッズ未取得のため確率ベースの選定にフォールバック")
-
-    if not ev_candidates:
+    if not odds_map:
+        print("オッズ未取得のため見送り")
         return []
 
-    n_points = max(min_points, min(max_points, len(ev_candidates)))
-    selected = ev_candidates[:n_points]
+    candidates = []
+    for combo, prob in combo_probs.items():
+        odds = odds_map.get(combo)
+        if odds is None or odds < min_odds or odds > max_odds:
+            continue
+        ev = prob * odds
+        if ev < min_ev:
+            continue
+        candidates.append((combo, prob, odds, ev))
+    candidates.sort(key=lambda x: x[3], reverse=True)
+    print(f"条件(オッズ{min_odds}〜{max_odds}倍・期待値{min_ev}以上)を満たす買い目: {len(candidates)}点")
 
-    # 期待値 = 確率 × オッズ。オッズ不明の点は保守的にオッズ1.0とみなす
-    # (勝率相応にしか配当が無いと仮定し、資金を過剰に寄せないため)。
-    weights = [prob * (odds if odds is not None else 1.0) for _, prob, odds in selected]
+    if len(candidates) < min_points:
+        print(f"条件を満たす買い目が{min_points}点未満のため見送り")
+        return []
 
-    weight_sum = sum(weights)
-    if weight_sum <= 0:
-        weights = [1.0] * len(selected)
-        weight_sum = float(len(selected))
+    selected = candidates[:max_points]
 
-    # 1点への資金集中を避けるため、1点あたりの配分比率に上限を設ける。
-    max_single = total_stake * max_stake_fraction
-    raw_stakes = [total_stake * w / weight_sum for w in weights]
-    raw_stakes = [min(s, max_single) for s in raw_stakes]
-
-    # 上限でカットした分を、上限に達していない点に比率配分し直す。
-    shortfall_from_cap = total_stake - sum(raw_stakes)
-    if shortfall_from_cap > 0:
-        uncapped_idx = [i for i, s in enumerate(raw_stakes) if s < max_single]
-        uncapped_weight_sum = sum(weights[i] for i in uncapped_idx) or 1.0
-        for i in uncapped_idx:
-            raw_stakes[i] += shortfall_from_cap * weights[i] / uncapped_weight_sum
+    # 払戻均等化: stake ∝ 1/odds
+    inv = [1.0 / odds for _, _, odds, _ in selected]
+    inv_sum = sum(inv)
+    raw_stakes = [total_stake * w / inv_sum for w in inv]
 
     # 100円単位に丸め、最低100円を保証
-    stakes = [max(100, round(s / 100) * 100) for s in raw_stakes]
+    stakes = [max(100, int(s / 100 + 0.5) * 100) for s in raw_stakes]
 
-    # 丸め誤差をtotal_stakeに合わせる(最大配分点に寄せる)
+    # 丸め誤差をtotal_stakeに合わせる(最もオッズの低い=最大配分の点で調整)
     diff = total_stake - sum(stakes)
-    if diff != 0 and stakes:
+    if diff != 0:
         max_idx = stakes.index(max(stakes))
         stakes[max_idx] = max(100, stakes[max_idx] + diff)
 
     plans: list[BetPlan] = []
-    for (combo, prob, odds), stake in zip(selected, stakes):
+    for (combo, prob, odds, _ev), stake in zip(selected, stakes):
         category = _category_for_rank(prob_rank_of.get(combo, 99))
         plans.append(
             BetPlan(
