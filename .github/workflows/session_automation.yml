@@ -23,6 +23,11 @@ on:
         type: choice
         options: [predict, settle]
 
+# 同時に複数回走るとDBの書き込みが競合するため、1本ずつ順番に実行する
+concurrency:
+  group: session-automation
+  cancel-in-progress: false
+
 jobs:
   run:
     runs-on: ubuntu-latest

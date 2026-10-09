@@ -9,12 +9,16 @@ from src.storage.db import BetTicket
 
 
 def _summarize(tickets: list[BetTicket]) -> dict:
+    # 結果確定済み(hit/miss)の買い目だけを集計する。未確定のまま残った
+    # 過去データ(払戻0扱い)が累積に混ざり、回収率が実態より極端に
+    # 低く出ていたため。
+    tickets = [t for t in tickets if t.result is not None]
     total_stake = sum(t.amount for t in tickets)
     total_payout = sum((t.payout or 0) for t in tickets)
 
     races = {}
     for t in tickets:
-        key = (t.race_date, t.stadium_code, t.race_number)
+        key = (t.race_date, t.session, t.stadium_code, t.race_number)
         races.setdefault(key, []).append(t)
     race_count = len(races)
     hit_race_count = sum(1 for ts in races.values() if any(t.result == "hit" for t in ts))

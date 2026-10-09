@@ -102,6 +102,16 @@ def get_session(engine):
 def save_bet_tickets(engine, tickets: list[dict]):
     session = get_session(engine)
     try:
+        # 同じ日・同じセッションの予想を再実行した場合(手動実行+定時実行など)、
+        # 以前は買い目がそのまま追加され、購入額・払戻が二重計上されていた
+        # (2026-10-09 ナイターで発生)。再実行時は前回分を置き換える。
+        for race_date, session_name in {(str(t.race_date), t.session) for t in tickets}:
+            deleted = session.query(BetTicket).filter(
+                BetTicket.race_date == race_date,
+                BetTicket.session == session_name,
+            ).delete()
+            if deleted:
+                print(f"[save_bet_tickets] 再実行のため既存の買い目{deleted}件を置き換え {race_date} {session_name}")
         for t in tickets:
             ticket = BetTicket(
                 session=t.session,
