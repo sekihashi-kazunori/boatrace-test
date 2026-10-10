@@ -80,7 +80,7 @@ def run_session(
     target_date: date | None = None,
     model_path: str = "model.txt",
     db_path: str = "boatrace.db",
-    max_races: int | None = 10,
+    max_races: int | None = 7,
     plan_only: bool = True,
 ) -> None:
     """
@@ -330,7 +330,7 @@ def to_race_entries(card, target_date, stadium_code, race_number, before_info=No
             stadium_code=stadium_code,
             race_number=race_number,
             lane_number=lane,
-            racer_id=g(entry, "racer_registration_number", "racer_id"),
+            racer_id=g(entry, "racer_registration_number", "racer_id", "number"),
             national_win_rate=g(entry, "national_win_rate"),
             local_win_rate=g(entry, "local_win_rate"),
             motor_2rate=g(entry, "motor_2nd_place_rate", "motor_2rate"),
@@ -351,8 +351,8 @@ if __name__ == "__main__":
     parser.add_argument(
         "--max-races",
         type=int,
-        default=10,
-        help="1セッションあたり厳選して採用するレース数(0以下を指定すると厳選せず全レース対象)",
+        default=7,
+        help="1セッションあたり厳選して採用するレース数(3セッションで1日最大21R。バックテストで1日20R前後が最も回収率が良かった)(0以下を指定すると厳選せず全レース対象)",
     )
     parser.add_argument("--immediate", action="store_true", help="展示を待たずにこの場で買い目を確定する(旧方式)")
     args = parser.parse_args()

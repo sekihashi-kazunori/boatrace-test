@@ -101,6 +101,19 @@ class RaceDecision(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
 
 
+class OddsSnapshot(Base):
+    """最終予想時点の3連単オッズ(120通り)をJSONで保存。将来「オッズとのズレ」を検証するため。"""
+    __tablename__ = "odds_snapshots"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    race_date = Column(String)
+    stadium_code = Column(String)
+    race_number = Column(Integer)
+    odds_json = Column(String)
+    probs_json = Column(String, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+
 # 買い目・収支など「運用の状態」は小さい state.db に分けて保存する。
 # (36MBの boatrace.db を10分おきにコミットするとリポジトリが肥大化するため)
 STATE_DB_PATH = "state.db"
@@ -108,7 +121,7 @@ STATE_DB_PATH = "state.db"
 
 def get_state_engine(db_path: str = STATE_DB_PATH):
     engine = create_engine(f"sqlite:///{db_path}")
-    Base.metadata.create_all(engine, tables=[BetTicket.__table__, RaceDecision.__table__, RaceResult.__table__])
+    Base.metadata.create_all(engine, tables=[BetTicket.__table__, RaceDecision.__table__, RaceResult.__table__, OddsSnapshot.__table__])
     return engine
 
 

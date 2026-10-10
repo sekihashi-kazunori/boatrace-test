@@ -28,7 +28,7 @@ from sqlalchemy.orm import Session as OrmSession
 from src.collectors.official_site import fetch_race_card, fetch_before_info, fetch_odds_3rentan
 from src.storage.db import (
     get_engine, init_db, save_entries, save_bet_tickets, get_state_engine,
-    BetTicket, RaceDecision,
+    BetTicket, RaceDecision, OddsSnapshot,
 )
 from src.features.build_features import build_feature_dataframe
 from src.models.predict import predict_win_probabilities, add_original_index
@@ -59,6 +59,23 @@ def _record(state, target_date, session, stadium_code, race_number, status):
             stadium_code=stadium_code, race_number=race_number, status=status,
         ))
         db.commit()
+
+
+def _save_snapshot(state, target_date, stadium_code, race_number, odds_map, indexed) -> None:
+    try:
+        probs = None
+        if {"p1", "p2", "p3"} <= set(indexed.columns):
+            from src.betting.allocation import _harville3
+            probs = {"-".join(map(str, k)): round(v, 5) for k, v in _harville3(indexed).items()}
+        with OrmSession(state) as db:
+            db.add(OddsSnapshot(
+                race_date=str(target_date), stadium_code=stadium_code, race_number=race_number,
+                odds_json=json.dumps({"-".join(map(str, k)): v for k, v in (odds_map or {}).items()}),
+                probs_json=json.dumps(probs) if probs else None,
+            ))
+            db.commit()
+    except Exception as e:
+        print(f"オッズ保存失敗: {e}")
 
 
 def run_final(target_date: date | None = None, model_path: str = "model.txt", db_path: str = "boatrace.db") -> None:
@@ -138,6 +155,7 @@ def run_final(target_date: date | None = None, model_path: str = "model.txt", db
                 model = lgb.Booster(model_file=model_path)
             indexed = add_original_index(predict_win_probabilities(model, race_df))
             bet_plans = build_bet_plan(indexed, total_stake=1000, odds_map=odds_map)
+            _save_snapshot(state, target_date, stadium_code, race_number, odds_map, indexed)
         except Exception as e:
             print(f"{label}: 最終予想失敗 {e}")
             # 締切が迫っていればあきらめる。まだ時間があれば次回再挑戦。

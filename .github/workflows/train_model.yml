@@ -11,15 +11,20 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+          cache: pip
       - run: pip install -e .
 
-      - name: model gakushuu
-        run: python -u -m src.models.train
+      - name: model gakushuu (v2 1-2-3 chaku model)
+        run: python -u -m src.models.train_v2
 
       - name: model eizokuka
         run: |
           git config user.name "predictor-bot"
           git config user.email "bot@example.com"
-          git add model.txt
-          git commit -m "chore: model gakushuu $(date +'%Y-%m-%d %H:%M')" || echo "no changes"
-          git push
+          git add model_v2
+          git commit -m "chore: model v2 gakushuu $(TZ=Asia/Tokyo date +'%Y-%m-%d %H:%M')" || { echo "no changes"; exit 0; }
+          for i in 1 2 3 4 5; do
+            git pull --rebase --autostash -q && git push && exit 0
+            sleep $((i * 5))
+          done
+          exit 1

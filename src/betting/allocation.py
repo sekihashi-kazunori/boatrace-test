@@ -33,6 +33,20 @@ def _harville_trifecta_probs(win_probs: dict[int, float]) -> dict[tuple[int, int
     return result
 
 
+def _harville3(race_df: pd.DataFrame) -> dict[tuple[int, int, int], float]:
+    """1着・2着・3着の各モデルの確率から3連単の確率を出す(v2)。"""
+    p1 = dict(zip(race_df["lane_number"], race_df["p1"]))
+    p2 = dict(zip(race_df["lane_number"], race_df["p2"]))
+    p3 = dict(zip(race_df["lane_number"], race_df["p3"]))
+    out = {}
+    for i, j, k in permutations(p1.keys(), 3):
+        b = p2[j] / max(1e-9, 1 - p2[i])
+        c = p3[k] / max(1e-9, 1 - p3[i] - p3[j])
+        out[(i, j, k)] = p1[i] * b * c
+    s = sum(out.values()) or 1.0
+    return {key: v / s for key, v in out.items()}
+
+
 def _category_for_rank(prob_rank: int) -> str:
     """確率の高さの順位(0始まり)に基づく表示用カテゴリ。
 
@@ -89,8 +103,11 @@ def build_bet_plan(
       (見つからなければ、その100円も鉄板に回す)
     合計は常に1000円。オッズが取得できないレースは見送り。
     """
-    win_probs = dict(zip(race_df["lane_number"], race_df["predicted_win_prob"]))
-    combo_probs = _harville_trifecta_probs(win_probs)
+    if {"p1", "p2", "p3"} <= set(race_df.columns):
+        combo_probs = _harville3(race_df)
+    else:
+        win_probs = dict(zip(race_df["lane_number"], race_df["predicted_win_prob"]))
+        combo_probs = _harville_trifecta_probs(win_probs)
     prob_ranked = sorted(combo_probs.items(), key=lambda x: x[1], reverse=True)
 
     if not odds_map:
