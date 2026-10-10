@@ -6,9 +6,10 @@ GitHub Actions から5分おきに呼ばれ、各セッション開始時に厳�
 展示タイム・直前オッズ込みで予想し直して買い目を確定・通知する。
 
 判定ルール(締切までの残り分数):
-  - 20分より先         → まだ待つ
-  - 2〜20分 かつ 展示タイム6艇分そろった → 最終予想
-  - 2〜8分  で展示タイムがまだ無い      → 待ちきれないので手持ちの情報で最終予想
+  - 25分より先         → まだ待つ
+  - 2〜25分 かつ 展示タイム6艇分そろった → 最終予想
+  - 2〜15分 で展示タイムがまだ無い      → 待ちきれないので手持ちの情報で最終予想
+    (GitHubの定時実行は実際には10〜17分間隔になるため、余裕を持たせている)
   - 2分未満(締切済み含む)              → 間に合わず「missed」として記録
 """
 from __future__ import annotations
@@ -38,8 +39,8 @@ from src.pipeline.session_pipeline import build_message, plan_path, to_race_entr
 JST = ZoneInfo("Asia/Tokyo")
 SESSIONS = {"morning": "モーニング", "day": "デイ", "nighter": "ナイター"}
 
-WAIT_IF_MORE_THAN_MIN = 20
-FORCE_IF_LESS_THAN_MIN = 8
+WAIT_IF_MORE_THAN_MIN = 25
+FORCE_IF_LESS_THAN_MIN = 15
 TOO_LATE_MIN = 2
 
 
