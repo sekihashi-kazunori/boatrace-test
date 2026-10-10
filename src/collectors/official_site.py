@@ -235,6 +235,52 @@ def fetch_race_card(stadium_code: str, race_number: int, target_date: Optional[d
     }
 
 
+_EXH_RE = re.compile(r"^[5-8]\.\d{2}$")
+_TILT_RE = re.compile(r"^-?[0-3]\.\d$")
+
+
+def _parse_before_info_table(html: str) -> tuple[dict[int, float], dict[int, float]]:
+    """直前情報ページの表から、艇番ごとの展示タイム・チルトを読む。
+
+    以前は「展示タイム」の文字の後ろ4000文字を正規表現でなめていたが、
+    6艇分の表はそれより長く、全艇分を取れていなかった(2026-10-10発覚、
+    通知に「展示タイム未発表のまま予想」が出続けた)。
+    表は艇ごとに <tbody> が分かれ、1行目に 枠/写真/名前/体重/展示タイム/
+    チルト/プロペラ… のセルが並ぶので、艇ごとに1行目のセルを見る。
+    展示タイムは「6.78」、チルトは「-0.5」の形のセルとして判別する
+    (体重は「52.0kg」なので混ざらない)。
+    """
+    soup = BeautifulSoup(html, "html.parser")
+    exhibition: dict[int, float] = {}
+    tilt: dict[int, float] = {}
+
+    for table in soup.find_all("table"):
+        header = table.get_text(" ", strip=True)
+        if "展示" not in header or "チルト" not in header:
+            continue
+        for tbody in table.find_all("tbody"):
+            tr = tbody.find("tr")
+            if tr is None:
+                continue
+            cells = [td.get_text(strip=True) for td in tr.find_all("td")]
+            if not cells or not cells[0].isdigit():
+                continue
+            lane = int(cells[0])
+            if not 1 <= lane <= 6:
+                continue
+            exh_idx = next((i for i, c in enumerate(cells) if _EXH_RE.match(c)), None)
+            if exh_idx is not None:
+                exhibition[lane] = float(cells[exh_idx])
+                tilt_cell = next((c for c in cells[exh_idx + 1:] if _TILT_RE.match(c)), None)
+            else:
+                tilt_cell = next((c for c in cells[1:] if _TILT_RE.match(c)), None)
+            if tilt_cell is not None:
+                tilt[lane] = float(tilt_cell)
+        if exhibition or tilt:
+            break
+    return exhibition, tilt
+
+
 def fetch_before_info(stadium_code: str, race_number: int, target_date: Optional[date] = None) -> list[dict]:
     """
     直前情報ページから、各艇の展示タイム・チルトを取得する。
@@ -261,26 +307,16 @@ def fetch_before_info(stadium_code: str, race_number: int, target_date: Optional
     print(f"'展示タイム'という文字列が本文に含まれるか: {'展示タイム' in res.text}")
     print(f"'チルト'という文字列が本文に含まれるか: {'チルト' in res.text}")
 
-    exhibition_times: list[float] = []
-    idx = res.text.find("展示タイム")
-    if idx != -1:
-        chunk = res.text[idx: idx + 4000]
-        exhibition_times = [float(x) for x in re.findall(r"\b[5-8]\.\d{2}\b", chunk)][:6]
-    print(f"展示タイム取得件数: {len(exhibition_times)}件（本来6件）")
-
-    tilts: list[float] = []
-    idx2 = res.text.find("チルト")
-    if idx2 != -1:
-        chunk2 = res.text[idx2: idx2 + 2000]
-        tilts = [float(x) for x in re.findall(r"-?\d(?:\.\d)?(?=°|度)", chunk2)][:6]
-    print(f"チルト取得件数: {len(tilts)}件（本来6件）")
+    exhibition_by_lane, tilt_by_lane = _parse_before_info_table(res.text)
+    print(f"展示タイム取得件数: {len(exhibition_by_lane)}件（本来6件） 中身={exhibition_by_lane}")
+    print(f"チルト取得件数: {len(tilt_by_lane)}件（本来6件） 中身={tilt_by_lane}")
 
     entries = []
     for lane in range(1, 7):
         entries.append({
             "lane": lane,
-            "exhibition_time": exhibition_times[lane - 1] if lane - 1 < len(exhibition_times) else None,
-            "tilt": tilts[lane - 1] if lane - 1 < len(tilts) else None,
+            "exhibition_time": exhibition_by_lane.get(lane),
+            "tilt": tilt_by_lane.get(lane),
         })
     return entries
 

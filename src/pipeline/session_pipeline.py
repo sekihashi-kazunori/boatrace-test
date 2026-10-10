@@ -54,10 +54,12 @@ def build_message(
         for plan in bet_plans
     )
 
+    # 「1号艇が軸」などが買い目ごとに重複して並ばないよう、要素単位でまとめる
     unique_reasons = []
     for plan in bet_plans:
-        if plan.reason not in unique_reasons:
-            unique_reasons.append(plan.reason)
+        for part in plan.reason.split(" / "):
+            if part and part not in unique_reasons:
+                unique_reasons.append(part)
     reason_text = " / ".join(unique_reasons)
 
     race_header = f"{stadium_name}{race_number}R"
