@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session as OrmSession
 
 from src.storage.db import get_state_engine, BetTicket, save_race_result, RaceResult
 from src.results.fetch_results import fetch_race_result, settle_tickets
-from src.reporting.report import session_report, daily_report, cumulative_report, format_report
+from src.reporting.report import session_report, daily_report, cumulative_report, format_report, CUMULATIVE_START
 from src.notify.notifier import notify_console, notify_discord
 
 
@@ -61,9 +61,12 @@ def run_settle(session_name: str, target_date: date | None = None, is_last_sessi
         notify_console(format_report(daily, "本日総収支"))
         notify_discord(format_report(daily, "本日総収支"))
 
-        cumulative = cumulative_report(engine, target_date)
-        notify_console(format_report(cumulative, "累積収支"))
-        notify_discord(format_report(cumulative, "累積収支"))
+        if target_date < CUMULATIVE_START:
+            msg = f"【累積収支】{CUMULATIVE_START.month}/{CUMULATIVE_START.day}から新システムで集計開始します"
+        else:
+            msg = format_report(cumulative_report(engine, target_date), "累積収支")
+        notify_console(msg)
+        notify_discord(msg)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

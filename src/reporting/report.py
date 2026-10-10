@@ -55,16 +55,27 @@ def daily_report(engine, race_date: date) -> dict:
     return summary
 
 
+# 累積収支の集計開始日。新システム(展示後予想・鉄板4点ルール)の本格稼働日から
+# 数え直す(2026-10-10 ご主人様指示でリセット)。
+CUMULATIVE_START = date(2026, 10, 11)
+
+
 def cumulative_report(engine, up_to_date: date) -> dict:
     with Session(engine) as db:
-        stmt = select(BetTicket).where(BetTicket.race_date <= str(up_to_date))
+        stmt = select(BetTicket).where(
+            BetTicket.race_date >= str(CUMULATIVE_START),
+            BetTicket.race_date <= str(up_to_date),
+        )
         tickets = list(db.scalars(stmt).all())
     summary = _summarize(tickets)
     summary["up_to_date"] = str(up_to_date)
+    summary["since"] = str(CUMULATIVE_START)
     return summary
 
 
 def format_report(summary: dict, title: str) -> str:
+    if "since" in summary:
+        title = f"{title}（{summary['since']}〜）"
     lines = [f"【{title}】"]
     lines.append(f"対象レース数: {summary['race_count']}R / 的中: {summary['hit_race_count']}R")
     lines.append(f"的中率: {summary['hit_rate']}%")
