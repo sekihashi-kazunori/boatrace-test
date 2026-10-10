@@ -91,10 +91,13 @@ jobs:
           git config user.name "predictor-bot"
           git config user.email "bot@example.com"
           # boatrace.db(36MB)はコミットしない。保存するのは厳選リストと state.db だけ
+          # 予想中に書き換わった boatrace.db は保存しないので元に戻す
+          # (残っていると git pull --rebase が「未コミットの変更あり」で失敗する。2026-10-10発覚)
+          git checkout -- boatrace.db 2>/dev/null || true
           git add plans state.db 2>/dev/null || true
           git commit -m "chore: ${{ steps.vars.outputs.session }} ${{ steps.vars.outputs.action }} $(TZ=Asia/Tokyo date +'%Y-%m-%d %H:%M')" || { echo "no changes"; exit 0; }
           for i in 1 2 3 4 5; do
-            git pull --rebase -q && git push && exit 0
+            git pull --rebase --autostash -q && git push && exit 0
             sleep $((i * 5))
           done
           exit 1
