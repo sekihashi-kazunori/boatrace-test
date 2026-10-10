@@ -84,8 +84,8 @@ def build_bet_plan(
     レースの買い目と金額配分を決める(2026-10-10 ご主人様指定ルール)。
 
     合計8点・1000円:
-      - 鉄板4点: 予測確率上位から選ぶ。どれが当たっても払戻が
-        総額(1000円)以上になる金額を張る = ガミらない
+      - 鉄板4点: 確率上位から、10倍以下(5倍以上)を2点×200円、
+        10倍超を2点×100円
       - 中穴2点: オッズ15〜40倍の中で予測確率の高い順に100円ずつ
       - 大穴2点: オッズ40〜100倍の中で予測確率の高い順に100円ずつ
 
@@ -136,25 +136,21 @@ def build_bet_plan(
         print(f"中穴{len(chuuana)}点/大穴{len(ooana)}点しか無いため見送り")
         return []
 
-    # --- 鉄板(ガミらない金額) ---
-    budget = total_stake - 100 * (n_chuuana + n_ooana)
-    teppan = []  # (combo, prob, odds, stake)
-    for combo, prob, o in teppan_candidates:
-        if len(teppan) >= n_teppan:
-            break
-        need = max(100, _ceil100(total_stake / o))
-        slots_left_after = n_teppan - len(teppan) - 1
-        if need + 100 * slots_left_after <= budget:
-            teppan.append((combo, prob, o, need))
-            budget -= need
-
+    # --- 鉄板4点: 10倍以下は200円×2点、10倍超は100円×2点(計600円) ---
+    # 10倍以下でも5倍未満は200円だとガミるため対象外。
+    pool_all = [(c, p, odds_of(c)) for c, p in prob_ranked if odds_of(c) is not None and c not in picked]
+    low = [x for x in pool_all[:teppan_pool] if 5.0 <= x[2] <= 10.0][:2]
+    high = [x for x in pool_all if x[2] > 10.0 and x not in low][: n_teppan - len(low)]
+    teppan = [(c, p, o, 200 if o <= 10.0 else 100) for c, p, o in low + high]
     if len(teppan) < n_teppan:
-        print(f"ガミらない鉄板が{n_teppan}点そろわないため見送り(本命オッズが低すぎ)")
+        print("鉄板4点を組めないため見送り")
         return []
-
-    if budget > 0:
+    teppan.sort(key=lambda x: x[1], reverse=True)
+    # 10倍以下が2点そろわなかった場合、余った分は確率1位の鉄板に上乗せ
+    rest = total_stake - 100 * (n_chuuana + n_ooana) - sum(t[3] for t in teppan)
+    if rest > 0:
         c, p, o, st = teppan[0]
-        teppan[0] = (c, p, o, st + budget)
+        teppan[0] = (c, p, o, st + rest)
 
     plans: list[BetPlan] = []
     for combo, prob, o, st in teppan:
