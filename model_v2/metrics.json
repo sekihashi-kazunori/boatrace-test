@@ -1,0 +1,12 @@
+{
+ "validation_from": "2026-08-23",
+ "races": 4198,
+ "trifecta_logloss": 3.985262305612803,
+ "top5_hit": 0.31276798475464507,
+ "top5_equal_recovery": 0.7483801810385898,
+ "best_iteration": {
+  "win": 96,
+  "second": 100,
+  "third": 87
+ }
+}
