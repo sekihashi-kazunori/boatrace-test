@@ -49,7 +49,7 @@ def build_message(
     stake_total = sum(plan.stake for plan in bet_plans)
 
     combo_lines = "\n".join(
-        f"・{plan.combination}：{plan.stake}円"
+        f"・{plan.category} {plan.combination}：{plan.stake}円"
         + (f"（{plan.odds}倍）" if plan.odds is not None else "（オッズ取得失敗）")
         for plan in bet_plans
     )
@@ -166,12 +166,7 @@ def run_session(
                 bet_plans = build_bet_plan(
                     indexed,
                     total_stake=1000,
-                    min_points=3,
-                    max_points=5,
                     odds_map=odds_map,
-                    min_odds=10.0,
-                    min_ev=1.0,
-                    max_odds=100.0,
                 )
             except Exception as e:
                 print(f"予想/買い目生成失敗 {stadium_code=} {race_number=}: {e}")
@@ -193,15 +188,12 @@ def run_session(
             # オッズが取れていない点しか無いレースは、確率を期待値の代わりに
             # 使う(オッズ未取得時のフォールバック。スケールが異なり厳密な
             # 比較にはならないが、他に手がかりが無いための次善策)。
-            evs = [
-                (plan.predicted_prob / 100) * plan.odds
+            # 厳選スコア = このレースの期待回収率(Σ 確率×オッズ×金額 / 総額)
+            score = sum(
+                (plan.predicted_prob / 100) * plan.odds * plan.stake
                 for plan in bet_plans
                 if plan.odds is not None
-            ]
-            if evs:
-                score = max(evs)
-            else:
-                score = max(plan.predicted_prob for plan in bet_plans) / 100
+            ) / max(1, sum(plan.stake for plan in bet_plans))
 
             race_candidates.append((
                 stadium_code,
@@ -223,7 +215,7 @@ def run_session(
     )
 
     if not selected:
-        msg = f"【{session_name_ja}】条件(オッズ10〜100倍・期待値1.0以上を3点以上)を満たすレースが無いため、全レース見送り"
+        msg = f"【{session_name_ja}】ガミらない鉄板4点＋中穴2点＋大穴2点を組めるレースが無いため、全レース見送り"
         notify_console(msg)
         try:
             notify_discord(msg)

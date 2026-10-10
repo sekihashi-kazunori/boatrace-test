@@ -64,93 +64,104 @@ def _reason_for(combo: tuple[int, int, int], race_df: pd.DataFrame, category: st
     return " / ".join(parts)
 
 
+def _ceil100(x: float) -> int:
+    return int(-(-x // 100) * 100)
+
+
 def build_bet_plan(
     race_df: pd.DataFrame,
     total_stake: int = 1000,
-    min_points: int = 3,
-    max_points: int = 5,
     odds_map: dict[tuple[int, int, int], float] | None = None,
-    min_odds: float = 10.0,
-    min_ev: float = 1.0,
-    max_odds: float = 100.0,
+    n_teppan: int = 4,
+    n_chuuana: int = 2,
+    n_ooana: int = 2,
+    teppan_pool: int = 10,
+    chuuana_range: tuple[float, float] = (15.0, 40.0),
+    ooana_range: tuple[float, float] = (40.0, 100.0),
+    **_ignored,
 ) -> list[BetPlan]:
     """
-    レースの買い目と金額配分を決める。
+    レースの買い目と金額配分を決める(2026-10-10 ご主人様指定ルール)。
 
-    設計方針(2026-10-10改訂):
-    実績を見ると、的中しても配当が4〜9倍の本命ばかりで、しかも
-    そこに300円など厚めに張っていたため、当たってもトリガミになり
-    回収率が伸びなかった(10/09: 的中3本とも16〜19倍・回収率約30%)。
-    そこで以下の3ルールに変更する。
+    合計8点・1000円:
+      - 鉄板4点: 予測確率上位から選ぶ。どれが当たっても払戻が
+        総額(1000円)以上になる金額を張る = ガミらない
+      - 中穴2点: オッズ15〜40倍の中で予測確率の高い順に100円ずつ
+      - 大穴2点: オッズ40〜100倍の中で予測確率の高い順に100円ずつ
 
-    1. オッズ範囲: min_odds(10倍)未満と max_odds(100倍)超は買わない
-       (超大穴はモデルの確率誤差がそのまま期待値を膨らませるため除外)
-    2. 期待値下限: 予測確率×オッズ が min_ev(1.0)未満の買い目は買わない
-    3. 点数: 条件を満たす買い目から期待値上位 min_points〜max_points 点
-       (3〜5点)だけ買う。3点に満たないレースは「見送り」(空リスト)
-
-    金額配分は「どれが当たっても払戻がほぼ同じになる」ように
-    オッズの逆数に比例させる(高配当ほど少額)。オッズ10倍以上・
-    最大5点なので、どれが当たっても購入額の2倍以上が戻り、
-    トリガミが起きない。
-
-    オッズが取得できなかったレースは期待値を判断できないため見送る。
+    鉄板の予算は 1000 - 中穴・大穴の400 = 600円。
+    鉄板1点に必要な金額は ceil(1000 / オッズ) を100円単位に切り上げ。
+    確率上位 teppan_pool 点の中から、予算内に収まる4点を確率順に選ぶ。
+    4点そろわない(=本命が低すぎてガミを避けられない)レースは見送り。
+    余った予算は確率1位の鉄板に上乗せする。
+    オッズが取得できないレースは見送り。
     """
     win_probs = dict(zip(race_df["lane_number"], race_df["predicted_win_prob"]))
     combo_probs = _harville_trifecta_probs(win_probs)
-
-    # 根拠文言用のカテゴリは確率順位で決める(採用順=期待値順とは別)。
     prob_ranked = sorted(combo_probs.items(), key=lambda x: x[1], reverse=True)
-    prob_rank_of = {combo: rank for rank, (combo, _) in enumerate(prob_ranked)}
 
     if not odds_map:
         print("オッズ未取得のため見送り")
         return []
 
-    candidates = []
-    for combo, prob in combo_probs.items():
-        odds = odds_map.get(combo)
-        if odds is None or odds < min_odds or odds > max_odds:
-            continue
-        ev = prob * odds
-        if ev < min_ev:
-            continue
-        candidates.append((combo, prob, odds, ev))
-    candidates.sort(key=lambda x: x[3], reverse=True)
-    print(f"条件(オッズ{min_odds}〜{max_odds}倍・期待値{min_ev}以上)を満たす買い目: {len(candidates)}点")
+    def odds_of(c):
+        return odds_map.get(c)
 
-    if len(candidates) < min_points:
-        print(f"条件を満たす買い目が{min_points}点未満のため見送り")
+    # --- 中穴・大穴(各100円) ---
+    picked: set = set()
+
+    def pick_band(lo, hi, n):
+        out = []
+        for combo, prob in prob_ranked:
+            o = odds_of(combo)
+            if combo in picked or o is None or not (lo <= o < hi):
+                continue
+            out.append((combo, prob, o))
+            picked.add(combo)
+            if len(out) >= n:
+                break
+        return out
+
+    # 鉄板候補は先に予約しておき、中穴・大穴と重複させない
+    teppan_candidates = [
+        (c, p, odds_of(c)) for c, p in prob_ranked[:teppan_pool] if odds_of(c) is not None
+    ]
+    reserved = {c for c, _, _ in teppan_candidates}
+    picked |= reserved
+    chuuana = pick_band(*chuuana_range, n_chuuana)
+    ooana = pick_band(*ooana_range, n_ooana)
+    picked -= reserved
+
+    if len(chuuana) < n_chuuana or len(ooana) < n_ooana:
+        print(f"中穴{len(chuuana)}点/大穴{len(ooana)}点しか無いため見送り")
         return []
 
-    selected = candidates[:max_points]
+    # --- 鉄板(ガミらない金額) ---
+    budget = total_stake - 100 * (n_chuuana + n_ooana)
+    teppan = []  # (combo, prob, odds, stake)
+    for combo, prob, o in teppan_candidates:
+        if len(teppan) >= n_teppan:
+            break
+        need = max(100, _ceil100(total_stake / o))
+        slots_left_after = n_teppan - len(teppan) - 1
+        if need + 100 * slots_left_after <= budget:
+            teppan.append((combo, prob, o, need))
+            budget -= need
 
-    # 払戻均等化: stake ∝ 1/odds
-    inv = [1.0 / odds for _, _, odds, _ in selected]
-    inv_sum = sum(inv)
-    raw_stakes = [total_stake * w / inv_sum for w in inv]
+    if len(teppan) < n_teppan:
+        print(f"ガミらない鉄板が{n_teppan}点そろわないため見送り(本命オッズが低すぎ)")
+        return []
 
-    # 100円単位に丸め、最低100円を保証
-    stakes = [max(100, int(s / 100 + 0.5) * 100) for s in raw_stakes]
-
-    # 丸め誤差をtotal_stakeに合わせる(最もオッズの低い=最大配分の点で調整)
-    diff = total_stake - sum(stakes)
-    if diff != 0:
-        max_idx = stakes.index(max(stakes))
-        stakes[max_idx] = max(100, stakes[max_idx] + diff)
+    if budget > 0:
+        c, p, o, st = teppan[0]
+        teppan[0] = (c, p, o, st + budget)
 
     plans: list[BetPlan] = []
-    for (combo, prob, odds, _ev), stake in zip(selected, stakes):
-        category = _category_for_rank(prob_rank_of.get(combo, 99))
-        plans.append(
-            BetPlan(
-                combination="-".join(map(str, combo)),
-                category=category,
-                stake=stake,
-                predicted_prob=round(prob * 100, 2),
-                odds=odds,
-                reason=_reason_for(combo, race_df, category),
-            )
-        )
-
+    for combo, prob, o, st in teppan:
+        plans.append(BetPlan("-".join(map(str, combo)), "鉄板", st, round(prob * 100, 2), o,
+                             _reason_for(combo, race_df, "鉄板")))
+    for label, group in (("中穴", chuuana), ("大穴", ooana)):
+        for combo, prob, o in group:
+            plans.append(BetPlan("-".join(map(str, combo)), label, 100, round(prob * 100, 2), o,
+                                 _reason_for(combo, race_df, label)))
     return plans
