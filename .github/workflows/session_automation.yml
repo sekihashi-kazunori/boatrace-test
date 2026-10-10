@@ -5,9 +5,11 @@ on:
     - cron: "50 23 * * *"
     - cron: "30 1 * * *"
     - cron: "30 6 * * *"
-    - cron: "30 3 * * *"
-    - cron: "30 8 * * *"
+    - cron: "0 6 * * *"
+    - cron: "30 9 * * *"
     - cron: "0 14 * * *"
+    # 展示タイム後の最終予想: JST 8:00〜21:55 の5分おき
+    - cron: "*/5 23,0-12 * * *"
   workflow_dispatch:
     inputs:
       session:
@@ -21,11 +23,13 @@ on:
         required: true
         default: "predict"
         type: choice
-        options: [predict, settle]
+        options: [predict, final, settle]
 
 # 同時に複数回走るとDBの書き込みが競合するため、1本ずつ順番に実行する
 concurrency:
-  group: session-automation
+  # predict(厳選)は plans/ だけ、final・settle は state.db だけを書くので、
+  # 書き込み先ごとにグループを分けて互いに待たせない
+  group: ${{ (github.event.schedule == '50 23 * * *' || github.event.schedule == '30 1 * * *' || github.event.schedule == '30 6 * * *' || inputs.action == 'predict') && 'plan' || 'state' }}
   cancel-in-progress: false
 
 jobs:
@@ -36,6 +40,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+          cache: pip
       - run: pip install -e .
 
       - name: session/action hantei
@@ -49,9 +54,10 @@ jobs:
             "50 23 * * *") echo "session=morning" >> "$GITHUB_OUTPUT"; echo "action=predict" >> "$GITHUB_OUTPUT" ;;
             "30 1 * * *")  echo "session=day"     >> "$GITHUB_OUTPUT"; echo "action=predict" >> "$GITHUB_OUTPUT" ;;
             "30 6 * * *")  echo "session=nighter" >> "$GITHUB_OUTPUT"; echo "action=predict" >> "$GITHUB_OUTPUT" ;;
-            "30 3 * * *")  echo "session=morning" >> "$GITHUB_OUTPUT"; echo "action=settle"  >> "$GITHUB_OUTPUT" ;;
-            "30 8 * * *")  echo "session=day"     >> "$GITHUB_OUTPUT"; echo "action=settle"  >> "$GITHUB_OUTPUT" ;;
+            "0 6 * * *")  echo "session=morning" >> "$GITHUB_OUTPUT"; echo "action=settle"  >> "$GITHUB_OUTPUT" ;;
+            "30 9 * * *")  echo "session=day"     >> "$GITHUB_OUTPUT"; echo "action=settle"  >> "$GITHUB_OUTPUT" ;;
             "0 14 * * *")  echo "session=nighter" >> "$GITHUB_OUTPUT"; echo "action=settle"  >> "$GITHUB_OUTPUT" ;;
+            "*/5 23,0-12 * * *") echo "session=all" >> "$GITHUB_OUTPUT"; echo "action=final" >> "$GITHUB_OUTPUT" ;;
             esac
 
 
@@ -62,6 +68,12 @@ jobs:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
 
         run: python -u -m src.pipeline.session_pipeline --session ${{ steps.vars.outputs.session }}
+
+      - name: tenji-go saishuu yosou
+        if: steps.vars.outputs.action == 'final'
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        run: python -u -m src.pipeline.final_pipeline
 
       - name: kekka kakutei shuushi houkoku
         if: steps.vars.outputs.action == 'settle'
@@ -74,11 +86,15 @@ jobs:
             python -m src.pipeline.settle_pipeline --session ${{ steps.vars.outputs.session }}
           fi
 
-      - name: DB eizokuka
-        if: hashFiles('boatrace.db') != ''      
+      - name: kekka hozon
         run: |
           git config user.name "predictor-bot"
           git config user.email "bot@example.com"
-          git add boatrace.db
-          git commit -m "chore: ${{ steps.vars.outputs.session }} ${{ steps.vars.outputs.action }} $(date +'%Y-%m-%d %H:%M')" || echo "no changes"
-          git push
+          # boatrace.db(36MB)はコミットしない。保存するのは厳選リストと state.db だけ
+          git add plans state.db 2>/dev/null || true
+          git commit -m "chore: ${{ steps.vars.outputs.session }} ${{ steps.vars.outputs.action }} $(TZ=Asia/Tokyo date +'%Y-%m-%d %H:%M')" || { echo "no changes"; exit 0; }
+          for i in 1 2 3 4 5; do
+            git pull --rebase -q && git push && exit 0
+            sleep $((i * 5))
+          done
+          exit 1

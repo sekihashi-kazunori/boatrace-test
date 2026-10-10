@@ -16,7 +16,7 @@ from src.collectors.official_site import (
     fetch_race_deadline_times,
     fetch_before_info,
 )
-from src.storage.db import get_engine, init_db, save_entries, save_bet_tickets, BetTicket
+from src.storage.db import get_engine, get_state_engine, init_db, save_entries, save_bet_tickets, BetTicket
 from src.features.build_features import build_feature_dataframe
 from src.models.predict import predict_win_probabilities, add_original_index
 from src.betting.allocation import build_bet_plan
@@ -79,7 +79,15 @@ def run_session(
     model_path: str = "model.txt",
     db_path: str = "boatrace.db",
     max_races: int | None = 10,
+    plan_only: bool = True,
 ) -> None:
+    """
+    plan_only=True(既定): セッション開始時は「どのレースを狙うか」だけを
+    厳選して plans/日付_セッション.json に保存し、Discordに一覧を流す。
+    実際の買い目は締切直前に final_pipeline が展示タイム・直前オッズ込みで
+    予想し直して通知する(2026-10-10〜 的中率アップのため)。
+    plan_only=False: 従来どおりこの場で買い目を確定・通知する。
+    """
     # date.today()はサーバー(GitHub Actions)のUTC時刻を使ってしまい、
     # 日本時間とズレて前日/翌日の日付になることがあるため、
     # 明示的に日本時間(JST)の「今日」を使う。
@@ -211,6 +219,24 @@ def run_session(
         f"{len(selected)}レースを採用 ({skipped_count}レースを見送り)"
     )
 
+    if plan_only:
+        save_plan(target_date, session_name, selected)
+        if selected:
+            lines = [f"【{session_name_ja} 厳選{len(selected)}R】展示タイム後に買い目を送ります"]
+            for stadium_code, race_number, stadium_name, _plans, deadline_time, _score in sorted(
+                selected, key=lambda c: c[4] or "99:99"
+            ):
+                lines.append(f"・{stadium_name}{race_number}R（締切{deadline_time or '不明'}）")
+            msg = "\n".join(lines)
+        else:
+            msg = f"【{session_name_ja}】買い目を組めるレースが無いため、全レース見送り"
+        notify_console(msg)
+        try:
+            notify_discord(msg)
+        except Exception as e:
+            print(f"通知失敗: {e}")
+        return
+
     if not selected:
         msg = f"【{session_name_ja}】買い目を組めるレースが無いため、全レース見送り"
         notify_console(msg)
@@ -248,7 +274,29 @@ def run_session(
             print(f"通知失敗 {stadium_code=} {race_number=}: {e}")
 
     if all_tickets:
-        save_bet_tickets(engine, all_tickets)
+        save_bet_tickets(get_state_engine(), all_tickets)
+
+
+def plan_path(target_date: date, session_name: str) -> str:
+    return os.path.join("plans", f"{target_date}_{session_name}.json")
+
+
+def save_plan(target_date: date, session_name: str, selected) -> None:
+    import json
+    os.makedirs("plans", exist_ok=True)
+    data = [
+        {
+            "stadium_code": stadium_code,
+            "race_number": race_number,
+            "stadium_name": stadium_name,
+            "deadline": deadline_time,
+            "score": round(score, 4),
+        }
+        for stadium_code, race_number, stadium_name, _plans, deadline_time, score in selected
+    ]
+    with open(plan_path(target_date, session_name), "w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False, indent=1)
+    print(f"厳選レースを保存: {plan_path(target_date, session_name)} ({len(data)}R)")
 
 
 def to_race_entries(card, target_date, stadium_code, race_number, before_info=None):
@@ -304,10 +352,11 @@ if __name__ == "__main__":
         default=10,
         help="1セッションあたり厳選して採用するレース数(0以下を指定すると厳選せず全レース対象)",
     )
+    parser.add_argument("--immediate", action="store_true", help="展示を待たずにこの場で買い目を確定する(旧方式)")
     args = parser.parse_args()
 
     if args.action == "settle":
         print("settleアクションは未実装です。結果照合・回収率集計ロジックを別途実装する必要があります。")
     else:
         max_races = args.max_races if args.max_races and args.max_races > 0 else None
-        run_session(args.session, model_path="model.txt", max_races=max_races)
+        run_session(args.session, model_path="model.txt", max_races=max_races, plan_only=not args.immediate)

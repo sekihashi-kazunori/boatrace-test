@@ -7,26 +7,27 @@ from zoneinfo import ZoneInfo
 from sqlalchemy import select
 from sqlalchemy.orm import Session as OrmSession
 
-from src.storage.db import get_engine, BetTicket, save_race_result, RaceResult, init_db
+from src.storage.db import get_state_engine, BetTicket, save_race_result, RaceResult
 from src.results.fetch_results import fetch_race_result, settle_tickets
 from src.reporting.report import session_report, daily_report, cumulative_report, format_report
 from src.notify.notifier import notify_console, notify_discord
 
 
-def run_settle(session_name: str, target_date: date | None = None, db_path: str = "boatrace.db", is_last_session_of_day: bool = False) -> None:
+def run_settle(session_name: str, target_date: date | None = None, is_last_session_of_day: bool = False) -> None:
     # date.today()はサーバー(GitHub Actions)のUTC時刻を使ってしまい、
     # 日本時間とズレて前日/翌日の日付になることがあるため、
     # 明示的に日本時間(JST)の「今日」を使う。
     target_date = target_date or datetime.now(ZoneInfo("Asia/Tokyo")).date()
-    engine = get_engine(db_path)
-    init_db(engine)
+    engine = get_state_engine()
 
     session_name_ja = {"morning": "モーニング", "day": "デイ", "nighter": "ナイター"}.get(session_name, session_name)
 
     with OrmSession(engine) as db:
+        # セッションに関係なく、その日の未確定の買い目をすべて精算する
+        # (展示後予想にしたことで、セッションの精算時刻より後に締切の
+        # レースもあるため。取りこぼしは次の精算で拾われる)
         stmt = select(BetTicket).where(
-            BetTicket.race_date == target_date,
-            BetTicket.session == session_name,
+            BetTicket.race_date == str(target_date),
             BetTicket.result.is_(None),
         )
         pending_tickets = list(db.scalars(stmt).all())

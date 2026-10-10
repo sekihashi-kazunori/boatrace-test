@@ -88,6 +88,30 @@ class BetTicket(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
 
 
+class RaceDecision(Base):
+    """展示後の最終予想で、そのレースをどう処理したかの記録(二重処理防止用)。"""
+    __tablename__ = "race_decisions"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    race_date = Column(String)
+    session = Column(String)
+    stadium_code = Column(String)
+    race_number = Column(Integer)
+    status = Column(String)  # bought / skipped / missed
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+
+# 買い目・収支など「運用の状態」は小さい state.db に分けて保存する。
+# (36MBの boatrace.db を10分おきにコミットするとリポジトリが肥大化するため)
+STATE_DB_PATH = "state.db"
+
+
+def get_state_engine(db_path: str = STATE_DB_PATH):
+    engine = create_engine(f"sqlite:///{db_path}")
+    Base.metadata.create_all(engine, tables=[BetTicket.__table__, RaceDecision.__table__, RaceResult.__table__])
+    return engine
+
+
 def get_engine(db_path: str = "boatrace.db"):
     return create_engine(f"sqlite:///{db_path}")
 
@@ -102,16 +126,19 @@ def get_session(engine):
 def save_bet_tickets(engine, tickets: list[dict]):
     session = get_session(engine)
     try:
-        # 同じ日・同じセッションの予想を再実行した場合(手動実行+定時実行など)、
-        # 以前は買い目がそのまま追加され、購入額・払戻が二重計上されていた
-        # (2026-10-09 ナイターで発生)。再実行時は前回分を置き換える。
-        for race_date, session_name in {(str(t.race_date), t.session) for t in tickets}:
+        # 同じレースの予想を再実行した場合(手動実行+定時実行など)、
+        # 以前は買い目がそのまま追加され二重計上されていた(2026-10-09)。
+        # 再実行時はそのレースの前回分を置き換える。
+        for race_date, stadium_code, race_number in {
+            (str(t.race_date), t.stadium_code, t.race_number) for t in tickets
+        }:
             deleted = session.query(BetTicket).filter(
                 BetTicket.race_date == race_date,
-                BetTicket.session == session_name,
+                BetTicket.stadium_code == stadium_code,
+                BetTicket.race_number == race_number,
             ).delete()
             if deleted:
-                print(f"[save_bet_tickets] 再実行のため既存の買い目{deleted}件を置き換え {race_date} {session_name}")
+                print(f"[save_bet_tickets] 再実行のため既存の買い目{deleted}件を置き換え {race_date} {stadium_code} {race_number}R")
         for t in tickets:
             ticket = BetTicket(
                 session=t.session,

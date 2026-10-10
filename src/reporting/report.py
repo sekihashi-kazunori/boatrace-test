@@ -37,7 +37,7 @@ def _summarize(tickets: list[BetTicket]) -> dict:
 def session_report(engine, race_date: date, session_name: str) -> dict:
     with Session(engine) as db:
         stmt = select(BetTicket).where(
-            BetTicket.race_date == race_date, BetTicket.session == session_name
+            BetTicket.race_date == str(race_date), BetTicket.session == session_name
         )
         tickets = list(db.scalars(stmt).all())
     summary = _summarize(tickets)
@@ -48,7 +48,7 @@ def session_report(engine, race_date: date, session_name: str) -> dict:
 
 def daily_report(engine, race_date: date) -> dict:
     with Session(engine) as db:
-        stmt = select(BetTicket).where(BetTicket.race_date == race_date)
+        stmt = select(BetTicket).where(BetTicket.race_date == str(race_date))
         tickets = list(db.scalars(stmt).all())
     summary = _summarize(tickets)
     summary["race_date"] = str(race_date)
@@ -57,7 +57,7 @@ def daily_report(engine, race_date: date) -> dict:
 
 def cumulative_report(engine, up_to_date: date) -> dict:
     with Session(engine) as db:
-        stmt = select(BetTicket).where(BetTicket.race_date <= up_to_date)
+        stmt = select(BetTicket).where(BetTicket.race_date <= str(up_to_date))
         tickets = list(db.scalars(stmt).all())
     summary = _summarize(tickets)
     summary["up_to_date"] = str(up_to_date)
