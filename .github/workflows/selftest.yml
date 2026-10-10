@@ -1,0 +1,23 @@
+name: dousa kakunin (v2)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e .
+      - run: python -u -m src.tools.selftest_v2
+      - name: kekka hozon
+        run: |
+          git config user.name "predictor-bot"
+          git config user.email "bot@example.com"
+          git add selftest_v2.txt
+          git commit -m "chore: v2 selftest" || exit 0
+          git pull --rebase --autostash -q && git push
