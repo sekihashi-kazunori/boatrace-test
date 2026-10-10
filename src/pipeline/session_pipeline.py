@@ -188,12 +188,9 @@ def run_session(
             # オッズが取れていない点しか無いレースは、確率を期待値の代わりに
             # 使う(オッズ未取得時のフォールバック。スケールが異なり厳密な
             # 比較にはならないが、他に手がかりが無いための次善策)。
-            # 厳選スコア = このレースの期待回収率(Σ 確率×オッズ×金額 / 総額)
-            score = sum(
-                (plan.predicted_prob / 100) * plan.odds * plan.stake
-                for plan in bet_plans
-                if plan.odds is not None
-            ) / max(1, sum(plan.stake for plan in bet_plans))
+            # 厳選スコア = このレースの的中確率(買い目の予測確率の合計)。
+            # 「まずは的中率を上げる」方針(2026-10-10)。
+            score = sum(plan.predicted_prob for plan in bet_plans) / 100
 
             race_candidates.append((
                 stadium_code,
@@ -215,7 +212,7 @@ def run_session(
     )
 
     if not selected:
-        msg = f"【{session_name_ja}】ガミらない鉄板4点＋中穴2点＋大穴2点を組めるレースが無いため、全レース見送り"
+        msg = f"【{session_name_ja}】買い目を組めるレースが無いため、全レース見送り"
         notify_console(msg)
         try:
             notify_discord(msg)
