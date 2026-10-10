@@ -72,23 +72,29 @@ def build_bet_plan(
     race_df: pd.DataFrame,
     total_stake: int = 1000,
     odds_map: dict[tuple[int, int, int], float] | None = None,
-    n_teppan: int = 4,
-    chuuana_range: tuple[float, float] = (15.0, 40.0),
-    ooana_range: tuple[float, float] = (40.0, 100.0),
+    n_teppan: int = 6,
+    chuuana_range: tuple[float, float] = (35.0, 70.0),
+    ooana_range: tuple[float, float] = (70.0, 150.0),
     **_ignored,
 ) -> list[BetPlan]:
     """
-    レースの買い目と金額配分を決める(2026-10-10 ご主人様指定ルール)。
+    レースの買い目と金額配分を決める(2026-10-10夜 ご主人様指定ルール)。
     方針: まずは的中率を上げる。
 
-    鉄板4点 = 予測確率の上位4点(オッズに関係なく、自信がある順)
+    鉄板と中穴のオッズが重なっていた(鉄板に16〜30倍が混ざり、中穴15〜40倍と
+    ほぼ同じ)ため、鉄板を厚くし、中穴・大穴は1点ずつ本当に離れた配当を狙う。
+
+    鉄板 = 予測確率の上位から(オッズに関係なく自信がある順)
       - オッズの低い2点: 5倍未満なら300円、5倍以上なら200円
-      - 残り2点: 100円
-    残りの予算で中穴(15〜40倍)・大穴(40〜100倍)を確率順に100円ずつ:
-      - 残り400円 → 中穴2点・大穴2点(計8点)
-      - 残り300円 → 中穴2点・大穴1点(計7点)
-      - 残り200円 → 中穴1点・大穴1点(計6点)
-    合計は常に1000円。オッズが取得できないレースは見送り。
+      - 残り: 100円
+    中穴1点 = オッズ35〜70倍(50倍前後)の中で予測確率が最も高い点に100円
+    大穴1点 = オッズ70〜150倍(100倍前後)の中で予測確率が最も高い点に100円
+
+    合計は常に1000円。鉄板の点数で調整する:
+      - 5倍未満なし → 鉄板6点(200,200,100×4)+中穴+大穴 = 8点
+      - 5倍未満1点 → 鉄板5点(300,200,100×3)+中穴+大穴 = 7点
+      - 5倍未満2点 → 鉄板4点(300,300,100×2)+中穴+大穴 = 6点
+    オッズが取得できないレースは見送り。
     """
     win_probs = dict(zip(race_df["lane_number"], race_df["predicted_win_prob"]))
     combo_probs = _harville_trifecta_probs(win_probs)
@@ -103,53 +109,47 @@ def build_bet_plan(
         print("オッズが足りないため見送り")
         return []
 
-    # --- 鉄板4点 ---
-    chosen = ranked[:n_teppan]
-    low_two = {c for c, _, _ in sorted(chosen, key=lambda x: x[2])[:2]}
-    teppan = []
-    for c, p, o in chosen:
-        if c in low_two:
-            stake = 300 if o < 5.0 else 200
-        else:
-            stake = 100
-        teppan.append((c, p, o, stake))
+    # --- 中穴・大穴 各1点(鉄板候補とは重ならないよう、鉄板候補の外から選ぶ) ---
+    teppan_pool = {c for c, _, _ in ranked[:n_teppan]}
 
-    rest = total_stake - sum(t[3] for t in teppan)
-    n_ana = rest // 100
-    n_chuuana = (n_ana + 1) // 2   # 4→2, 3→2, 2→1
-    n_ooana = n_ana - n_chuuana    # 4→2, 3→1, 2→1
-
-    # --- 中穴・大穴(確率順に100円) ---
-    picked = {c for c, _, _, _ in teppan}
-
-    def pick_band(lo, hi, n):
-        out = []
+    def pick_one(lo, hi, exclude):
         for c, p, o in ranked:
-            if len(out) >= n:
-                break
-            if c in picked or not (lo <= o < hi):
-                continue
-            out.append((c, p, o))
-            picked.add(c)
-        return out
+            if c not in exclude and lo <= o < hi:
+                return (c, p, o)
+        return None
 
-    chuuana = pick_band(*chuuana_range, n_chuuana)
-    ooana = pick_band(*ooana_range, n_ooana)
-    # 帯の中に足りない場合は、確率順で残りの点から補う(合計1000円を守る)
-    shortage = n_ana - len(chuuana) - len(ooana)
-    if shortage > 0:
-        extra = pick_band(10.0, 10**9, shortage)
-        chuuana += extra
-    if len(chuuana) + len(ooana) < n_ana:
-        print("中穴・大穴の点数が足りないため見送り")
+    chuuana = pick_one(*chuuana_range, teppan_pool)
+    ooana = pick_one(*ooana_range, teppan_pool | ({chuuana[0]} if chuuana else set()))
+    ana = [x for x in ((chuuana, "中穴"), (ooana, "大穴")) if x[0] is not None]
+    ana_budget = 100 * len(ana)
+
+    # --- 鉄板: 予算に収まるまで点数を減らす(6→5→4) ---
+    teppan_budget = total_stake - ana_budget
+    teppan = []
+    for n in range(n_teppan, 1, -1):
+        chosen = ranked[:n]
+        low_two = sorted(chosen, key=lambda x: x[2])[:2]
+        stake_of = {c: (300 if o < 5.0 else 200) for c, _, o in low_two}
+        stakes = [stake_of.get(c, 100) for c, _, _ in chosen]
+        if sum(stakes) <= teppan_budget:
+            teppan = [(c, p, o, st) for (c, p, o), st in zip(chosen, stakes)]
+            break
+
+    if not teppan:
+        print("鉄板を組めないため見送り")
         return []
+
+    # 中穴・大穴が帯の中に見つからなかった等で余りが出たら、確率1位の鉄板に上乗せ
+    rest = total_stake - ana_budget - sum(t[3] for t in teppan)
+    if rest > 0:
+        c, p, o, st = teppan[0]
+        teppan[0] = (c, p, o, st + rest)
 
     plans: list[BetPlan] = []
     for c, p, o, st in teppan:
         plans.append(BetPlan("-".join(map(str, c)), "鉄板", st, round(p * 100, 2), o,
                              _reason_for(c, race_df, "鉄板")))
-    for label, group in (("中穴", chuuana), ("大穴", ooana)):
-        for c, p, o in group:
-            plans.append(BetPlan("-".join(map(str, c)), label, 100, round(p * 100, 2), o,
-                                 _reason_for(c, race_df, label)))
+    for (c, p, o), label in ana:
+        plans.append(BetPlan("-".join(map(str, c)), label, 100, round(p * 100, 2), o,
+                             _reason_for(c, race_df, label)))
     return plans
