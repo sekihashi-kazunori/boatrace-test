@@ -106,11 +106,13 @@ EDOGAWA_COMBOS = [f"1-{a}-{b}" for a in (4, 5, 6) for b in (4, 5, 6) if a != b]
 EDOGAWA_BOX456 = [f"{a}-{b}-{c}" for a in (4, 5, 6) for b in (4, 5, 6) for c in (4, 5, 6) if len({a, b, c}) == 3]
 
 
-def _save_meta(state, target_date, stadium_code, race_number, b1_class) -> None:
+def _save_meta(state, target_date, stadium_code, race_number, b1_class, weather=None) -> None:
+    weather = weather or {}
     try:
         with OrmSession(state) as db:
             db.add(RaceMeta(race_date=str(target_date), stadium_code=stadium_code,
-                            race_number=race_number, b1_class=b1_class))
+                            race_number=race_number, b1_class=b1_class,
+                            wind=weather.get("wind"), wave=weather.get("wave"), weather=weather.get("weather")))
             db.commit()
     except Exception as e:
         print(f"レース情報の保存失敗 {stadium_code} {race_number}R: {e}")
@@ -126,7 +128,7 @@ def _rule_plans(stadium_code, race_number, b1_class, odds_map, weather=None):
 
     - 江戸川 1〜4R・1号艇B級・波5cm以下: 1-2-3/1-3-2 各200円 + 1-456-456 各100円(1,000円)
         過去 回収率164%(前半153%・後半182%)。波6cm以上は78%に落ちるため見送り
-    - 津 全R・1号艇B級: 1-456-456 各100円(600円)
+    - 津 全R・1号艇B級: 1-456-456 各100円(600円)。風5m以上か波3cm以上なら各200円(1,200円)
         過去 的中率5.1% 回収率127%(前半117%・後半142%)
     それ以外(1号艇A級、江戸川5R以降など)は見送り。
     """
@@ -143,7 +145,13 @@ def _rule_plans(stadium_code, race_number, b1_class, odds_map, weather=None):
                [BetPlan(c, "江戸川穴", 100, 0.0, _odds(odds_map, c), f"江戸川前半・1号艇{b1_class}は逃げにくく外が届く")
                 for c in EDOGAWA_COMBOS]
     if stadium_code == "09":
-        return [BetPlan(c, "津穴", 100, 0.0, _odds(odds_map, c), f"津・1号艇{b1_class}は逃げにくく外が届く")
+        wind = (weather or {}).get("wind")
+        rough = (wind is not None and wind >= 5) or (wave is not None and wave >= 3)
+        # 強風(5m以上)か波3cm以上の日は金額2倍(過去268%・ただし前半90%/後半520%とムラがあるため、
+        # 見送りではなく「金額で強弱」をつける。2026-10-12)
+        stake = 200 if rough else 100
+        note = f"・風{wind}m/波{wave}cmで外が届きやすい" if rough else ""
+        return [BetPlan(c, "津穴", stake, 0.0, _odds(odds_map, c), f"津・1号艇{b1_class}は逃げにくく外が届く{note}")
                 for c in EDOGAWA_COMBOS]
     return None
 
@@ -285,17 +293,16 @@ def run_final(target_date: date | None = None, model_path: str = "model.txt", db
         _run_experiment(state, target_date, session_name, stadium_code, race_number, label, indexed, odds_map)
         if race.get("gen"):
             _run_general(state, target_date, session_name, stadium_code, race_number, label, bet_plans)
-        b1_class = None
-        if stadium_code in ("03", "09"):
-            b1_class = next((r.get("racer_class") for r in card.get("racers", []) if r.get("lane") == 1), None)
-            _save_meta(state, target_date, stadium_code, race_number, b1_class)
+        b1_class = next((r.get("racer_class") for r in card.get("racers", []) if r.get("lane") == 1), None)
+        weather = LAST_WEATHER.get((stadium_code, race_number, str(target_date)), {})
+        # 全レースで1号艇の級と天候・風・波を記録(今後の条件づくりの材料)
+        _save_meta(state, target_date, stadium_code, race_number, b1_class, weather)
         if stadium_code == "09":
             _run_tsu(state, target_date, session_name, race_number, odds_map, b1_class)
         if stadium_code == "03":
             _run_edogawa(state, target_date, session_name, race_number, odds_map)
 
         # ===== 本番(2026-10-12 再構築): 会場×1号艇の級の条件ルール =====
-        weather = LAST_WEATHER.get((stadium_code, race_number, str(target_date)), {})
         rule_plans = _rule_plans(stadium_code, race_number, b1_class, odds_map, weather) if is_main else None
         if is_main and not rule_plans:
             print(f"{label}: 条件外(1号艇{b1_class})のため見送り")

@@ -298,6 +298,9 @@ def parse_weather(html: str) -> dict:
     m = re.search(r"波高\s*(\d+)\s*cm", text)
     if m:
         out["wave"] = int(m.group(1))
+    m = re.search(r"(晴|曇り|雨|雪|霧)", text[text.find("風速") - 300: text.find("風速")] if "風速" in text else text)
+    if m:
+        out["weather"] = m.group(1)
     return out
 
 

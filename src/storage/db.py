@@ -123,6 +123,9 @@ class RaceMeta(Base):
     stadium_code = Column(String)
     race_number = Column(Integer)
     b1_class = Column(String, nullable=True)
+    wind = Column(Integer, nullable=True)
+    wave = Column(Integer, nullable=True)
+    weather = Column(String, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
 
 
@@ -134,6 +137,13 @@ STATE_DB_PATH = "state.db"
 def get_state_engine(db_path: str = STATE_DB_PATH):
     engine = create_engine(f"sqlite:///{db_path}")
     Base.metadata.create_all(engine, tables=[BetTicket.__table__, RaceDecision.__table__, RaceResult.__table__, OddsSnapshot.__table__, RaceMeta.__table__])
+    # 既存の race_meta に後から追加した列(wind/wave/weather)を足す
+    from sqlalchemy import text as _t
+    with engine.begin() as conn:
+        cols = {row[1] for row in conn.execute(_t("PRAGMA table_info(race_meta)"))}
+        for name, typ in (("wind", "INTEGER"), ("wave", "INTEGER"), ("weather", "VARCHAR")):
+            if name not in cols:
+                conn.execute(_t(f"ALTER TABLE race_meta ADD COLUMN {name} {typ}"))
     return engine
 
 
