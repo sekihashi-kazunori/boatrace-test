@@ -14,10 +14,11 @@ jobs:
           cache: pip
       - run: pip install -e .
       - run: python -u -m src.tools.selftest_v2
+      - run: python -u -m src.tools.odds_diag
       - name: kekka hozon
         run: |
           git config user.name "predictor-bot"
           git config user.email "bot@example.com"
-          git add selftest_v2.txt
+          git add selftest_v2.txt odds_diag.txt
           git commit -m "chore: v2 selftest" || exit 0
           git pull --rebase --autostash -q && git push
