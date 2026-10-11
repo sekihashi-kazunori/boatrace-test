@@ -65,7 +65,7 @@ def rows_for_day(d: date) -> list[dict]:
             row["result_course"] = rb.get("racer_course_number")
             row["result_st"] = rb.get("racer_start_timing")
             row["trifecta_combination"] = tri.get("combination") if tri else None
-            row["trifecta_payout"] = tri.get("amount") if tri else None
+            row["trifecta_payout"] = (tri.get("payout") or tri.get("amount")) if tri else None
             rows.append(row)
     return rows
 
