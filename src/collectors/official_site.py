@@ -217,10 +217,14 @@ def fetch_race_card(stadium_code: str, race_number: int, target_date: Optional[d
             except (ValueError, IndexError):
                 pass
 
+        m_cls = re.search(r"\b(A1|A2|B1|B2)\b", row.get_text(" ", strip=True))
+        racer_class = m_cls.group(1) if m_cls else None
+
         racers.append({
             "lane": lane,
             "name": name,
             "number": racer_number,
+            "racer_class": racer_class,
             "national_win_rate": national_win_rate,
             "local_win_rate": local_win_rate,
             "motor_2rate": motor_2rate,

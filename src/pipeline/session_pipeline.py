@@ -215,6 +215,10 @@ def run_session(
     # max_races が None の場合は厳選せず全レースを対象にする(従来挙動)。
     race_candidates.sort(key=lambda c: c[5], reverse=True)
     selected = race_candidates if max_races is None else race_candidates[:max_races]
+    # 江戸川の1〜4Rは「前半予想のメイン」として必ず本番に入れる(2026-10-12〜)
+    chosen = {(c[0], c[1]) for c in selected}
+    selected = selected + [c for c in race_candidates
+                           if c[0] == "03" and c[1] <= 4 and (c[0], c[1]) not in chosen]
     skipped_count = len(race_candidates) - len(selected)
     print(
         f"厳選結果: 候補{len(race_candidates)}レース中 "

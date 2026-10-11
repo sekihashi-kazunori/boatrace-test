@@ -28,11 +28,11 @@ from sqlalchemy.orm import Session as OrmSession
 from src.collectors.official_site import fetch_race_card, fetch_before_info, fetch_odds_3rentan
 from src.storage.db import (
     get_engine, init_db, save_entries, save_bet_tickets, get_state_engine,
-    BetTicket, RaceDecision, OddsSnapshot,
+    BetTicket, RaceDecision, OddsSnapshot, RaceMeta,
 )
 from src.features.build_features import build_feature_dataframe
 from src.models.predict import predict_win_probabilities, add_original_index
-from src.betting.allocation import build_bet_plan, experimental_bets
+from src.betting.allocation import build_bet_plan, experimental_bets, BetPlan
 from src.notify.notifier import notify_console, notify_discord
 from src.pipeline.session_pipeline import build_message, plan_path, to_race_entries, STADIUM_NAMES
 
@@ -104,6 +104,16 @@ def _run_experiment(state, target_date, session_name, stadium_code, race_number,
 EDOGAWA_COMBOS = [f"1-{a}-{b}" for a in (4, 5, 6) for b in (4, 5, 6) if a != b]
 # 2026-10-12追加: 4-5-6ボックス。1-456-456と合わせた12点(1,200円)は江戸川1〜10月で回収率95%(1〜4Rは108%)
 EDOGAWA_BOX456 = [f"{a}-{b}-{c}" for a in (4, 5, 6) for b in (4, 5, 6) for c in (4, 5, 6) if len({a, b, c}) == 3]
+
+
+def _save_meta(state, target_date, stadium_code, race_number, b1_class) -> None:
+    try:
+        with OrmSession(state) as db:
+            db.add(RaceMeta(race_date=str(target_date), stadium_code=stadium_code,
+                            race_number=race_number, b1_class=b1_class))
+            db.commit()
+    except Exception as e:
+        print(f"レース情報の保存失敗 {stadium_code} {race_number}R: {e}")
 
 
 def _run_edogawa(state, target_date, session_name, race_number, odds_map) -> None:
@@ -213,7 +223,17 @@ def run_final(target_date: date | None = None, model_path: str = "model.txt", db
         is_main = race.get("main", True)
         _run_experiment(state, target_date, session_name, stadium_code, race_number, label, indexed, odds_map)
         if stadium_code == "03":
+            b1_class = next((r.get("racer_class") for r in card.get("racers", []) if r.get("lane") == 1), None)
+            _save_meta(state, target_date, stadium_code, race_number, b1_class)
             _run_edogawa(state, target_date, session_name, race_number, odds_map)
+            # 江戸川1〜4Rで1号艇がB級なら、本番の買い目を 1-456-456(6点×100円) にする
+            if race_number <= 4 and b1_class and b1_class.startswith("B"):
+                bet_plans = [
+                    BetPlan(c, "江戸川穴", 100, 0.0, (odds_map or {}).get(tuple(map(int, c.split("-")))),
+                            f"江戸川前半・1号艇{b1_class}は逃げにくく外が届く(過去回収率169%)")
+                    for c in EDOGAWA_COMBOS
+                ]
+                is_main = True
         if not is_main:
             _record(state, target_date, session_name, stadium_code, race_number, "exp_only")
             continue

@@ -122,10 +122,13 @@ def run_settle(session_name: str, target_date: date | None = None, is_last_sessi
         notify_console(msg)
         notify_discord(msg)
 
-        for bt, title, rmax in (("exp", "実験枠", None), ("edo", "江戸川枠 1-456-456(6点)", None),
-                                ("edo", "江戸川枠 1-456-456 1〜4Rのみ", 4),
-                                (("edo", "edo456"), "江戸川枠 456＋1-456-456(12点)", None)):
-            exp = experiment_report(engine, target_date, bt, rmax)
+        for bt, title, rmax, cls in (("exp", "実験枠", None, None),
+                                     ("edo", "江戸川枠 1-456-456(6点)", None, None),
+                                     ("edo", "江戸川枠 1-456-456 1〜4Rのみ", 4, None),
+                                     ("edo", "江戸川枠 1-456-456 1〜4R・1号艇B級", 4, "B"),
+                                     ("edo", "江戸川枠 1-456-456 1〜4R・1号艇A級", 4, "A"),
+                                     (("edo", "edo456"), "江戸川枠 456＋1-456-456(12点)", None, None)):
+            exp = experiment_report(engine, target_date, bt, rmax, cls)
             if exp["bets"]:
                 msg = format_experiment(exp, title)
                 notify_console(msg)
