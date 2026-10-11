@@ -1,0 +1,43 @@
+name: kako odds shuushuu
+
+on:
+  workflow_dispatch:
+    inputs:
+      start:
+        description: "start date (YYYY-MM-DD)"
+        required: true
+        default: "2026-08-01"
+      end:
+        description: "end date (YYYY-MM-DD)"
+        required: true
+        default: "2026-09-18"
+
+concurrency:
+  group: collect-odds
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 340
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e .
+      - name: shuushuu (1nichi goto ni hozon)
+        run: |
+          git config user.name "predictor-bot"
+          git config user.email "bot@example.com"
+          d="${{ inputs.start }}"
+          while [ "$(date -d "$d" +%s)" -le "$(date -d "${{ inputs.end }}" +%s)" ]; do
+            python -u -m src.tools.collect_odds_history --date "$d" | tail -3
+            git checkout -- boatrace.db 2>/dev/null || true
+            git add odds_hist
+            if git commit -q -m "chore: kako odds $d"; then
+              for i in 1 2 3 4 5; do git pull --rebase --autostash -q && git push -q && break; sleep $((i*5)); done
+            fi
+            d=$(date -I -d "$d + 1 day")
+          done
