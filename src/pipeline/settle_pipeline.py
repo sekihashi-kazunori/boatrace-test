@@ -13,6 +13,53 @@ from src.reporting.report import session_report, daily_report, cumulative_report
 from src.notify.notifier import notify_console, notify_discord
 
 
+def race_review(engine, target_date: date, session_name: str) -> str | None:
+    """セッションの各レースの振り返り(結果の3連単と、的中なら払戻額)。
+
+    例:
+      丸亀1R 136 ハズレ
+      浜名湖3R 165 的中🎯 12,600円
+    """
+    import json
+    import os
+    from src.pipeline.session_pipeline import STADIUM_NAMES, plan_path
+
+    with OrmSession(engine) as db:
+        tickets = list(db.scalars(select(BetTicket).where(
+            BetTicket.race_date == str(target_date), BetTicket.session == session_name)).all())
+        results = {
+            (str(r.stadium_code).zfill(2), r.race_number): r.finish_order
+            for r in db.scalars(select(RaceResult).where(RaceResult.race_date == str(target_date)))
+        }
+    if not tickets:
+        return None
+
+    races: dict = {}
+    for t in tickets:
+        races.setdefault((str(t.stadium_code).zfill(2), t.race_number), []).append(t)
+
+    deadlines = {}
+    path = plan_path(target_date, session_name)
+    if os.path.exists(path):
+        with open(path, encoding="utf-8") as f:
+            for r in json.load(f):
+                deadlines[(r["stadium_code"], r["race_number"])] = r.get("deadline") or ""
+
+    lines = ["【レース振り返り】"]
+    for key in sorted(races, key=lambda k: (deadlines.get(k, "99:99"), k)):
+        ts = races[key]
+        name = f"{STADIUM_NAMES.get(key[0], key[0])}{key[1]}R"
+        order = (results.get(key) or "").replace("-", "")
+        if any(t.result is None for t in ts):
+            lines.append(f"{name} 結果待ち")
+        elif any(t.result == "hit" for t in ts):
+            payout = sum(t.payout or 0 for t in ts)
+            lines.append(f"{name} {order} 的中🎯 {payout:,}円")
+        else:
+            lines.append(f"{name} {order} ハズレ")
+    return "\n".join(lines)
+
+
 def run_settle(session_name: str, target_date: date | None = None, is_last_session_of_day: bool = False) -> None:
     # date.today()はサーバー(GitHub Actions)のUTC時刻を使ってしまい、
     # 日本時間とズレて前日/翌日の日付になることがあるため、
@@ -53,8 +100,12 @@ def run_settle(session_name: str, target_date: date | None = None, is_last_sessi
         db.commit()
 
     summary = session_report(engine, target_date, session_name)
-    notify_console(format_report(summary, f"{session_name_ja} 収支報告"))
-    notify_discord(format_report(summary, f"{session_name_ja} 収支報告"))
+    review = race_review(engine, target_date, session_name)
+    report = format_report(summary, f"{session_name_ja} 収支報告")
+    if review:
+        report += "\n" + review
+    notify_console(report)
+    notify_discord(report)
 
     if is_last_session_of_day:
         daily = daily_report(engine, target_date)
