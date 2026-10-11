@@ -33,23 +33,30 @@ def get(kind: str, d: date):
     return None
 
 
+def as_list(x):
+    """古いデータ(7月中旬より前)は配列ではなく {"1": {...}, ...} の辞書形式。"""
+    if isinstance(x, dict):
+        return list(x.values())
+    return x or []
+
+
 def rows_for_day(d: date) -> list[dict]:
     prog, prev, res = get("programs", d), get("previews", d), get("results", d)
     if not prog:
         return []
-    prev_map = {(p["race_stadium_number"], p["race_number"]): p for p in (prev or {}).get("previews", [])}
-    res_map = {(p["race_stadium_number"], p["race_number"]): p for p in (res or {}).get("results", [])}
+    prev_map = {(p["race_stadium_number"], p["race_number"]): p for p in as_list((prev or {}).get("previews", []))}
+    res_map = {(p["race_stadium_number"], p["race_number"]): p for p in as_list((res or {}).get("results", []))}
     rows = []
-    for race in prog.get("programs", []):
+    for race in as_list(prog.get("programs", [])):
         k = (race["race_stadium_number"], race["race_number"])
         pv, rs = prev_map.get(k, {}), res_map.get(k, {})
-        pv_boats = {b.get("racer_boat_number"): b for b in pv.get("boats", [])}
-        rs_boats = {b.get("racer_boat_number"): b for b in rs.get("boats", [])}
+        pv_boats = {b.get("racer_boat_number"): b for b in as_list(pv.get("boats", []))}
+        rs_boats = {b.get("racer_boat_number"): b for b in as_list(rs.get("boats", []))}
         tri = None
-        for pay in (rs.get("payouts", {}) or {}).get("trifecta", []) or []:
+        for pay in as_list((rs.get("payouts", {}) or {}).get("trifecta", [])):
             tri = pay
             break
-        for b in race.get("boats", []):
+        for b in as_list(race.get("boats", [])):
             n = b.get("racer_boat_number")
             row = {"race_date": str(d), "stadium_code": f"{k[0]:02d}", "race_number": k[1],
                    "race_grade_number": race.get("race_grade_number"), "race_distance": race.get("race_distance")}
