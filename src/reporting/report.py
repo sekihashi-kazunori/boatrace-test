@@ -90,12 +90,13 @@ def format_report(summary: dict, title: str) -> str:
 
 
 
-def experiment_report(engine, up_to_date: date, bet_type="exp") -> dict:
+def experiment_report(engine, up_to_date: date, bet_type="exp", race_max: int | None = None) -> dict:
     """紙上検証枠(実験枠 'exp' / 江戸川枠 'edo' / 江戸川456ボックス 'edo456')の累積。複数指定可。"""
     types = [bet_type] if isinstance(bet_type, str) else list(bet_type)
     with Session(engine) as db:
         stmt = select(BetTicket).where(BetTicket.bet_type.in_(types), BetTicket.race_date <= str(up_to_date))
-        tickets = [t for t in db.scalars(stmt).all() if t.result is not None]
+        tickets = [t for t in db.scalars(stmt).all() if t.result is not None
+                   and (race_max is None or t.race_number <= race_max)]
     n = len(tickets)
     hits = [t for t in tickets if t.result == "hit"]
     stake = sum(t.amount for t in tickets)
