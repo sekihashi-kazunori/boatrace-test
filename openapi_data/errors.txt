@@ -1,2 +1,241 @@
+2026-01-01: Traceback (most recent call last):
+  File "/home/runner/work/boatrace-test/boatrace-test/src/tools/fetch_openapi.py", line 92, in main
+    rows = rows_for_day(d)
+           ^^^^^^^^^^^^^^^
+  File "/home/runner/work/boatrace-test/boatrace-test/src/tools/fetch_openapi.py", line 46, in rows_for_day
+    pv_boats = {b.get("racer_boat_number"): b for b in pv.get("boats", [])}
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/boatrace-test/boatrace-test/src/tools/fetch_openapi.py", line 46, in <dictcomp>
+    pv_boats = {b.get("racer_boat_number"): b for b in pv.get("boats", [])}
+                ^^^^^
+AttributeError: 'str' object has no attribute 'get'
 
-件数 0
+2026-01-02: Traceback (most recent call last):
+  File "/home/runner/work/boatrace-test/boatrace-test/src/tools/fetch_openapi.py", line 92, in main
+    rows = rows_for_day(d)
+           ^^^^^^^^^^^^^^^
+  File "/home/runner/work/boatrace-test/boatrace-test/src/tools/fetch_openapi.py", line 46, in rows_for_day
+    pv_boats = {b.get("racer_boat_number"): b for b in pv.get("boats", [])}
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/boatrace-test/boatrace-test/src/tools/fetch_openapi.py", line 46, in <dictcomp>
+    pv_boats = {b.get("racer_boat_number"): b for b in pv.get("boats", [])}
+                ^^^^^
+AttributeError: 'str' object has no attribute 'get'
+
+2026-01-03: Traceback (most recent call last):
+  File "/home/runner/work/boatrace-test/boatrace-test/src/tools/fetch_openapi.py", line 92, in main
+    rows = rows_for_day(d)
+           ^^^^^^^^^^^^^^^
+  File "/home/runner/work/boatrace-test/boatrace-test/src/tools/fetch_openapi.py", line 46, in rows_for_day
+    pv_boats = {b.get("racer_boat_number"): b for b in pv.get("boats", [])}
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/boatrace-test/boatrace-test/src/tools/fetch_openapi.py", line 46, in <dictcomp>
+    pv_boats = {b.get("racer_boat_number"): b for b in pv.get("boats", [])}
+                ^^^^^
+AttributeError: 'str' object has no attribute 'get'
+
+2026-01-04: Traceback (most recent call last):
+  File "/home/runner/work/boatrace-test/boatrace-test/src/tools/fetch_openapi.py", line 92, in main
+    rows = rows_for_day(d)
+           ^^^^^^^^^^^^^^^
+  File "/home/runner/work/boatrace-test/boatrace-test/src/tools/fetch_openapi.py", line 46, in rows_for_day
+    pv_boats = {b.get("racer_boat_number"): b for b in pv.get("boats", [])}
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/boatrace-test/boatrace-test/src/tools/fetch_openapi.py", line 46, in <dictcomp>
+    pv_boats = {b.get("racer_boat_number"): b for b in pv.get("boats", [])}
+                ^^^^^
+AttributeError: 'str' object has no attribute 'get'
+
+2026-01-05: Traceback (most recent call last):
+  File "/home/runner/work/boatrace-test/boatrace-test/src/tools/fetch_openapi.py", line 92, in main
+    rows = rows_for_day(d)
+           ^^^^^^^^^^^^^^^
+  File "/home/runner/work/boatrace-test/boatrace-test/src/tools/fetch_openapi.py", line 46, in rows_for_day
+    pv_boats = {b.get("racer_boat_number"): b for b in pv.get("boats", [])}
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/boatrace-test/boatrace-test/src/tools/fetch_openapi.py", line 46, in <dictcomp>
+    pv_boats = {b.get("racer_boat_number"): b for b in pv.get("boats", [])}
+                ^^^^^
+AttributeError: 'str' object has no attribute 'get'
+
+2026-01-06: Traceback (most recent call last):
+  File "/home/runner/work/boatrace-test/boatrace-test/src/tools/fetch_openapi.py", line 92, in main
+    rows = rows_for_day(d)
+           ^^^^^^^^^^^^^^^
+  File "/home/runner/work/boatrace-test/boatrace-test/src/tools/fetch_openapi.py", line 46, in rows_for_day
+    pv_boats = {b.get("racer_boat_number"): b for b in pv.get("boats", [])}
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/boatrace-test/boatrace-test/src/tools/fetch_openapi.py", line 46, in <dictcomp>
+    pv_boats = {b.get("racer_boat_number"): b for b in pv.get("boats", [])}
+                ^^^^^
+AttributeError: 'str' object has no attribute 'get'
+
+2026-01-07: Traceback (most recent call last):
+  File "/home/runner/work/boatrace-test/boatrace-test/src/tools/fetch_openapi.py", line 92, in main
+    rows = rows_for_day(d)
+           ^^^^^^^^^^^^^^^
+  File "/home/runner/work/boatrace-test/boatrace-test/src/tools/fetch_openapi.py", line 46, in rows_for_day
+    pv_boats = {b.get("racer_boat_number"): b for b in pv.get("boats", [])}
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/boatrace-test/boatrace-test/src/tools/fetch_openapi.py", line 46, in <dictcomp>
+    pv_boats = {b.get("racer_boat_number"): b for b in pv.get("boats", [])}
+                ^^^^^
+AttributeError: 'str' object has no attribute 'get'
+
+2026-01-08: Traceback (most recent call last):
+  File "/home/runner/work/boatrace-test/boatrace-test/src/tools/fetch_openapi.py", line 92, in main
+    rows = rows_for_day(d)
+           ^^^^^^^^^^^^^^^
+  File "/home/runner/work/boatrace-test/boatrace-test/src/tools/fetch_openapi.py", line 46, in rows_for_day
+    pv_boats = {b.get("racer_boat_number"): b for b in pv.get("boats", [])}
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/boatrace-test/boatrace-test/src/tools/fetch_openapi.py", line 46, in <dictcomp>
+    pv_boats = {b.get("racer_boat_number"): b for b in pv.get("boats", [])}
+                ^^^^^
+AttributeError: 'str' object has no attribute 'get'
+
+2026-01-09: Traceback (most recent call last):
+  File "/home/runner/work/boatrace-test/boatrace-test/src/tools/fetch_openapi.py", line 92, in main
+    rows = rows_for_day(d)
+           ^^^^^^^^^^^^^^^
+  File "/home/runner/work/boatrace-test/boatrace-test/src/tools/fetch_openapi.py", line 46, in rows_for_day
+    pv_boats = {b.get("racer_boat_number"): b for b in pv.get("boats", [])}
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/boatrace-test/boatrace-test/src/tools/fetch_openapi.py", line 46, in <dictcomp>
+    pv_boats = {b.get("racer_boat_number"): b for b in pv.get("boats", [])}
+                ^^^^^
+AttributeError: 'str' object has no attribute 'get'
+
+2026-01-10: Traceback (most recent call last):
+  File "/home/runner/work/boatrace-test/boatrace-test/src/tools/fetch_openapi.py", line 92, in main
+    rows = rows_for_day(d)
+           ^^^^^^^^^^^^^^^
+  File "/home/runner/work/boatrace-test/boatrace-test/src/tools/fetch_openapi.py", line 46, in rows_for_day
+    pv_boats = {b.get("racer_boat_number"): b for b in pv.get("boats", [])}
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/boatrace-test/boatrace-test/src/tools/fetch_openapi.py", line 46, in <dictcomp>
+    pv_boats = {b.get("racer_boat_number"): b for b in pv.get("boats", [])}
+                ^^^^^
+AttributeError: 'str' object has no attribute 'get'
+
+2026-01-11: Traceback (most recent call last):
+  File "/home/runner/work/boatrace-test/boatrace-test/src/tools/fetch_openapi.py", line 92, in main
+    rows = rows_for_day(d)
+           ^^^^^^^^^^^^^^^
+  File "/home/runner/work/boatrace-test/boatrace-test/src/tools/fetch_openapi.py", line 46, in rows_for_day
+    pv_boats = {b.get("racer_boat_number"): b for b in pv.get("boats", [])}
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/boatrace-test/boatrace-test/src/tools/fetch_openapi.py", line 46, in <dictcomp>
+    pv_boats = {b.get("racer_boat_number"): b for b in pv.get("boats", [])}
+                ^^^^^
+AttributeError: 'str' object has no attribute 'get'
+
+2026-01-12: Traceback (most recent call last):
+  File "/home/runner/work/boatrace-test/boatrace-test/src/tools/fetch_openapi.py", line 92, in main
+    rows = rows_for_day(d)
+           ^^^^^^^^^^^^^^^
+  File "/home/runner/work/boatrace-test/boatrace-test/src/tools/fetch_openapi.py", line 46, in rows_for_day
+    pv_boats = {b.get("racer_boat_number"): b for b in pv.get("boats", [])}
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/boatrace-test/boatrace-test/src/tools/fetch_openapi.py", line 46, in <dictcomp>
+    pv_boats = {b.get("racer_boat_number"): b for b in pv.get("boats", [])}
+                ^^^^^
+AttributeError: 'str' object has no attribute 'get'
+
+2026-01-13: Traceback (most recent call last):
+  File "/home/runner/work/boatrace-test/boatrace-test/src/tools/fetch_openapi.py", line 92, in main
+    rows = rows_for_day(d)
+           ^^^^^^^^^^^^^^^
+  File "/home/runner/work/boatrace-test/boatrace-test/src/tools/fetch_openapi.py", line 46, in rows_for_day
+    pv_boats = {b.get("racer_boat_number"): b for b in pv.get("boats", [])}
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/boatrace-test/boatrace-test/src/tools/fetch_openapi.py", line 46, in <dictcomp>
+    pv_boats = {b.get("racer_boat_number"): b for b in pv.get("boats", [])}
+                ^^^^^
+AttributeError: 'str' object has no attribute 'get'
+
+2026-01-14: Traceback (most recent call last):
+  File "/home/runner/work/boatrace-test/boatrace-test/src/tools/fetch_openapi.py", line 92, in main
+    rows = rows_for_day(d)
+           ^^^^^^^^^^^^^^^
+  File "/home/runner/work/boatrace-test/boatrace-test/src/tools/fetch_openapi.py", line 46, in rows_for_day
+    pv_boats = {b.get("racer_boat_number"): b for b in pv.get("boats", [])}
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/boatrace-test/boatrace-test/src/tools/fetch_openapi.py", line 46, in <dictcomp>
+    pv_boats = {b.get("racer_boat_number"): b for b in pv.get("boats", [])}
+                ^^^^^
+AttributeError: 'str' object has no attribute 'get'
+
+2026-01-15: Traceback (most recent call last):
+  File "/home/runner/work/boatrace-test/boatrace-test/src/tools/fetch_openapi.py", line 92, in main
+    rows = rows_for_day(d)
+           ^^^^^^^^^^^^^^^
+  File "/home/runner/work/boatrace-test/boatrace-test/src/tools/fetch_openapi.py", line 46, in rows_for_day
+    pv_boats = {b.get("racer_boat_number"): b for b in pv.get("boats", [])}
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/boatrace-test/boatrace-test/src/tools/fetch_openapi.py", line 46, in <dictcomp>
+    pv_boats = {b.get("racer_boat_number"): b for b in pv.get("boats", [])}
+                ^^^^^
+AttributeError: 'str' object has no attribute 'get'
+
+2026-01-16: Traceback (most recent call last):
+  File "/home/runner/work/boatrace-test/boatrace-test/src/tools/fetch_openapi.py", line 92, in main
+    rows = rows_for_day(d)
+           ^^^^^^^^^^^^^^^
+  File "/home/runner/work/boatrace-test/boatrace-test/src/tools/fetch_openapi.py", line 46, in rows_for_day
+    pv_boats = {b.get("racer_boat_number"): b for b in pv.get("boats", [])}
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/boatrace-test/boatrace-test/src/tools/fetch_openapi.py", line 46, in <dictcomp>
+    pv_boats = {b.get("racer_boat_number"): b for b in pv.get("boats", [])}
+                ^^^^^
+AttributeError: 'str' object has no attribute 'get'
+
+2026-01-17: Traceback (most recent call last):
+  File "/home/runner/work/boatrace-test/boatrace-test/src/tools/fetch_openapi.py", line 92, in main
+    rows = rows_for_day(d)
+           ^^^^^^^^^^^^^^^
+  File "/home/runner/work/boatrace-test/boatrace-test/src/tools/fetch_openapi.py", line 46, in rows_for_day
+    pv_boats = {b.get("racer_boat_number"): b for b in pv.get("boats", [])}
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/boatrace-test/boatrace-test/src/tools/fetch_openapi.py", line 46, in <dictcomp>
+    pv_boats = {b.get("racer_boat_number"): b for b in pv.get("boats", [])}
+                ^^^^^
+AttributeError: 'str' object has no attribute 'get'
+
+2026-01-18: Traceback (most recent call last):
+  File "/home/runner/work/boatrace-test/boatrace-test/src/tools/fetch_openapi.py", line 92, in main
+    rows = rows_for_day(d)
+           ^^^^^^^^^^^^^^^
+  File "/home/runner/work/boatrace-test/boatrace-test/src/tools/fetch_openapi.py", line 46, in rows_for_day
+    pv_boats = {b.get("racer_boat_number"): b for b in pv.get("boats", [])}
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/boatrace-test/boatrace-test/src/tools/fetch_openapi.py", line 46, in <dictcomp>
+    pv_boats = {b.get("racer_boat_number"): b for b in pv.get("boats", [])}
+                ^^^^^
+AttributeError: 'str' object has no attribute 'get'
+
+2026-01-19: Traceback (most recent call last):
+  File "/home/runner/work/boatrace-test/boatrace-test/src/tools/fetch_openapi.py", line 92, in main
+    rows = rows_for_day(d)
+           ^^^^^^^^^^^^^^^
+  File "/home/runner/work/boatrace-test/boatrace-test/src/tools/fetch_openapi.py", line 46, in rows_for_day
+    pv_boats = {b.get("racer_boat_number"): b for b in pv.get("boats", [])}
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/boatrace-test/boatrace-test/src/tools/fetch_openapi.py", line 46, in <dictcomp>
+    pv_boats = {b.get("racer_boat_number"): b for b in pv.get("boats", [])}
+                ^^^^^
+AttributeError: 'str' object has no attribute 'get'
+
+2026-01-20: Traceback (most recent call last):
+  File "/home/runner/work/boatrace-test/boatrace-test/src/tools/fetch_openapi.py", line 92, in main
+    rows = rows_for_day(d)
+           ^^^^^^^^^^^^^^^
+  File "/home/runner/work/boatrace-test/boatrace-test/src/tools/fetch_openapi.py", line 46, in rows_for_day
+    pv_boats = {b.get("racer_boat_number"): b for b in pv.get("boats", [])}
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/boatrace-test/boatrace-test/src/tools/fetch_openapi.py", line 46, in <dictcomp>
+    pv_boats = {b.get("racer_boat_number"): b for b in pv.get("boats", [])}
+                ^^^^^
+AttributeError: 'str' object has no attribute 'get'
+
+件数 192
