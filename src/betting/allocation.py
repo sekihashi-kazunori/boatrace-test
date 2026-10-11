@@ -87,69 +87,54 @@ def build_bet_plan(
     total_stake: int = 1000,
     odds_map: dict[tuple[int, int, int], float] | None = None,
     n_teppan: int = 5,
-    ana_range: tuple[float, float] = (30.0, 100.0),
+    max_odds: float = 30.0,
     **_ignored,
 ) -> list[BetPlan]:
     """
-    レースの買い目と金額配分を決める(2026-10-10深夜 ご主人様指定ルール)。
+    レースの買い目と金額配分を決める(2026-10-11夜 ご主人様指定: 大穴なし・30倍以下の鉄板で120%を目指す)。
 
-    10/10ナイターの的中6本がすべて鉄板(4〜17倍)、中穴・大穴は0本だったため、
-    鉄板を5点に絞って厚く張り、穴は1点だけにする。
-
-    鉄板5点 = 予測確率の上位5点(オッズに関係なく自信がある順)に計900円
-      金額はオッズの逆数に比例(低いオッズほど厚く)させ、100円単位・最低100円。
+    鉄板5点 = オッズ30倍以下の中から、予測確率の高い順に5点。計1000円。
+      金額はオッズの逆数に比例(低いオッズほど厚く)、100円単位・最低100円。
       → どの鉄板が当たっても払戻がだいたい同じになる。
-    穴1点 = オッズ30〜100倍の中で予測確率が最も高い点に100円
-      (見つからなければ、その100円も鉄板に回す)
-    合計は常に1000円。オッズが取得できないレースは見送り。
+    30倍以下が5点に満たないレースは、ある分だけで1000円を配分する。
+    オッズが取得できないレースは見送り。
+
+    8〜9月の締切時オッズ約7,600Rのバックテスト: 1日21R厳選で回収率 8月79%・9月82%
+    (旧ルール 鉄板5+穴1 は77〜78%)。
     """
     if {"p1", "p2", "p3"} <= set(race_df.columns):
         combo_probs = _harville3(race_df)
     else:
-        win_probs = dict(zip(race_df["lane_number"], race_df["predicted_win_prob"]))
-        combo_probs = _harville_trifecta_probs(win_probs)
-    prob_ranked = sorted(combo_probs.items(), key=lambda x: x[1], reverse=True)
-
+        combo_probs = _harville_trifecta_probs(dict(zip(race_df["lane_number"], race_df["predicted_win_prob"])))
     if not odds_map:
         print("オッズ未取得のため見送り")
         return []
 
-    ranked = [(c, p, odds_map[c]) for c, p in prob_ranked if odds_map.get(c) is not None]
-    if len(ranked) < n_teppan:
-        print("オッズが足りないため見送り")
+    ranked = sorted(
+        ((c, p, odds_map[c]) for c, p in combo_probs.items() if odds_map.get(c) and odds_map[c] <= max_odds),
+        key=lambda x: x[1], reverse=True,
+    )[:n_teppan]
+    if not ranked:
+        print(f"{max_odds}倍以下の買い目が無いため見送り")
         return []
 
-    teppan_src = ranked[:n_teppan]
-    teppan_set = {c for c, _, _ in teppan_src}
-    ana = next(((c, p, o) for c, p, o in ranked if c not in teppan_set and ana_range[0] <= o <= ana_range[1]), None)
-
-    teppan_budget = total_stake - (100 if ana else 0)
-
-    # オッズの逆数に比例配分 → 100円単位に丸め(最低100円)
-    inv = [1.0 / o for _, _, o in teppan_src]
-    raw = [teppan_budget * w / sum(inv) for w in inv]
-    stakes = [max(100, int(r / 100 + 0.5) * 100) for r in raw]
-    # 丸めのズレを合わせる: 多すぎたら高オッズ側から削り、足りなければ低オッズ側に足す
-    order_low = sorted(range(len(stakes)), key=lambda i: teppan_src[i][2])
-    while sum(stakes) > teppan_budget:
+    inv = [1.0 / o for _, _, o in ranked]
+    stakes = [max(100, int(total_stake * w / sum(inv) / 100 + 0.5) * 100) for w in inv]
+    order_low = sorted(range(len(stakes)), key=lambda i: ranked[i][2])
+    while sum(stakes) > total_stake:
         for i in reversed(order_low):
             if stakes[i] > 100:
                 stakes[i] -= 100
                 break
         else:
             break
-    while sum(stakes) < teppan_budget:
+    while sum(stakes) < total_stake:
         stakes[order_low[0]] += 100
 
-    plans: list[BetPlan] = []
-    for (c, p, o), st in zip(teppan_src, stakes):
-        plans.append(BetPlan("-".join(map(str, c)), "鉄板", st, round(p * 100, 2), o,
-                             _reason_for(c, race_df, "鉄板")))
-    if ana:
-        c, p, o = ana
-        plans.append(BetPlan("-".join(map(str, c)), "穴", 100, round(p * 100, 2), o,
-                             _reason_for(c, race_df, "大穴")))
-    return plans
+    return [
+        BetPlan("-".join(map(str, c)), "鉄板", st, round(p * 100, 2), o, _reason_for(c, race_df, "鉄板"))
+        for (c, p, o), st in zip(ranked, stakes)
+    ]
 
 
 def experimental_bets(
