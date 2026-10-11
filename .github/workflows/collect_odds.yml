@@ -12,9 +12,6 @@ on:
         required: true
         default: "2026-09-18"
 
-concurrency:
-  group: collect-odds
-  cancel-in-progress: false
 
 jobs:
   run:
