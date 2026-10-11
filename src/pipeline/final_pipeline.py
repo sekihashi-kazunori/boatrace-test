@@ -228,9 +228,14 @@ def run_final(target_date: date | None = None, model_path: str = "model.txt", db
             _run_edogawa(state, target_date, session_name, race_number, odds_map)
             # 江戸川1〜4Rで1号艇がB級なら、本番の買い目を 1-456-456(6点×100円) にする
             if race_number <= 4 and b1_class and b1_class.startswith("B"):
+                # 2026-10-12: 1-2-3・1-3-2を各200円足して1R 1,000円に(過去 的中率19.8%・回収率149%)
                 bet_plans = [
+                    BetPlan(c, "江戸川鉄板", 200, 0.0, (odds_map or {}).get(tuple(map(int, c.split("-")))),
+                            "1号艇が逃げて2・3号艇が続く形")
+                    for c in ("1-2-3", "1-3-2")
+                ] + [
                     BetPlan(c, "江戸川穴", 100, 0.0, (odds_map or {}).get(tuple(map(int, c.split("-")))),
-                            f"江戸川前半・1号艇{b1_class}は逃げにくく外が届く(過去回収率169%)")
+                            f"江戸川前半・1号艇{b1_class}は逃げにくく外が届く")
                     for c in EDOGAWA_COMBOS
                 ]
                 is_main = True
