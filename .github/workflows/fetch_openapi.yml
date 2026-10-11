@@ -1,0 +1,32 @@
+name: kakuchou data shutoku (openapi)
+
+on:
+  workflow_dispatch:
+    inputs:
+      start:
+        default: "2026-01-01"
+        required: true
+      end:
+        default: "2026-10-11"
+        required: true
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e .
+      - run: python -u -m src.tools.fetch_openapi --start "${{ inputs.start }}" --end "${{ inputs.end }}"
+      - name: hozon
+        run: |
+          git config user.name "predictor-bot"
+          git config user.email "bot@example.com"
+          git add openapi_data
+          git commit -q -m "chore: openapi kakuchou data ${{ inputs.start }}..${{ inputs.end }}" || exit 0
+          for i in 1 2 3 4 5; do git pull --rebase --autostash -q && git push -q && exit 0; sleep $((i*5)); done
+          exit 1
