@@ -61,7 +61,7 @@ def daily_report(engine, race_date: date) -> dict:
 
 # 累積収支の集計開始日。新システム(展示後予想・鉄板4点ルール)の本格稼働日から
 # 数え直す(2026-10-10 ご主人様指示でリセット)。
-CUMULATIVE_START = date(2026, 10, 11)
+CUMULATIVE_START = date(2026, 10, 13)  # 条件ルール型に再構築した翌日から集計(2026-10-12決定)
 
 
 def cumulative_report(engine, up_to_date: date) -> dict:
@@ -116,8 +116,8 @@ def experiment_report(engine, up_to_date: date, bet_type="exp", race_max: int | 
 
 
 def format_experiment(r: dict, title: str = "実験枠") -> str:
-    if title.startswith("江戸川") or title.startswith("津"):
+    if not title.startswith("実験"):
         return (f"【{title} 累積】※紙上検証\n"
                 f"{r['races']}R / 的中{r['hit_races']}R / 購入{r['stake']:,}円 / 払戻{r['payout']:,}円 / 回収率{r['recovery_rate']}%")
-    return (f"【実験枠 累積】※本番とは別の紙上検証\n"
+    return (f"【{title} 累積】※本番とは別の紙上検証\n"
             f"{r['bets']}点 / 的中{r['hits']}点 / 購入{r['stake']:,}円 / 払戻{r['payout']:,}円 / 回収率{r['recovery_rate']}%")

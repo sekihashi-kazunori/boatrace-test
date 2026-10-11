@@ -215,10 +215,11 @@ def run_session(
     # max_races が None の場合は厳選せず全レースを対象にする(従来挙動)。
     race_candidates.sort(key=lambda c: c[5], reverse=True)
     selected = race_candidates if max_races is None else race_candidates[:max_races]
-    # 江戸川の1〜4Rは「前半予想のメイン」として必ず本番に入れる(2026-10-12〜)
-    chosen = {(c[0], c[1]) for c in selected}
-    selected = selected + [c for c in race_candidates
-                           if c[0] == "03" and c[1] <= 4 and (c[0], c[1]) not in chosen]
+    # 2026-10-12 再構築: 本番は「会場×1号艇の級」の条件ルール(江戸川・津)だけ。
+    # 汎用モデルの厳選レース(gen)は紙上の参考枠として記録を続ける。
+    gen_keys = {(c[0], c[1]) for c in selected}
+    rule_races = [c for c in race_candidates if c[0] in RULE_STADIUMS]
+    selected = sorted(rule_races, key=lambda c: c[4] or "99:99")
     skipped_count = len(race_candidates) - len(selected)
     print(
         f"厳選結果: 候補{len(race_candidates)}レース中 "
@@ -226,16 +227,16 @@ def run_session(
     )
 
     if plan_only:
-        save_plan(target_date, session_name, selected, race_candidates)
+        save_plan(target_date, session_name, selected, race_candidates, gen_keys)
         if selected:
-            lines = [f"【{session_name_ja} 厳選{len(selected)}R】展示タイム後に買い目を送ります"]
+            lines = [f"【{session_name_ja} 勝負候補{len(selected)}R】展示後に1号艇の級を見て、B級なら勝負・A級なら見送ります"]
             for stadium_code, race_number, stadium_name, _plans, deadline_time, _score in sorted(
                 selected, key=lambda c: c[4] or "99:99"
             ):
                 lines.append(f"・{stadium_name}{race_number}R（締切{deadline_time or '不明'}）")
             msg = "\n".join(lines)
         else:
-            msg = f"【{session_name_ja}】買い目を組めるレースが無いため、全レース見送り"
+            msg = f"【{session_name_ja}】江戸川・津の開催が無いため、本番の勝負レースはありません(参考枠のみ記録)"
         notify_console(msg)
         try:
             notify_discord(msg)
@@ -287,7 +288,10 @@ def plan_path(target_date: date, session_name: str) -> str:
     return os.path.join("plans", f"{target_date}_{session_name}.json")
 
 
-def save_plan(target_date: date, session_name: str, selected, candidates=None) -> None:
+RULE_STADIUMS = ("03", "09")  # 江戸川・津
+
+
+def save_plan(target_date: date, session_name: str, selected, candidates=None, gen_keys=None) -> None:
     """厳選レース(main=True)に加え、実験枠の検証用に残りの候補(main=False)も保存する。"""
     import json
     os.makedirs("plans", exist_ok=True)
@@ -300,6 +304,7 @@ def save_plan(target_date: date, session_name: str, selected, candidates=None) -
             "deadline": deadline_time,
             "score": round(score, 4),
             "main": (stadium_code, race_number) in main_keys,
+            "gen": (stadium_code, race_number) in (gen_keys or set()),
         }
         for stadium_code, race_number, stadium_name, _plans, deadline_time, score in (candidates or selected)
     ]

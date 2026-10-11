@@ -122,7 +122,8 @@ def run_settle(session_name: str, target_date: date | None = None, is_last_sessi
         notify_console(msg)
         notify_discord(msg)
 
-        for bt, title, rmax, cls in (("exp", "実験枠", None, None),
+        for bt, title, rmax, cls in (("gen", "参考枠(汎用モデル鉄板5点)", None, None),
+                                     ("exp", "実験枠", None, None),
                                      ("edo", "江戸川枠 1-456-456(6点)", None, None),
                                      ("edo", "江戸川枠 1-456-456 1〜4Rのみ", 4, None),
                                      ("edo", "江戸川枠 1-456-456 1〜4R・1号艇B級", 4, "B"),

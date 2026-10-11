@@ -116,6 +116,48 @@ def _save_meta(state, target_date, stadium_code, race_number, b1_class) -> None:
         print(f"レース情報の保存失敗 {stadium_code} {race_number}R: {e}")
 
 
+def _odds(odds_map, c):
+    return (odds_map or {}).get(tuple(map(int, c.split("-"))))
+
+
+def _rule_plans(stadium_code, race_number, b1_class, odds_map):
+    """本番の条件ルール。1〜10月約4.3万Rの検証で、前半(1〜6月)・後半(7〜10月)の両方で
+    回収率100%超えだったものだけ。
+
+    - 江戸川 1〜4R・1号艇B級: 1-2-3/1-3-2 各200円 + 1-456-456 各100円(1,000円)
+        過去 的中率19.8% 回収率149%(前半143%・後半158%)
+    - 津 全R・1号艇B級: 1-456-456 各100円(600円)
+        過去 的中率5.1% 回収率127%(前半117%・後半142%)
+    それ以外(1号艇A級、江戸川5R以降など)は見送り。
+    """
+    if not (b1_class and b1_class.startswith("B")):
+        return None
+    if stadium_code == "03" and race_number <= 4:
+        return [BetPlan(c, "江戸川鉄板", 200, 0.0, _odds(odds_map, c), "1号艇が逃げて2・3号艇が続く形")
+                for c in ("1-2-3", "1-3-2")] + \
+               [BetPlan(c, "江戸川穴", 100, 0.0, _odds(odds_map, c), f"江戸川前半・1号艇{b1_class}は逃げにくく外が届く")
+                for c in EDOGAWA_COMBOS]
+    if stadium_code == "09":
+        return [BetPlan(c, "津穴", 100, 0.0, _odds(odds_map, c), f"津・1号艇{b1_class}は逃げにくく外が届く")
+                for c in EDOGAWA_COMBOS]
+    return None
+
+
+def _run_general(state, target_date, session_name, stadium_code, race_number, label, bet_plans) -> None:
+    """参考枠(紙上): これまでの汎用モデルの鉄板5点。Discordには流さず、夜に累積だけ報告。"""
+    if not bet_plans:
+        return
+    try:
+        save_bet_tickets(state, [
+            BetTicket(race_date=str(target_date), session=session_name, stadium_code=stadium_code,
+                      race_number=race_number, combination=p.combination, amount=p.stake,
+                      bet_type="gen", odds=p.odds)
+            for p in bet_plans
+        ])
+    except Exception as e:
+        print(f"{label}: 参考枠の保存失敗 {e}")
+
+
 def _run_tsu(state, target_date, session_name, race_number, odds_map, b1_class) -> None:
     if not (b1_class and b1_class.startswith("B")):
         return
@@ -236,27 +278,25 @@ def run_final(target_date: date | None = None, model_path: str = "model.txt", db
 
         is_main = race.get("main", True)
         _run_experiment(state, target_date, session_name, stadium_code, race_number, label, indexed, odds_map)
+        if race.get("gen"):
+            _run_general(state, target_date, session_name, stadium_code, race_number, label, bet_plans)
+        b1_class = None
         if stadium_code in ("03", "09"):
             b1_class = next((r.get("racer_class") for r in card.get("racers", []) if r.get("lane") == 1), None)
             _save_meta(state, target_date, stadium_code, race_number, b1_class)
         if stadium_code == "09":
-            # 津枠(紙上のみ・2026-10-12〜): 1号艇B級の全レースで1-456-456。過去 前半117%・後半142%
             _run_tsu(state, target_date, session_name, race_number, odds_map, b1_class)
         if stadium_code == "03":
             _run_edogawa(state, target_date, session_name, race_number, odds_map)
-            # 江戸川1〜4Rで1号艇がB級なら、本番の買い目を 1-456-456(6点×100円) にする
-            if race_number <= 4 and b1_class and b1_class.startswith("B"):
-                # 2026-10-12: 1-2-3・1-3-2を各200円足して1R 1,000円に(過去 的中率19.8%・回収率149%)
-                bet_plans = [
-                    BetPlan(c, "江戸川鉄板", 200, 0.0, (odds_map or {}).get(tuple(map(int, c.split("-")))),
-                            "1号艇が逃げて2・3号艇が続く形")
-                    for c in ("1-2-3", "1-3-2")
-                ] + [
-                    BetPlan(c, "江戸川穴", 100, 0.0, (odds_map or {}).get(tuple(map(int, c.split("-")))),
-                            f"江戸川前半・1号艇{b1_class}は逃げにくく外が届く")
-                    for c in EDOGAWA_COMBOS
-                ]
-                is_main = True
+
+        # ===== 本番(2026-10-12 再構築): 会場×1号艇の級の条件ルール =====
+        rule_plans = _rule_plans(stadium_code, race_number, b1_class, odds_map) if is_main else None
+        if is_main and not rule_plans:
+            print(f"{label}: 条件外(1号艇{b1_class})のため見送り")
+            _record(state, target_date, session_name, stadium_code, race_number, "rule_skip")
+            continue
+        if is_main:
+            bet_plans = rule_plans
         if not is_main:
             _record(state, target_date, session_name, stadium_code, race_number, "exp_only")
             continue
