@@ -25,7 +25,7 @@ import pandas as pd
 from sqlalchemy import select
 from sqlalchemy.orm import Session as OrmSession
 
-from src.collectors.official_site import fetch_race_card, fetch_before_info, fetch_odds_3rentan
+from src.collectors.official_site import fetch_race_card, fetch_before_info, fetch_odds_3rentan, LAST_WEATHER
 from src.storage.db import (
     get_engine, init_db, save_entries, save_bet_tickets, get_state_engine,
     BetTicket, RaceDecision, OddsSnapshot, RaceMeta,
@@ -120,17 +120,22 @@ def _odds(odds_map, c):
     return (odds_map or {}).get(tuple(map(int, c.split("-"))))
 
 
-def _rule_plans(stadium_code, race_number, b1_class, odds_map):
+def _rule_plans(stadium_code, race_number, b1_class, odds_map, weather=None):
     """本番の条件ルール。1〜10月約4.3万Rの検証で、前半(1〜6月)・後半(7〜10月)の両方で
     回収率100%超えだったものだけ。
 
-    - 江戸川 1〜4R・1号艇B級: 1-2-3/1-3-2 各200円 + 1-456-456 各100円(1,000円)
-        過去 的中率19.8% 回収率149%(前半143%・後半158%)
+    - 江戸川 1〜4R・1号艇B級・波5cm以下: 1-2-3/1-3-2 各200円 + 1-456-456 各100円(1,000円)
+        過去 回収率164%(前半153%・後半182%)。波6cm以上は78%に落ちるため見送り
     - 津 全R・1号艇B級: 1-456-456 各100円(600円)
         過去 的中率5.1% 回収率127%(前半117%・後半142%)
     それ以外(1号艇A級、江戸川5R以降など)は見送り。
     """
     if not (b1_class and b1_class.startswith("B")):
+        return None
+    wave = (weather or {}).get("wave")
+    if stadium_code == "03" and race_number <= 4 and wave is not None and wave >= 6:
+        # 波6cm以上は前半97%・後半48%と悪化するため見送り(2026-10-12追加)
+        print(f"江戸川{race_number}R: 波高{wave}cmで荒れすぎのため見送り")
         return None
     if stadium_code == "03" and race_number <= 4:
         return [BetPlan(c, "江戸川鉄板", 200, 0.0, _odds(odds_map, c), "1号艇が逃げて2・3号艇が続く形")
@@ -290,7 +295,8 @@ def run_final(target_date: date | None = None, model_path: str = "model.txt", db
             _run_edogawa(state, target_date, session_name, race_number, odds_map)
 
         # ===== 本番(2026-10-12 再構築): 会場×1号艇の級の条件ルール =====
-        rule_plans = _rule_plans(stadium_code, race_number, b1_class, odds_map) if is_main else None
+        weather = LAST_WEATHER.get((stadium_code, race_number, str(target_date)), {})
+        rule_plans = _rule_plans(stadium_code, race_number, b1_class, odds_map, weather) if is_main else None
         if is_main and not rule_plans:
             print(f"{label}: 条件外(1号艇{b1_class})のため見送り")
             _record(state, target_date, session_name, stadium_code, race_number, "rule_skip")

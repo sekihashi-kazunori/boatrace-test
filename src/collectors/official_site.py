@@ -285,6 +285,22 @@ def _parse_before_info_table(html: str) -> tuple[dict[int, float], dict[int, flo
     return exhibition, tilt
 
 
+LAST_WEATHER: dict = {}
+
+
+def parse_weather(html: str) -> dict:
+    """直前情報ページの「風速 3m」「波高 5cm」を読む(2026-10-12〜 江戸川の波高条件用)。"""
+    text = BeautifulSoup(html, "html.parser").get_text(" ", strip=True)
+    out = {}
+    m = re.search(r"風速\s*(\d+)\s*m", text)
+    if m:
+        out["wind"] = int(m.group(1))
+    m = re.search(r"波高\s*(\d+)\s*cm", text)
+    if m:
+        out["wave"] = int(m.group(1))
+    return out
+
+
 def fetch_before_info(stadium_code: str, race_number: int, target_date: Optional[date] = None) -> list[dict]:
     """
     直前情報ページから、各艇の展示タイム・チルトを取得する。
@@ -312,6 +328,8 @@ def fetch_before_info(stadium_code: str, race_number: int, target_date: Optional
     print(f"'チルト'という文字列が本文に含まれるか: {'チルト' in res.text}")
 
     exhibition_by_lane, tilt_by_lane = _parse_before_info_table(res.text)
+    LAST_WEATHER[(stadium_code, race_number, str(target_date))] = parse_weather(res.text)
+    print(f"水面気象: {LAST_WEATHER[(stadium_code, race_number, str(target_date))]}")
     print(f"展示タイム取得件数: {len(exhibition_by_lane)}件（本来6件） 中身={exhibition_by_lane}")
     print(f"チルト取得件数: {len(tilt_by_lane)}件（本来6件） 中身={tilt_by_lane}")
 
