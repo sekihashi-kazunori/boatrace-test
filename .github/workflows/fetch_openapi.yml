@@ -21,7 +21,7 @@ jobs:
           python-version: "3.11"
           cache: pip
       - run: pip install -e .
-      - run: python -u -m src.tools.fetch_openapi --start "${{ inputs.start }}" --end "${{ inputs.end }}"
+      - run: python -u -m src.tools.fetch_openapi --start "${{ inputs.start }}" --end "${{ inputs.end }}" || true
       - name: hozon
         run: |
           git config user.name "predictor-bot"

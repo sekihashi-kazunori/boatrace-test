@@ -79,8 +79,21 @@ def main():
     os.makedirs(OUT, exist_ok=True)
     by_month: dict[str, list] = {}
     sample_done = False
+    errors = []
+    raw_saved = False
     while d <= end:
-        rows = rows_for_day(d)
+        if not raw_saved:
+            for kind in ("programs", "previews", "results"):
+                j = get(kind, d)
+                with open(os.path.join(OUT, f"raw_sample_{kind}.json"), "w") as f:
+                    f.write(json.dumps(j, ensure_ascii=False)[:6000])
+            raw_saved = True
+        try:
+            rows = rows_for_day(d)
+        except Exception as e:
+            import traceback
+            errors.append(f"{d}: {traceback.format_exc()}")
+            rows = []
         print(d, len(rows))
         if rows and not sample_done:
             # 1日分の生JSONの形を確認用に保存(小さいので先頭だけ)
@@ -89,7 +102,11 @@ def main():
             sample_done = True
         by_month.setdefault(f"{d:%Y-%m}", []).extend(rows)
         d += timedelta(days=1)
+    with open(os.path.join(OUT, "errors.txt"), "w") as f:
+        f.write("\n".join(errors[:20]) + f"\n件数 {len(errors)}\n")
     for m, rows in by_month.items():
+        if not rows:
+            continue
         pd.DataFrame(rows).to_csv(os.path.join(OUT, f"{m}.csv.gz"), index=False, compression="gzip")
         print("保存", m, len(rows))
 
