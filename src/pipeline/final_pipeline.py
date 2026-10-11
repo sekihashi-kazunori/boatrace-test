@@ -116,6 +116,20 @@ def _save_meta(state, target_date, stadium_code, race_number, b1_class) -> None:
         print(f"レース情報の保存失敗 {stadium_code} {race_number}R: {e}")
 
 
+def _run_tsu(state, target_date, session_name, race_number, odds_map, b1_class) -> None:
+    if not (b1_class and b1_class.startswith("B")):
+        return
+    try:
+        save_bet_tickets(state, [
+            BetTicket(race_date=str(target_date), session=session_name, stadium_code="09",
+                      race_number=race_number, combination=c, amount=100, bet_type="tsu",
+                      odds=(odds_map or {}).get(tuple(map(int, c.split("-")))))
+            for c in EDOGAWA_COMBOS
+        ])
+    except Exception as e:
+        print(f"津枠の保存失敗 {race_number}R: {e}")
+
+
 def _run_edogawa(state, target_date, session_name, race_number, odds_map) -> None:
     """江戸川枠(紙上のみ・2026-10-12〜): 江戸川の全レースで 1-456-456 の6点を100円ずつ。
     1〜10月の江戸川約1,550Rで回収率97%(1〜4Rは143%)。本物かを検証する。"""
@@ -222,9 +236,13 @@ def run_final(target_date: date | None = None, model_path: str = "model.txt", db
 
         is_main = race.get("main", True)
         _run_experiment(state, target_date, session_name, stadium_code, race_number, label, indexed, odds_map)
-        if stadium_code == "03":
+        if stadium_code in ("03", "09"):
             b1_class = next((r.get("racer_class") for r in card.get("racers", []) if r.get("lane") == 1), None)
             _save_meta(state, target_date, stadium_code, race_number, b1_class)
+        if stadium_code == "09":
+            # 津枠(紙上のみ・2026-10-12〜): 1号艇B級の全レースで1-456-456。過去 前半117%・後半142%
+            _run_tsu(state, target_date, session_name, race_number, odds_map, b1_class)
+        if stadium_code == "03":
             _run_edogawa(state, target_date, session_name, race_number, odds_map)
             # 江戸川1〜4Rで1号艇がB級なら、本番の買い目を 1-456-456(6点×100円) にする
             if race_number <= 4 and b1_class and b1_class.startswith("B"):

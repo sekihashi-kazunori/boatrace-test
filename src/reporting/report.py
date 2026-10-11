@@ -116,7 +116,7 @@ def experiment_report(engine, up_to_date: date, bet_type="exp", race_max: int | 
 
 
 def format_experiment(r: dict, title: str = "実験枠") -> str:
-    if title.startswith("江戸川"):
+    if title.startswith("江戸川") or title.startswith("津"):
         return (f"【{title} 累積】※紙上検証\n"
                 f"{r['races']}R / 的中{r['hit_races']}R / 購入{r['stake']:,}円 / 払戻{r['payout']:,}円 / 回収率{r['recovery_rate']}%")
     return (f"【実験枠 累積】※本番とは別の紙上検証\n"
