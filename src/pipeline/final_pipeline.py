@@ -87,12 +87,16 @@ def _run_experiment(state, target_date, session_name, stadium_code, race_number,
         return
     if not plans:
         return
-    save_bet_tickets(state, [
-        BetTicket(race_date=str(target_date), session=session_name, stadium_code=stadium_code,
-                  race_number=race_number, combination=p.combination, amount=p.stake,
-                  bet_type="exp", odds=p.odds)
-        for p in plans
-    ])
+    try:  # 実験枠の失敗で本番の買い目が止まらないようにする
+        save_bet_tickets(state, [
+            BetTicket(race_date=str(target_date), session=session_name, stadium_code=stadium_code,
+                      race_number=race_number, combination=p.combination, amount=p.stake,
+                      bet_type="exp", odds=p.odds)
+            for p in plans
+        ])
+    except Exception as e:
+        print(f"{label}: 実験枠の保存失敗 {e}")
+        return
     # 1日30点前後になるため、Discordには個別に流さず、夜の精算で累積だけ報告する
     print(f"【実験枠】{label} " + " / ".join(f"{p.combination} {p.odds}倍({p.reason})" for p in plans))
 
