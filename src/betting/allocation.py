@@ -150,3 +150,38 @@ def build_bet_plan(
         plans.append(BetPlan("-".join(map(str, c)), "穴", 100, round(p * 100, 2), o,
                              _reason_for(c, race_df, "大穴")))
     return plans
+
+
+def experimental_bets(
+    race_df: pd.DataFrame,
+    odds_map: dict[tuple[int, int, int], float] | None,
+    min_ratio: float = 1.7,
+    max_odds: float = 30.0,
+) -> list[BetPlan]:
+    """
+    【実験枠】(2026-10-11〜 紙上のみの検証)
+    モデルの確率が、オッズから逆算した世間の確率の min_ratio 倍以上で、
+    オッズが max_odds 倍以下の買い目に100円ずつ。
+
+    8〜9月の締切時オッズ約7,600レースのバックテストでは回収率108%
+    (8月102%・9月117%)だったが、90%区間は85〜131%で、近い条件
+    (1.5倍・2.0倍)は100%未満だったため、偶然の可能性が高い。
+    本番と完全に分けて記録し、実データで本物かどうかを確かめる。
+    """
+    if not odds_map or len(odds_map) < 100:
+        return []
+    if {"p1", "p2", "p3"} <= set(race_df.columns):
+        probs = _harville3(race_df)
+    else:
+        probs = _harville_trifecta_probs(dict(zip(race_df["lane_number"], race_df["predicted_win_prob"])))
+    inv_sum = sum(1.0 / o for o in odds_map.values() if o)
+    out = []
+    for combo, o in odds_map.items():
+        if not o or o > max_odds or combo not in probs:
+            continue
+        q = (1.0 / o) / inv_sum
+        ratio = probs[combo] / q
+        if ratio >= min_ratio:
+            out.append(BetPlan("-".join(map(str, combo)), "実験", 100, round(probs[combo] * 100, 2), o,
+                               f"モデル/世間={ratio:.1f}倍"))
+    return sorted(out, key=lambda b: b.odds)

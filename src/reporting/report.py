@@ -8,11 +8,15 @@ from sqlalchemy.orm import Session
 from src.storage.db import BetTicket
 
 
+def _main_only(tickets):
+    return [t for t in tickets if t.bet_type != "exp"]
+
+
 def _summarize(tickets: list[BetTicket]) -> dict:
     # 結果確定済み(hit/miss)の買い目だけを集計する。未確定のまま残った
     # 過去データ(払戻0扱い)が累積に混ざり、回収率が実態より極端に
     # 低く出ていたため。
-    tickets = [t for t in tickets if t.result is not None]
+    tickets = [t for t in _main_only(tickets) if t.result is not None]
     total_stake = sum(t.amount for t in tickets)
     total_payout = sum((t.payout or 0) for t in tickets)
 
@@ -84,3 +88,21 @@ def format_report(summary: dict, title: str) -> str:
     lines.append(f"収支: {profit_sign}{summary['profit']:,}円 / 回収率: {summary['recovery_rate']}%")
     return "\n".join(lines)
 
+
+
+def experiment_report(engine, up_to_date: date) -> dict:
+    """実験枠(bet_type='exp')の累積。"""
+    with Session(engine) as db:
+        stmt = select(BetTicket).where(BetTicket.bet_type == "exp", BetTicket.race_date <= str(up_to_date))
+        tickets = [t for t in db.scalars(stmt).all() if t.result is not None]
+    n = len(tickets)
+    hits = [t for t in tickets if t.result == "hit"]
+    stake = sum(t.amount for t in tickets)
+    payout = sum(t.payout or 0 for t in hits)
+    return {"bets": n, "hits": len(hits), "stake": stake, "payout": payout,
+            "recovery_rate": round(payout / stake * 100, 1) if stake else 0.0}
+
+
+def format_experiment(r: dict) -> str:
+    return (f"【実験枠 累積】※本番とは別の紙上検証\n"
+            f"{r['bets']}点 / 的中{r['hits']}点 / 購入{r['stake']:,}円 / 払戻{r['payout']:,}円 / 回収率{r['recovery_rate']}%")

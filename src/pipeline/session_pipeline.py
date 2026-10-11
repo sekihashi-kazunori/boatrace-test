@@ -222,7 +222,7 @@ def run_session(
     )
 
     if plan_only:
-        save_plan(target_date, session_name, selected)
+        save_plan(target_date, session_name, selected, race_candidates)
         if selected:
             lines = [f"【{session_name_ja} 厳選{len(selected)}R】展示タイム後に買い目を送ります"]
             for stadium_code, race_number, stadium_name, _plans, deadline_time, _score in sorted(
@@ -283,9 +283,11 @@ def plan_path(target_date: date, session_name: str) -> str:
     return os.path.join("plans", f"{target_date}_{session_name}.json")
 
 
-def save_plan(target_date: date, session_name: str, selected) -> None:
+def save_plan(target_date: date, session_name: str, selected, candidates=None) -> None:
+    """厳選レース(main=True)に加え、実験枠の検証用に残りの候補(main=False)も保存する。"""
     import json
     os.makedirs("plans", exist_ok=True)
+    main_keys = {(c[0], c[1]) for c in selected}
     data = [
         {
             "stadium_code": stadium_code,
@@ -293,8 +295,9 @@ def save_plan(target_date: date, session_name: str, selected) -> None:
             "stadium_name": stadium_name,
             "deadline": deadline_time,
             "score": round(score, 4),
+            "main": (stadium_code, race_number) in main_keys,
         }
-        for stadium_code, race_number, stadium_name, _plans, deadline_time, score in selected
+        for stadium_code, race_number, stadium_name, _plans, deadline_time, score in (candidates or selected)
     ]
     with open(plan_path(target_date, session_name), "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=1)

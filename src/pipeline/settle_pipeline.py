@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session as OrmSession
 
 from src.storage.db import get_state_engine, BetTicket, save_race_result, RaceResult
 from src.results.fetch_results import fetch_race_result, settle_tickets
-from src.reporting.report import session_report, daily_report, cumulative_report, format_report, CUMULATIVE_START
+from src.reporting.report import session_report, daily_report, cumulative_report, format_report, CUMULATIVE_START, experiment_report, format_experiment
 from src.notify.notifier import notify_console, notify_discord
 
 
@@ -34,6 +34,9 @@ def race_review(engine, target_date: date, session_name: str) -> str | None:
     if not tickets:
         return None
 
+    tickets = [t for t in tickets if t.bet_type != "exp"]
+    if not tickets:
+        return None
     races: dict = {}
     for t in tickets:
         races.setdefault((str(t.stadium_code).zfill(2), t.race_number), []).append(t)
@@ -118,6 +121,12 @@ def run_settle(session_name: str, target_date: date | None = None, is_last_sessi
             msg = format_report(cumulative_report(engine, target_date), "累積収支")
         notify_console(msg)
         notify_discord(msg)
+
+        exp = experiment_report(engine, target_date)
+        if exp["bets"]:
+            msg = format_experiment(exp)
+            notify_console(msg)
+            notify_discord(msg)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

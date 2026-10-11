@@ -142,14 +142,16 @@ def save_bet_tickets(engine, tickets: list[dict]):
         # 同じレースの予想を再実行した場合(手動実行+定時実行など)、
         # 以前は買い目がそのまま追加され二重計上されていた(2026-10-09)。
         # 再実行時はそのレースの前回分を置き換える。
-        for race_date, stadium_code, race_number in {
-            (str(t.race_date), t.stadium_code, t.race_number) for t in tickets
+        for race_date, stadium_code, race_number, bet_type in {
+            (str(t.race_date), t.stadium_code, t.race_number, t.bet_type) for t in tickets
         }:
-            deleted = session.query(BetTicket).filter(
+            q = session.query(BetTicket).filter(
                 BetTicket.race_date == race_date,
                 BetTicket.stadium_code == stadium_code,
                 BetTicket.race_number == race_number,
-            ).delete()
+            )
+            q = q.filter(BetTicket.bet_type == bet_type) if bet_type else q.filter(BetTicket.bet_type.is_(None))
+            deleted = q.delete()
             if deleted:
                 print(f"[save_bet_tickets] 再実行のため既存の買い目{deleted}件を置き換え {race_date} {stadium_code} {race_number}R")
         for t in tickets:
@@ -160,6 +162,8 @@ def save_bet_tickets(engine, tickets: list[dict]):
                 race_number=t.race_number,
                 combination=t.combination,
                 amount=t.amount,
+                bet_type=t.bet_type,
+                odds=t.odds,
             )
 
             session.add(ticket)

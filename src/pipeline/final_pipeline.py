@@ -32,7 +32,7 @@ from src.storage.db import (
 )
 from src.features.build_features import build_feature_dataframe
 from src.models.predict import predict_win_probabilities, add_original_index
-from src.betting.allocation import build_bet_plan
+from src.betting.allocation import build_bet_plan, experimental_bets
 from src.notify.notifier import notify_console, notify_discord
 from src.pipeline.session_pipeline import build_message, plan_path, to_race_entries, STADIUM_NAMES
 
@@ -76,6 +76,25 @@ def _save_snapshot(state, target_date, stadium_code, race_number, odds_map, inde
             db.commit()
     except Exception as e:
         print(f"オッズ保存失敗: {e}")
+
+
+def _run_experiment(state, target_date, session_name, stadium_code, race_number, label, indexed, odds_map) -> None:
+    """実験枠(紙上のみ)。本番の収支とは bet_type='exp' で分けて記録する。"""
+    try:
+        plans = experimental_bets(indexed, odds_map)
+    except Exception as e:
+        print(f"{label}: 実験枠の計算失敗 {e}")
+        return
+    if not plans:
+        return
+    save_bet_tickets(state, [
+        BetTicket(race_date=str(target_date), session=session_name, stadium_code=stadium_code,
+                  race_number=race_number, combination=p.combination, amount=p.stake,
+                  bet_type="exp", odds=p.odds)
+        for p in plans
+    ])
+    # 1日30点前後になるため、Discordには個別に流さず、夜の精算で累積だけ報告する
+    print(f"【実験枠】{label} " + " / ".join(f"{p.combination} {p.odds}倍({p.reason})" for p in plans))
 
 
 def run_final(target_date: date | None = None, model_path: str = "model.txt", db_path: str = "boatrace.db") -> None:
@@ -161,6 +180,12 @@ def run_final(target_date: date | None = None, model_path: str = "model.txt", db
             # 締切が迫っていればあきらめる。まだ時間があれば次回再挑戦。
             if mins is not None and mins < FORCE_IF_LESS_THAN_MIN:
                 _record(state, target_date, session_name, stadium_code, race_number, "missed")
+            continue
+
+        is_main = race.get("main", True)
+        _run_experiment(state, target_date, session_name, stadium_code, race_number, label, indexed, odds_map)
+        if not is_main:
+            _record(state, target_date, session_name, stadium_code, race_number, "exp_only")
             continue
 
         if not bet_plans:
