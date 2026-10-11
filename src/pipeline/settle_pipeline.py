@@ -122,7 +122,8 @@ def run_settle(session_name: str, target_date: date | None = None, is_last_sessi
         notify_console(msg)
         notify_discord(msg)
 
-        for bt, title in (("exp", "実験枠"), ("edo", "江戸川枠")):
+        for bt, title in (("exp", "実験枠"), ("edo", "江戸川枠 1-456-456(6点)"),
+                          (("edo", "edo456"), "江戸川枠 456＋1-456-456(12点)")):
             exp = experiment_report(engine, target_date, bt)
             if exp["bets"]:
                 msg = format_experiment(exp, title)

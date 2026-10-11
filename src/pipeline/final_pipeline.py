@@ -102,6 +102,8 @@ def _run_experiment(state, target_date, session_name, stadium_code, race_number,
 
 
 EDOGAWA_COMBOS = [f"1-{a}-{b}" for a in (4, 5, 6) for b in (4, 5, 6) if a != b]
+# 2026-10-12追加: 4-5-6ボックス。1-456-456と合わせた12点(1,200円)は江戸川1〜10月で回収率95%(1〜4Rは108%)
+EDOGAWA_BOX456 = [f"{a}-{b}-{c}" for a in (4, 5, 6) for b in (4, 5, 6) for c in (4, 5, 6) if len({a, b, c}) == 3]
 
 
 def _run_edogawa(state, target_date, session_name, race_number, odds_map) -> None:
@@ -113,6 +115,11 @@ def _run_edogawa(state, target_date, session_name, race_number, odds_map) -> Non
                       race_number=race_number, combination=c, amount=100, bet_type="edo",
                       odds=(odds_map or {}).get(tuple(map(int, c.split("-")))))
             for c in EDOGAWA_COMBOS
+        ] + [
+            BetTicket(race_date=str(target_date), session=session_name, stadium_code="03",
+                      race_number=race_number, combination=c, amount=100, bet_type="edo456",
+                      odds=(odds_map or {}).get(tuple(map(int, c.split("-")))))
+            for c in EDOGAWA_BOX456
         ])
     except Exception as e:
         print(f"江戸川枠の保存失敗 {race_number}R: {e}")
