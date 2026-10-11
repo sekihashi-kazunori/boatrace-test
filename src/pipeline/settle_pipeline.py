@@ -34,7 +34,7 @@ def race_review(engine, target_date: date, session_name: str) -> str | None:
     if not tickets:
         return None
 
-    tickets = [t for t in tickets if t.bet_type != "exp"]
+    tickets = [t for t in tickets if not t.bet_type]
     if not tickets:
         return None
     races: dict = {}
@@ -122,11 +122,12 @@ def run_settle(session_name: str, target_date: date | None = None, is_last_sessi
         notify_console(msg)
         notify_discord(msg)
 
-        exp = experiment_report(engine, target_date)
-        if exp["bets"]:
-            msg = format_experiment(exp)
-            notify_console(msg)
-            notify_discord(msg)
+        for bt, title in (("exp", "実験枠"), ("edo", "江戸川枠")):
+            exp = experiment_report(engine, target_date, bt)
+            if exp["bets"]:
+                msg = format_experiment(exp, title)
+                notify_console(msg)
+                notify_discord(msg)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

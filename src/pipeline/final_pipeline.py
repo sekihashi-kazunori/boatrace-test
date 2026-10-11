@@ -101,6 +101,23 @@ def _run_experiment(state, target_date, session_name, stadium_code, race_number,
     print(f"【実験枠】{label} " + " / ".join(f"{p.combination} {p.odds}倍({p.reason})" for p in plans))
 
 
+EDOGAWA_COMBOS = [f"1-{a}-{b}" for a in (4, 5, 6) for b in (4, 5, 6) if a != b]
+
+
+def _run_edogawa(state, target_date, session_name, race_number, odds_map) -> None:
+    """江戸川枠(紙上のみ・2026-10-12〜): 江戸川の全レースで 1-456-456 の6点を100円ずつ。
+    1〜10月の江戸川約1,550Rで回収率97%(1〜4Rは143%)。本物かを検証する。"""
+    try:
+        save_bet_tickets(state, [
+            BetTicket(race_date=str(target_date), session=session_name, stadium_code="03",
+                      race_number=race_number, combination=c, amount=100, bet_type="edo",
+                      odds=(odds_map or {}).get(tuple(map(int, c.split("-")))))
+            for c in EDOGAWA_COMBOS
+        ])
+    except Exception as e:
+        print(f"江戸川枠の保存失敗 {race_number}R: {e}")
+
+
 def run_final(target_date: date | None = None, model_path: str = "model.txt", db_path: str = "boatrace.db") -> None:
     now = datetime.now(JST)
     target_date = target_date or now.date()
@@ -188,6 +205,8 @@ def run_final(target_date: date | None = None, model_path: str = "model.txt", db
 
         is_main = race.get("main", True)
         _run_experiment(state, target_date, session_name, stadium_code, race_number, label, indexed, odds_map)
+        if stadium_code == "03":
+            _run_edogawa(state, target_date, session_name, race_number, odds_map)
         if not is_main:
             _record(state, target_date, session_name, stadium_code, race_number, "exp_only")
             continue

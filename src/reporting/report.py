@@ -9,7 +9,7 @@ from src.storage.db import BetTicket
 
 
 def _main_only(tickets):
-    return [t for t in tickets if t.bet_type != "exp"]
+    return [t for t in tickets if not t.bet_type]
 
 
 def _summarize(tickets: list[BetTicket]) -> dict:
@@ -90,19 +90,25 @@ def format_report(summary: dict, title: str) -> str:
 
 
 
-def experiment_report(engine, up_to_date: date) -> dict:
-    """実験枠(bet_type='exp')の累積。"""
+def experiment_report(engine, up_to_date: date, bet_type: str = "exp") -> dict:
+    """紙上検証枠(実験枠 bet_type='exp' / 江戸川枠 'edo')の累積。"""
     with Session(engine) as db:
-        stmt = select(BetTicket).where(BetTicket.bet_type == "exp", BetTicket.race_date <= str(up_to_date))
+        stmt = select(BetTicket).where(BetTicket.bet_type == bet_type, BetTicket.race_date <= str(up_to_date))
         tickets = [t for t in db.scalars(stmt).all() if t.result is not None]
     n = len(tickets)
     hits = [t for t in tickets if t.result == "hit"]
     stake = sum(t.amount for t in tickets)
     payout = sum(t.payout or 0 for t in hits)
+    races = {(t.race_date, t.stadium_code, t.race_number) for t in tickets}
+    hit_races = {(t.race_date, t.stadium_code, t.race_number) for t in hits}
     return {"bets": n, "hits": len(hits), "stake": stake, "payout": payout,
+            "races": len(races), "hit_races": len(hit_races),
             "recovery_rate": round(payout / stake * 100, 1) if stake else 0.0}
 
 
-def format_experiment(r: dict) -> str:
+def format_experiment(r: dict, title: str = "実験枠") -> str:
+    if title == "江戸川枠":
+        return (f"【江戸川枠 1-456-456 累積】※紙上検証\n"
+                f"{r['races']}R / 的中{r['hit_races']}R / 購入{r['stake']:,}円 / 払戻{r['payout']:,}円 / 回収率{r['recovery_rate']}%")
     return (f"【実験枠 累積】※本番とは別の紙上検証\n"
             f"{r['bets']}点 / 的中{r['hits']}点 / 購入{r['stake']:,}円 / 払戻{r['payout']:,}円 / 回収率{r['recovery_rate']}%")
