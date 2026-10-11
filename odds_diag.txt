@@ -1,0 +1,6 @@
+raw 2026-09-18 01 1R status=200 len=13137 9.5s
+lib 2026-09-18 01 1R ERROR DataNotFound() 9.9s
+raw 2026-09-18 12 5R status=200 len=44186 8.4s
+lib 2026-09-18 12 5R n=120 1-2-3=16.7 10.5s
+raw 2026-10-11 23 5R status=200 len=44270 8.3s
+lib 2026-10-11 23 5R n=120 1-2-3=30.6 8.5s
