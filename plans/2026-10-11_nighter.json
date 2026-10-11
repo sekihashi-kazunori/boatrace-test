@@ -1,0 +1,51 @@
+[
+ {
+  "stadium_code": "19",
+  "race_number": 6,
+  "stadium_name": "下関",
+  "deadline": "19:56",
+  "score": 0.4623
+ },
+ {
+  "stadium_code": "19",
+  "race_number": 4,
+  "stadium_name": "下関",
+  "deadline": "19:03",
+  "score": 0.4593
+ },
+ {
+  "stadium_code": "12",
+  "race_number": 11,
+  "stadium_name": "住之江",
+  "deadline": "20:03",
+  "score": 0.4479
+ },
+ {
+  "stadium_code": "12",
+  "race_number": 10,
+  "stadium_name": "住之江",
+  "deadline": "19:23",
+  "score": 0.437
+ },
+ {
+  "stadium_code": "19",
+  "race_number": 5,
+  "stadium_name": "下関",
+  "deadline": "19:30",
+  "score": 0.4263
+ },
+ {
+  "stadium_code": "15",
+  "race_number": 11,
+  "stadium_name": "丸亀",
+  "deadline": "20:10",
+  "score": 0.4255
+ },
+ {
+  "stadium_code": "15",
+  "race_number": 8,
+  "stadium_name": "丸亀",
+  "deadline": "18:41",
+  "score": 0.4239
+ }
+]
