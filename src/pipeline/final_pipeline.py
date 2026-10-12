@@ -25,7 +25,7 @@ import pandas as pd
 from sqlalchemy import select
 from sqlalchemy.orm import Session as OrmSession
 
-from src.collectors.official_site import fetch_race_card, fetch_before_info, fetch_odds_3rentan, LAST_WEATHER
+from src.collectors.official_site import fetch_race_card, fetch_before_info, fetch_odds_3rentan, LAST_WEATHER, fetch_race_deadline_times, _classify_session_from_first_deadline
 from src.storage.db import (
     get_engine, init_db, save_entries, save_bet_tickets, get_state_engine,
     BetTicket, RaceDecision, OddsSnapshot, RaceMeta,
@@ -204,6 +204,36 @@ def _run_edogawa(state, target_date, session_name, race_number, odds_map) -> Non
         print(f"江戸川枠の保存失敗 {race_number}R: {e}")
 
 
+RULE_STADIUM_NAMES = {"03": "江戸川", "09": "津"}
+
+
+def _rule_races(target_date: date) -> list:
+    """江戸川・津の全レースを、締切時刻から直接 本番候補にする。一度取ったら plans/日付_rules.json に保存。"""
+    path = os.path.join("plans", f"{target_date}_rules.json")
+    if os.path.exists(path):
+        with open(path, encoding="utf-8") as f:
+            data = json.load(f)
+    else:
+        data = []
+        for st, name in RULE_STADIUM_NAMES.items():
+            try:
+                times = fetch_race_deadline_times(st, target_date)
+            except Exception as e:
+                print(f"{name}: 締切時刻取得失敗 {e}")
+                times = {}
+            if not times:
+                continue
+            sess = _classify_session_from_first_deadline(times)
+            for rn, t in times.items():
+                data.append({"session": sess, "stadium_code": st, "race_number": rn,
+                             "stadium_name": name, "deadline": t, "main": True, "gen": False})
+        os.makedirs("plans", exist_ok=True)
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(data, f, ensure_ascii=False, indent=1)
+        print(f"勝負会場の対象レース: {len(data)}R")
+    return [(r["session"], r) for r in data]
+
+
 def run_final(target_date: date | None = None, model_path: str = "model.txt", db_path: str = "boatrace.db") -> None:
     now = datetime.now(JST)
     target_date = target_date or now.date()
@@ -216,14 +246,25 @@ def run_final(target_date: date | None = None, model_path: str = "model.txt", db
         }
 
     todo = []
+    # 本番の勝負会場(江戸川・津)は、厳選処理を待たずに締切時刻から直接対象にする(2026-10-12)
+    seen = set()
+    for session_name, race in _rule_races(target_date):
+        k = (race["stadium_code"], race["race_number"])
+        if k not in done and k not in seen:
+            todo.append((session_name, race))
+            seen.add(k)
     for session_name in SESSIONS:
         path = plan_path(target_date, session_name)
         if not os.path.exists(path):
             continue
         with open(path, encoding="utf-8") as f:
             for race in json.load(f):
-                if (race["stadium_code"], race["race_number"]) not in done:
+                k = (race["stadium_code"], race["race_number"])
+                if k not in done and k not in seen:
+                    if k[0] in RULE_STADIUM_NAMES:
+                        continue  # 勝負会場は _rule_races 側で扱う
                     todo.append((session_name, race))
+                    seen.add(k)
 
     if not todo:
         print("処理待ちの厳選レースなし")
