@@ -1,0 +1,39 @@
+name: zenkaijou rule kotaeawase
+
+on:
+  schedule:
+    - cron: "0 23 * * *"   # JST 8:00 に前日分を答え合わせ
+  workflow_dispatch:
+    inputs:
+      date:
+        description: "YYYY-MM-DD (empty=yesterday)"
+        required: false
+        default: ""
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    concurrency:
+      group: state
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e .
+      - name: kotaeawase
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        run: |
+          if [ -n "${{ inputs.date }}" ]; then python -u -m src.tools.rule_check --date "${{ inputs.date }}"; else python -u -m src.tools.rule_check; fi
+      - name: hozon
+        run: |
+          git config user.name "predictor-bot"
+          git config user.email "bot@example.com"
+          git checkout -- boatrace.db 2>/dev/null || true
+          git add rule_eval.csv
+          git commit -q -m "chore: rule kotaeawase $(TZ=Asia/Tokyo date +'%Y-%m-%d')" || exit 0
+          for i in 1 2 3 4 5; do git pull --rebase --autostash -q && git push -q && exit 0; sleep $((i*5)); done
+          exit 1
