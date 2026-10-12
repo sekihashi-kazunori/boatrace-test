@@ -231,7 +231,20 @@ def _rule_races(target_date: date) -> list:
         with open(path, "w", encoding="utf-8") as f:
             json.dump(data, f, ensure_ascii=False, indent=1)
         print(f"勝負会場の対象レース: {len(data)}R")
-    return [(r["session"], r) for r in data]
+    return [(_session_by_time(r.get("deadline")), r) for r in data]
+
+
+def _session_by_time(deadline: str | None) -> str:
+    """ご主人様の区分: 12時より前=モーニング、12〜17時=デイ、17時以降=ナイター(レースごとの締切時刻で判定)。"""
+    try:
+        h = int((deadline or "").split(":")[0])
+    except ValueError:
+        return "day"
+    if h < 12:
+        return "morning"
+    if h < 17:
+        return "day"
+    return "nighter"
 
 
 def run_final(target_date: date | None = None, model_path: str = "model.txt", db_path: str = "boatrace.db") -> None:
