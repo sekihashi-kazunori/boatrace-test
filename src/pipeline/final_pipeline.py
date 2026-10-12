@@ -347,6 +347,16 @@ def run_final(target_date: date | None = None, model_path: str = "model.txt", db
         _run_experiment(state, target_date, session_name, stadium_code, race_number, label, indexed, odds_map)
         if race.get("gen"):
             _run_general(state, target_date, session_name, stadium_code, race_number, label, bet_plans)
+            if bet_plans:
+                # 参考予想(紙上)もDiscordに流す(2026-10-12 ご主人様と決定: 本番は堅く、毎日の楽しみは参考予想で)
+                ref = build_message(session_ja, stadium_name, race_number, bet_plans, deadline_time=race.get("deadline"))
+                ref = ref.replace("予想生成】", "参考予想】※紙上のみ", 1)
+                try:
+                    notify_console(ref)
+                    notify_discord(ref)
+                    time.sleep(1.2)
+                except Exception as e:
+                    print(f"通知失敗 {label}: {e}")
         b1_class = next((r.get("racer_class") for r in card.get("racers", []) if r.get("lane") == 1), None)
         weather = LAST_WEATHER.get((stadium_code, race_number, str(target_date)), {})
         # 全レースで1号艇の級と天候・風・波を記録(今後の条件づくりの材料)
