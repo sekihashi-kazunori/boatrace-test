@@ -1,0 +1,27 @@
+name: dryrun (claude)
+on:
+  push:
+    branches: [claude-dryrun]
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.11", cache: pip}
+      - run: pip install -e .
+      - name: dry
+        run: |
+          python - <<'PY'
+          from datetime import date
+          from src.storage.db import get_state_engine
+          from src.reporting.report import session_report, format_report
+          from src.pipeline.settle_pipeline import verify_summary, race_review
+          from src.pipeline.final_pipeline import _verify_races, VERIFY_RULES
+          e = get_state_engine(); d = date(2026, 10, 13)
+          print(format_report(session_report(e, d, "nighter", "main"), "ナイター 本予想"))
+          print(race_review(e, d, "nighter", "main"))
+          print(verify_summary(e, d))
+          for s, r in _verify_races(date(2026, 10, 14)):
+              print(s, r)
+          PY

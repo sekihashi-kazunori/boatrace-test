@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import time
 from datetime import date, datetime
 from zoneinfo import ZoneInfo
 
@@ -106,45 +107,49 @@ def run_settle(session_name: str, target_date: date | None = None, is_last_sessi
             ))
         db.commit()
 
-    # 2026-10-13 ご主人様指示: 「江戸川・津」と「本予想(旧 参考予想)」は分けて報告する
-    for kind, kind_ja in KINDS:
-        summary = session_report(engine, target_date, session_name, kind)
-        if kind == "rule" and summary["race_count"] == 0:
-            report = f"【{session_name_ja} {kind_ja} 収支報告】\n対象レースなし"
-        else:
-            report = format_report(summary, f"{session_name_ja} {kind_ja} 収支報告")
-            review = race_review(engine, target_date, session_name, kind)
-            if review:
-                report += "\n" + review
-        notify_console(report)
-        notify_discord(report)
+    # 2026-10-14 ご主人様指示: セッションごとの報告は本予想だけ。
+    # 江戸川・津と検証枠は、ナイター後の最終収支報告でまとめて出す。
+    summary = session_report(engine, target_date, session_name, "main")
+    report = format_report(summary, f"{session_name_ja} 本予想 収支報告")
+    review = race_review(engine, target_date, session_name, "main")
+    if review:
+        report += "\n" + review
+    notify_console(report)
+    notify_discord(report)
 
     if is_last_session_of_day:
-        for kind, kind_ja in KINDS:
-            daily = daily_report(engine, target_date, kind)
-            notify_console(format_report(daily, f"本日総収支 {kind_ja}"))
-            notify_discord(format_report(daily, f"本日総収支 {kind_ja}"))
-
-            if target_date < CUMULATIVE_START:
-                msg = f"【累積収支 {kind_ja}】{CUMULATIVE_START.month}/{CUMULATIVE_START.day}から集計開始します"
-            else:
-                msg = format_report(cumulative_report(engine, target_date, kind), f"累積収支 {kind_ja}")
+        msgs = [format_report(daily_report(engine, target_date, "main"), "本日総収支 本予想")]
+        if target_date >= CUMULATIVE_START:
+            msgs.append(format_report(cumulative_report(engine, target_date, "main"), "累積収支 本予想"))
+        msgs.append(verify_summary(engine, target_date))
+        for msg in msgs:
             notify_console(msg)
             notify_discord(msg)
+            time.sleep(1.2)
 
-        for bt, title, rmax, cls in (("exp", "実験枠", None, None),
-                                     ("edo", "江戸川枠 1-456-456(6点)", None, None),
-                                     ("edo", "江戸川枠 1-456-456 1〜4Rのみ", 4, None),
-                                     ("edo", "江戸川枠 1-456-456 1〜4R・1号艇B級", 4, "B"),
-                                     ("edo", "江戸川枠 1-456-456 1〜4R・1号艇A級", 4, "A"),
-                                     ("edo", "江戸川枠 1-456-456 全R・1号艇B級", None, "B"),
-                                     (("edo", "edo456"), "江戸川枠 456＋1-456-456(12点)", None, None),
-                                     ("tsu", "津枠 1-456-456 全R・1号艇B級", None, None)):
-            exp = experiment_report(engine, target_date, bt, rmax, cls)
-            if exp["bets"]:
-                msg = format_experiment(exp, title)
-                notify_console(msg)
-                notify_discord(msg)
+
+def verify_summary(engine, target_date: date) -> str:
+    """検証枠(紙上)の累積を1通にまとめる。各行: 名前 レース数 的中 回収率。"""
+    from src.pipeline.final_pipeline import VERIFY_RULES
+    lines = ["【検証枠 累積】※紙上検証(本日の分を含む)"]
+
+    def line(title, r):
+        if not r["races"]:
+            return f"・{title}: まだ対象なし"
+        return (f"・{title}: {r['races']}R 的中{r['hit_races']}R "
+                f"回収率{r['recovery_rate']}% ({r['payout'] - r['stake']:+,}円)")
+
+    rule = cumulative_report(engine, target_date, "rule")
+    lines.append(line("江戸川・津 本番ルール", {"races": rule["race_count"], "hit_races": rule["hit_race_count"],
+                                         "recovery_rate": rule["recovery_rate"], "payout": rule["total_payout"],
+                                         "stake": rule["total_stake"]}))
+    lines.append(line("江戸川 B級1〜4R 1-456-456", experiment_report(engine, target_date, "edo", 4, "B")))
+    lines.append(line("津 B級 全R 1-456-456", experiment_report(engine, target_date, "tsu")))
+    for bt, *_rest, title in VERIFY_RULES:
+        lines.append(line(title, experiment_report(engine, target_date, bt)))
+    lines.append(line("実験枠(モデル期待値)", experiment_report(engine, target_date, "exp")))
+    return "\n".join(lines)
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

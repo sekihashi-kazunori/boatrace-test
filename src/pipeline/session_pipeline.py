@@ -228,20 +228,8 @@ def run_session(
 
     if plan_only:
         save_plan(target_date, session_name, selected, race_candidates, gen_keys)
-        if selected:
-            lines = [f"【{session_name_ja} 勝負候補{len(selected)}R】展示後に1号艇の級を見て、B級なら勝負・A級なら見送ります"]
-            for stadium_code, race_number, stadium_name, _plans, deadline_time, _score in sorted(
-                selected, key=lambda c: c[4] or "99:99"
-            ):
-                lines.append(f"・{stadium_name}{race_number}R（締切{deadline_time or '不明'}）")
-            msg = "\n".join(lines)
-        else:
-            msg = f"【{session_name_ja}】このセッションは江戸川・津の対象レースなし(本予想のみ配信します)"
-        notify_console(msg)
-        try:
-            notify_discord(msg)
-        except Exception as e:
-            print(f"通知失敗: {e}")
+        # 2026-10-14: 江戸川・津は検証扱いになったため、セッション開始時の案内はDiscordに流さない
+        notify_console(f"【{session_name_ja}】江戸川・津の対象 {len(selected)}R")
         return
 
     if not selected:
