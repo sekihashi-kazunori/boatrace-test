@@ -32,7 +32,7 @@ from src.storage.db import (
 )
 from src.features.build_features import build_feature_dataframe
 from src.models.predict import predict_win_probabilities, add_original_index
-from src.betting.allocation import build_bet_plan, experimental_bets, BetPlan
+from src.betting.allocation import build_bet_plan, experimental_bets, BetPlan, build_popular_plan
 from src.notify.notifier import notify_console, notify_discord
 from src.pipeline.session_pipeline import build_message, plan_path, to_race_entries, STADIUM_NAMES
 
@@ -416,18 +416,20 @@ def run_final(target_date: date | None = None, model_path: str = "model.txt", db
         is_main = race.get("main", True)
         if not (race.get("verify") and not race.get("gen") and not is_main):
             _run_experiment(state, target_date, session_name, stadium_code, race_number, label, indexed, odds_map)
-        if race.get("gen"):
-            _run_general(state, target_date, session_name, stadium_code, race_number, label, bet_plans)
-            if bet_plans:
-                # 2026-10-13 ご主人様指示: 参考予想を「本予想」に切り替え(収支は江戸川・津と分けて報告)
-                ref = build_message(session_ja, stadium_name, race_number, bet_plans, deadline_time=race.get("deadline"))
-                ref = ref.replace("予想生成】", "本予想】", 1)
-                try:
-                    notify_console(ref)
-                    notify_discord(ref)
-                    time.sleep(1.2)
-                except Exception as e:
-                    print(f"通知失敗 {label}: {e}")
+        # ===== 本予想(2026-10-14〜): 人気上位5点に票が集中しているレースだけ =====
+        # 対象は今処理している全レース(厳選候補・江戸川津・検証枠)。モデルの鉄板5点は使わない。
+        pop_plans, conc = build_popular_plan(odds_map)
+        print(f"{label}: 集中度{conc * 100:.1f}%")
+        if pop_plans:
+            _run_general(state, target_date, session_name, stadium_code, race_number, label, pop_plans)
+            ref = build_message(session_ja, stadium_name, race_number, pop_plans, deadline_time=race.get("deadline"))
+            ref = ref.replace("予想生成】", "本予想】", 1)
+            try:
+                notify_console(ref)
+                notify_discord(ref)
+                time.sleep(1.2)
+            except Exception as e:
+                print(f"通知失敗 {label}: {e}")
         b1_class = next((r.get("racer_class") for r in card.get("racers", []) if r.get("lane") == 1), None)
         weather = LAST_WEATHER.get((stadium_code, race_number, str(target_date)), {})
         # 全レースで1号艇の級と天候・風・波を記録(今後の条件づくりの材料)

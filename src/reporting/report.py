@@ -71,16 +71,21 @@ def daily_report(engine, race_date: date, kind: str = "rule") -> dict:
 CUMULATIVE_START = date(2026, 10, 13)  # 条件ルール型に再構築した翌日から集計(2026-10-12決定)
 
 
+# 本予想は「人気上位5点・集中度0.50以上」に切り替えた日から数え直す(2026-10-14)
+MAIN_START = date(2026, 10, 14)
+
+
 def cumulative_report(engine, up_to_date: date, kind: str = "rule") -> dict:
+    start = MAIN_START if kind == "main" else CUMULATIVE_START
     with Session(engine) as db:
         stmt = select(BetTicket).where(
-            BetTicket.race_date >= str(CUMULATIVE_START),
+            BetTicket.race_date >= str(start),
             BetTicket.race_date <= str(up_to_date),
         )
         tickets = list(db.scalars(stmt).all())
     summary = _summarize(tickets, kind)
     summary["up_to_date"] = str(up_to_date)
-    summary["since"] = str(CUMULATIVE_START)
+    summary["since"] = str(start)
     return summary
 
 

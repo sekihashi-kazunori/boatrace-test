@@ -170,3 +170,45 @@ def experimental_bets(
             out.append(BetPlan("-".join(map(str, combo)), "実験", 100, round(probs[combo] * 100, 2), o,
                                f"モデル/世間={ratio:.1f}倍"))
     return sorted(out, key=lambda b: b.odds)
+
+
+def build_popular_plan(
+    odds_map: dict[tuple[int, int, int], float] | None,
+    total_stake: int = 1000,
+    n: int = 5,
+    min_concentration: float = 0.50,
+) -> tuple[list[BetPlan], float]:
+    """本予想(2026-10-14〜): 人気上位5点に票が集中しているレースだけ、その5点を買う。
+
+    集中度 = 人気上位5点のオッズから出した確率(1/オッズを全120点で正規化)の合計。
+    8/1〜9/18の確定オッズ約7,700Rで、集中度0.50以上は 1日約13R・的中率60%・回収率82%
+    (前半80%/後半85%)。モデル予想の鉄板5点(的中率33〜50%・回収率70%台)より的中率を優先。
+    金額はオッズの逆数に比例(どれが当たっても払戻がほぼ同じ)、100円単位・最低100円。
+    戻り値: (買い目, 集中度)。条件外なら ([], 集中度)。
+    """
+    if not odds_map or len(odds_map) < 100:
+        return [], 0.0
+    valid = {c: o for c, o in odds_map.items() if o and o > 0}
+    inv_all = sum(1.0 / o for o in valid.values())
+    ranked = sorted(valid.items(), key=lambda x: x[1])[:n]
+    conc = sum(1.0 / o for _, o in ranked) / inv_all
+    if conc < min_concentration:
+        return [], conc
+
+    inv = [1.0 / o for _, o in ranked]
+    stakes = [max(100, int(total_stake * w / sum(inv) / 100 + 0.5) * 100) for w in inv]
+    while sum(stakes) > total_stake:
+        for i in reversed(range(len(stakes))):
+            if stakes[i] > 100:
+                stakes[i] -= 100
+                break
+        else:
+            break
+    while sum(stakes) < total_stake:
+        stakes[0] += 100
+
+    reason = f"人気上位{n}点に票が集中（集中度{conc * 100:.0f}%）"
+    return [
+        BetPlan("-".join(map(str, c)), "本命", st, round(1.0 / o / inv_all * 100, 2), o, reason)
+        for (c, o), st in zip(ranked, stakes)
+    ], conc
