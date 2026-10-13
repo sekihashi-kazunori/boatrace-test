@@ -128,26 +128,39 @@ def run_settle(session_name: str, target_date: date | None = None, is_last_sessi
             time.sleep(1.2)
 
 
+# 本予想への昇格ライン(2026-10-14 ご主人様と決定): 10/14以降で 30R以上・的中3R以上・回収率115%以上
+PROMOTE_SINCE = date(2026, 10, 14)
+PROMOTE_MIN_RACES, PROMOTE_MIN_HITS, PROMOTE_MIN_RATE = 30, 3, 115.0
+
+
 def verify_summary(engine, target_date: date) -> str:
-    """検証枠(紙上)の累積を1通にまとめる。各行: 名前 レース数 的中 回収率。"""
+    """検証枠(紙上)の10/14以降の累積を1通にまとめ、昇格ラインを満たした枠に印を付ける。"""
     from src.pipeline.final_pipeline import VERIFY_RULES
-    lines = ["【検証枠 累積】※紙上検証(本日の分を含む)"]
+    from src.reporting.report import cumulative_report as _cum
+    lines = [f"【検証枠 累積】※紙上検証 {PROMOTE_SINCE.month}/{PROMOTE_SINCE.day}〜",
+             f"昇格ライン: {PROMOTE_MIN_RACES}R以上・的中{PROMOTE_MIN_HITS}R以上・回収率{PROMOTE_MIN_RATE:.0f}%以上"]
+    promoted = []
 
     def line(title, r):
         if not r["races"]:
             return f"・{title}: まだ対象なし"
+        ok = (r["races"] >= PROMOTE_MIN_RACES and r["hit_races"] >= PROMOTE_MIN_HITS
+              and r["recovery_rate"] >= PROMOTE_MIN_RATE)
+        if ok:
+            promoted.append(title)
         return (f"・{title}: {r['races']}R 的中{r['hit_races']}R "
-                f"回収率{r['recovery_rate']}% ({r['payout'] - r['stake']:+,}円)")
+                f"回収率{r['recovery_rate']}% ({r['payout'] - r['stake']:+,}円)" + (" 🎉昇格条件クリア" if ok else ""))
 
-    rule = cumulative_report(engine, target_date, "rule")
-    lines.append(line("江戸川・津 本番ルール", {"races": rule["race_count"], "hit_races": rule["hit_race_count"],
-                                         "recovery_rate": rule["recovery_rate"], "payout": rule["total_payout"],
-                                         "stake": rule["total_stake"]}))
-    lines.append(line("江戸川 B級1〜4R 1-456-456", experiment_report(engine, target_date, "edo", 4, "B")))
-    lines.append(line("津 B級 全R 1-456-456", experiment_report(engine, target_date, "tsu")))
+    S = PROMOTE_SINCE
+    lines.append(line("江戸川 B級1〜4R 1-456-456", experiment_report(engine, target_date, "edo", 4, "B", since=S)))
+    lines.append(line("津 B級 全R 1-456-456", experiment_report(engine, target_date, "tsu", since=S)))
     for bt, *_rest, title in VERIFY_RULES:
-        lines.append(line(title, experiment_report(engine, target_date, bt)))
-    lines.append(line("実験枠(モデル期待値)", experiment_report(engine, target_date, "exp")))
+        lines.append(line(title, experiment_report(engine, target_date, bt, since=S)))
+    lines.append(line("実験枠(モデル期待値)", experiment_report(engine, target_date, "exp", since=S)))
+    rule = _cum(engine, target_date, "rule")
+    lines.append(f"(参考)江戸川・津 旧本番ルール: {rule['race_count']}R 的中{rule['hit_race_count']}R 回収率{rule['recovery_rate']}%")
+    if promoted:
+        lines.append("👉 昇格候補: " + "、".join(promoted) + "（執事に本予想への昇格を指示してください）")
     return "\n".join(lines)
 
 

@@ -103,13 +103,14 @@ def format_report(summary: dict, title: str) -> str:
 
 
 def experiment_report(engine, up_to_date: date, bet_type="exp", race_max: int | None = None,
-                      b1_class_prefix: str | None = None) -> dict:
+                      b1_class_prefix: str | None = None, since: date | None = None) -> dict:
     """紙上検証枠(実験枠 'exp' / 江戸川枠 'edo' / 江戸川456ボックス 'edo456')の累積。複数指定可。"""
     types = [bet_type] if isinstance(bet_type, str) else list(bet_type)
     with Session(engine) as db:
         stmt = select(BetTicket).where(BetTicket.bet_type.in_(types), BetTicket.race_date <= str(up_to_date))
         tickets = [t for t in db.scalars(stmt).all() if t.result is not None
-                   and (race_max is None or t.race_number <= race_max)]
+                   and (race_max is None or t.race_number <= race_max)
+                   and (since is None or t.race_date >= str(since))]
         if b1_class_prefix:
             from src.storage.db import RaceMeta
             cls = {(m.race_date, m.stadium_code, m.race_number): (m.b1_class or "")
