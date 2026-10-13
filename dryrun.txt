@@ -1,0 +1,39 @@
+【ナイター 本予想】
+対象レース数: 6R / 的中: 3R
+的中率: 50.0%
+購入: 6,000円 / 払戻: 5,100円
+収支: -900円 / 回収率: 85.0%
+【レース振り返り】
+下関1R 632 ハズレ
+若松10R 213 ハズレ
+若松11R 123 的中🎯 1,560円
+丸亀12R 132 的中🎯 2,020円
+若松12R 164 ハズレ
+下関11R 123 的中🎯 1,520円
+【検証枠 累積】※紙上検証(本日の分を含む)
+・江戸川・津 本番ルール: まだ対象なし
+・江戸川 B級1〜4R 1-456-456: 4R 的中0R 回収率0.0% (-2,400円)
+・津 B級 全R 1-456-456: まだ対象なし
+・江戸川 B級1〜4R 1-4-全: まだ対象なし
+・丸亀 A1 5〜8R 1-2-全: まだ対象なし
+・平和島 A1 9〜12R 1-23-23: まだ対象なし
+・三国 A1 1〜4R 3-1-全: まだ対象なし
+・浜名湖 B級 5〜8R 23-23-全: まだ対象なし
+・実験枠(モデル期待値): 41R 的中2R 回収率53.1% (-2,250円)
+締切予定時刻取得件数: 12件（本来12件）
+締切予定時刻取得件数: 12件（本来12件）
+締切予定時刻の行が見つかりませんでした
+締切予定時刻取得件数: 12件（本来12件）
+検証枠の対象レース: 12R
+nighter {'stadium_code': '15', 'race_number': 5, 'stadium_name': '丸亀', 'deadline': '17:06', 'main': False, 'gen': False, 'verify': True}
+nighter {'stadium_code': '15', 'race_number': 6, 'stadium_name': '丸亀', 'deadline': '17:31', 'main': False, 'gen': False, 'verify': True}
+nighter {'stadium_code': '15', 'race_number': 7, 'stadium_name': '丸亀', 'deadline': '17:58', 'main': False, 'gen': False, 'verify': True}
+nighter {'stadium_code': '15', 'race_number': 8, 'stadium_name': '丸亀', 'deadline': '18:28', 'main': False, 'gen': False, 'verify': True}
+day {'stadium_code': '04', 'race_number': 9, 'stadium_name': '平和島', 'deadline': '14:30', 'main': False, 'gen': False, 'verify': True}
+day {'stadium_code': '04', 'race_number': 10, 'stadium_name': '平和島', 'deadline': '15:04', 'main': False, 'gen': False, 'verify': True}
+day {'stadium_code': '04', 'race_number': 11, 'stadium_name': '平和島', 'deadline': '15:40', 'main': False, 'gen': False, 'verify': True}
+day {'stadium_code': '04', 'race_number': 12, 'stadium_name': '平和島', 'deadline': '16:20', 'main': False, 'gen': False, 'verify': True}
+day {'stadium_code': '06', 'race_number': 5, 'stadium_name': '浜名湖', 'deadline': '13:19', 'main': False, 'gen': False, 'verify': True}
+day {'stadium_code': '06', 'race_number': 6, 'stadium_name': '浜名湖', 'deadline': '13:47', 'main': False, 'gen': False, 'verify': True}
+day {'stadium_code': '06', 'race_number': 7, 'stadium_name': '浜名湖', 'deadline': '14:15', 'main': False, 'gen': False, 'verify': True}
+day {'stadium_code': '06', 'race_number': 8, 'stadium_name': '浜名湖', 'deadline': '14:42', 'main': False, 'gen': False, 'verify': True}
