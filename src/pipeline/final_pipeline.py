@@ -157,7 +157,7 @@ def _rule_plans(stadium_code, race_number, b1_class, odds_map, weather=None):
 
 
 def _run_general(state, target_date, session_name, stadium_code, race_number, label, bet_plans) -> None:
-    """参考枠(紙上): これまでの汎用モデルの鉄板5点。Discordには流さず、夜に累積だけ報告。"""
+    """本予想(2026-10-13〜、旧 参考枠): 汎用モデルの鉄板5点。bet_type='gen' のまま記録し、収支は江戸川・津と分けて報告。"""
     if not bet_plans:
         return
     try:
@@ -348,9 +348,9 @@ def run_final(target_date: date | None = None, model_path: str = "model.txt", db
         if race.get("gen"):
             _run_general(state, target_date, session_name, stadium_code, race_number, label, bet_plans)
             if bet_plans:
-                # 参考予想(紙上)もDiscordに流す(2026-10-12 ご主人様と決定: 本番は堅く、毎日の楽しみは参考予想で)
+                # 2026-10-13 ご主人様指示: 参考予想を「本予想」に切り替え(収支は江戸川・津と分けて報告)
                 ref = build_message(session_ja, stadium_name, race_number, bet_plans, deadline_time=race.get("deadline"))
-                ref = ref.replace("予想生成】", "参考予想】※紙上のみ", 1)
+                ref = ref.replace("予想生成】", "本予想】", 1)
                 try:
                     notify_console(ref)
                     notify_discord(ref)

@@ -236,7 +236,7 @@ def run_session(
                 lines.append(f"・{stadium_name}{race_number}R（締切{deadline_time or '不明'}）")
             msg = "\n".join(lines)
         else:
-            msg = f"【{session_name_ja}】このセッションに江戸川・津のレースは無いため、本番の勝負はありません(参考枠のみ記録)"
+            msg = f"【{session_name_ja}】このセッションは江戸川・津の対象レースなし(本予想のみ配信します)"
         notify_console(msg)
         try:
             notify_discord(msg)

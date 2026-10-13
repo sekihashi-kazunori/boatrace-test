@@ -13,7 +13,10 @@ from src.reporting.report import session_report, daily_report, cumulative_report
 from src.notify.notifier import notify_console, notify_discord
 
 
-def race_review(engine, target_date: date, session_name: str) -> str | None:
+KINDS = (("rule", "江戸川・津"), ("main", "本予想"))
+
+
+def race_review(engine, target_date: date, session_name: str, kind: str = "rule") -> str | None:
     """セッションの各レースの振り返り(結果の3連単と、的中なら払戻額)。
 
     例:
@@ -34,7 +37,8 @@ def race_review(engine, target_date: date, session_name: str) -> str | None:
     if not tickets:
         return None
 
-    tickets = [t for t in tickets if not t.bet_type]
+    from src.reporting.report import _main_only
+    tickets = _main_only(tickets, kind)
     if not tickets:
         return None
     races: dict = {}
@@ -42,11 +46,11 @@ def race_review(engine, target_date: date, session_name: str) -> str | None:
         races.setdefault((str(t.stadium_code).zfill(2), t.race_number), []).append(t)
 
     deadlines = {}
-    path = plan_path(target_date, session_name)
-    if os.path.exists(path):
-        with open(path, encoding="utf-8") as f:
-            for r in json.load(f):
-                deadlines[(r["stadium_code"], r["race_number"])] = r.get("deadline") or ""
+    for path in (plan_path(target_date, session_name), os.path.join("plans", f"{target_date}_rules.json")):
+        if os.path.exists(path):
+            with open(path, encoding="utf-8") as f:
+                for r in json.load(f):
+                    deadlines.setdefault((r["stadium_code"], r["race_number"]), r.get("deadline") or "")
 
     lines = ["【レース振り返り】"]
     for key in sorted(races, key=lambda k: (deadlines.get(k, "99:99"), k)):
@@ -102,28 +106,33 @@ def run_settle(session_name: str, target_date: date | None = None, is_last_sessi
             ))
         db.commit()
 
-    summary = session_report(engine, target_date, session_name)
-    review = race_review(engine, target_date, session_name)
-    report = format_report(summary, f"{session_name_ja} 収支報告")
-    if review:
-        report += "\n" + review
-    notify_console(report)
-    notify_discord(report)
+    # 2026-10-13 ご主人様指示: 「江戸川・津」と「本予想(旧 参考予想)」は分けて報告する
+    for kind, kind_ja in KINDS:
+        summary = session_report(engine, target_date, session_name, kind)
+        if kind == "rule" and summary["race_count"] == 0:
+            report = f"【{session_name_ja} {kind_ja} 収支報告】\n対象レースなし"
+        else:
+            report = format_report(summary, f"{session_name_ja} {kind_ja} 収支報告")
+            review = race_review(engine, target_date, session_name, kind)
+            if review:
+                report += "\n" + review
+        notify_console(report)
+        notify_discord(report)
 
     if is_last_session_of_day:
-        daily = daily_report(engine, target_date)
-        notify_console(format_report(daily, "本日総収支"))
-        notify_discord(format_report(daily, "本日総収支"))
+        for kind, kind_ja in KINDS:
+            daily = daily_report(engine, target_date, kind)
+            notify_console(format_report(daily, f"本日総収支 {kind_ja}"))
+            notify_discord(format_report(daily, f"本日総収支 {kind_ja}"))
 
-        if target_date < CUMULATIVE_START:
-            msg = f"【累積収支】{CUMULATIVE_START.month}/{CUMULATIVE_START.day}から新システムで集計開始します"
-        else:
-            msg = format_report(cumulative_report(engine, target_date), "累積収支")
-        notify_console(msg)
-        notify_discord(msg)
+            if target_date < CUMULATIVE_START:
+                msg = f"【累積収支 {kind_ja}】{CUMULATIVE_START.month}/{CUMULATIVE_START.day}から集計開始します"
+            else:
+                msg = format_report(cumulative_report(engine, target_date, kind), f"累積収支 {kind_ja}")
+            notify_console(msg)
+            notify_discord(msg)
 
-        for bt, title, rmax, cls in (("gen", "参考枠(汎用モデル鉄板5点)", None, None),
-                                     ("exp", "実験枠", None, None),
+        for bt, title, rmax, cls in (("exp", "実験枠", None, None),
                                      ("edo", "江戸川枠 1-456-456(6点)", None, None),
                                      ("edo", "江戸川枠 1-456-456 1〜4Rのみ", 4, None),
                                      ("edo", "江戸川枠 1-456-456 1〜4R・1号艇B級", 4, "B"),

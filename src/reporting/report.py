@@ -8,15 +8,22 @@ from sqlalchemy.orm import Session
 from src.storage.db import BetTicket
 
 
-def _main_only(tickets):
-    return [t for t in tickets if not t.bet_type]
+# 収支の区分(2026-10-13 ご主人様指示で分割):
+#   rule = 江戸川・津の条件ルール(bet_type なし)
+#   main = 本予想(汎用モデルの鉄板。旧「参考予想」bet_type='gen' を本予想に昇格)
+KIND_TYPES = {"rule": (None,), "main": ("gen",)}
 
 
-def _summarize(tickets: list[BetTicket]) -> dict:
+def _main_only(tickets, kind: str = "rule"):
+    types = KIND_TYPES[kind]
+    return [t for t in tickets if (t.bet_type or None) in types]
+
+
+def _summarize(tickets: list[BetTicket], kind: str = "rule") -> dict:
     # 結果確定済み(hit/miss)の買い目だけを集計する。未確定のまま残った
     # 過去データ(払戻0扱い)が累積に混ざり、回収率が実態より極端に
     # 低く出ていたため。
-    tickets = [t for t in _main_only(tickets) if t.result is not None]
+    tickets = [t for t in _main_only(tickets, kind) if t.result is not None]
     total_stake = sum(t.amount for t in tickets)
     total_payout = sum((t.payout or 0) for t in tickets)
 
@@ -38,23 +45,23 @@ def _summarize(tickets: list[BetTicket]) -> dict:
     }
 
 
-def session_report(engine, race_date: date, session_name: str) -> dict:
+def session_report(engine, race_date: date, session_name: str, kind: str = "rule") -> dict:
     with Session(engine) as db:
         stmt = select(BetTicket).where(
             BetTicket.race_date == str(race_date), BetTicket.session == session_name
         )
         tickets = list(db.scalars(stmt).all())
-    summary = _summarize(tickets)
+    summary = _summarize(tickets, kind)
     summary["session"] = session_name
     summary["race_date"] = str(race_date)
     return summary
 
 
-def daily_report(engine, race_date: date) -> dict:
+def daily_report(engine, race_date: date, kind: str = "rule") -> dict:
     with Session(engine) as db:
         stmt = select(BetTicket).where(BetTicket.race_date == str(race_date))
         tickets = list(db.scalars(stmt).all())
-    summary = _summarize(tickets)
+    summary = _summarize(tickets, kind)
     summary["race_date"] = str(race_date)
     return summary
 
@@ -64,14 +71,14 @@ def daily_report(engine, race_date: date) -> dict:
 CUMULATIVE_START = date(2026, 10, 13)  # 条件ルール型に再構築した翌日から集計(2026-10-12決定)
 
 
-def cumulative_report(engine, up_to_date: date) -> dict:
+def cumulative_report(engine, up_to_date: date, kind: str = "rule") -> dict:
     with Session(engine) as db:
         stmt = select(BetTicket).where(
             BetTicket.race_date >= str(CUMULATIVE_START),
             BetTicket.race_date <= str(up_to_date),
         )
         tickets = list(db.scalars(stmt).all())
-    summary = _summarize(tickets)
+    summary = _summarize(tickets, kind)
     summary["up_to_date"] = str(up_to_date)
     summary["since"] = str(CUMULATIVE_START)
     return summary
