@@ -1,0 +1,110 @@
+[
+ {
+  "stadium_code": "15",
+  "race_number": 5,
+  "stadium_name": "丸亀",
+  "deadline": "17:06",
+  "main": false,
+  "gen": false,
+  "verify": true
+ },
+ {
+  "stadium_code": "15",
+  "race_number": 6,
+  "stadium_name": "丸亀",
+  "deadline": "17:31",
+  "main": false,
+  "gen": false,
+  "verify": true
+ },
+ {
+  "stadium_code": "15",
+  "race_number": 7,
+  "stadium_name": "丸亀",
+  "deadline": "17:58",
+  "main": false,
+  "gen": false,
+  "verify": true
+ },
+ {
+  "stadium_code": "15",
+  "race_number": 8,
+  "stadium_name": "丸亀",
+  "deadline": "18:28",
+  "main": false,
+  "gen": false,
+  "verify": true
+ },
+ {
+  "stadium_code": "04",
+  "race_number": 9,
+  "stadium_name": "平和島",
+  "deadline": "14:30",
+  "main": false,
+  "gen": false,
+  "verify": true
+ },
+ {
+  "stadium_code": "04",
+  "race_number": 10,
+  "stadium_name": "平和島",
+  "deadline": "15:04",
+  "main": false,
+  "gen": false,
+  "verify": true
+ },
+ {
+  "stadium_code": "04",
+  "race_number": 11,
+  "stadium_name": "平和島",
+  "deadline": "15:40",
+  "main": false,
+  "gen": false,
+  "verify": true
+ },
+ {
+  "stadium_code": "04",
+  "race_number": 12,
+  "stadium_name": "平和島",
+  "deadline": "16:20",
+  "main": false,
+  "gen": false,
+  "verify": true
+ },
+ {
+  "stadium_code": "06",
+  "race_number": 5,
+  "stadium_name": "浜名湖",
+  "deadline": "13:19",
+  "main": false,
+  "gen": false,
+  "verify": true
+ },
+ {
+  "stadium_code": "06",
+  "race_number": 6,
+  "stadium_name": "浜名湖",
+  "deadline": "13:47",
+  "main": false,
+  "gen": false,
+  "verify": true
+ },
+ {
+  "stadium_code": "06",
+  "race_number": 7,
+  "stadium_name": "浜名湖",
+  "deadline": "14:15",
+  "main": false,
+  "gen": false,
+  "verify": true
+ },
+ {
+  "stadium_code": "06",
+  "race_number": 8,
+  "stadium_name": "浜名湖",
+  "deadline": "14:42",
+  "main": false,
+  "gen": false,
+  "verify": true
+ }
+]
