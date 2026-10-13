@@ -204,6 +204,72 @@ def _run_edogawa(state, target_date, session_name, race_number, odds_map) -> Non
         print(f"江戸川枠の保存失敗 {race_number}R: {e}")
 
 
+# ===== 検証枠(紙上・2026-10-14〜) =====
+# 2026年1〜10月の約4.4万レースを前半(1〜6月)・後半(7〜10月)に分け、
+# どちらでも回収率115%以上だった「会場×1号艇の級×R帯×買い方」。全て100円/点。
+# Discordへの個別配信はせず、ナイター後の最終収支報告で累積だけ出す。
+def _perm(heads, seconds, thirds):
+    return [f"{a}-{b}-{c}" for a in heads for b in seconds for c in thirds if len({a, b, c}) == 3]
+
+
+VERIFY_RULES = [
+    # (bet_type, 場コード, 1号艇の級の頭文字, 最小R, 最大R, 買い目, 表示名)
+    ("v_edo14", "03", "B", 1, 4, _perm([1], [4], [2, 3, 5, 6]), "江戸川 B級1〜4R 1-4-全"),
+    ("v_maru", "15", "A1", 5, 8, _perm([1], [2], [3, 4, 5, 6]), "丸亀 A1 5〜8R 1-2-全"),
+    ("v_heiwa", "04", "A1", 9, 12, ["1-2-3", "1-3-2"], "平和島 A1 9〜12R 1-23-23"),
+    ("v_mikuni", "10", "A1", 1, 4, _perm([3], [1], [2, 4, 5, 6]), "三国 A1 1〜4R 3-1-全"),
+    ("v_hama", "06", "B", 5, 8, _perm([2, 3], [2, 3], [1, 4, 5, 6]), "浜名湖 B級 5〜8R 23-23-全"),
+]
+VERIFY_STADIUM_NAMES = {"15": "丸亀", "04": "平和島", "10": "三国", "06": "浜名湖"}
+
+
+def _run_verify(state, target_date, session_name, stadium_code, race_number, b1_class, odds_map) -> None:
+    for bt, st, cls, rmin, rmax, combos, _title in VERIFY_RULES:
+        if st != stadium_code or not (rmin <= race_number <= rmax):
+            continue
+        if not (b1_class and b1_class.startswith(cls)):
+            continue
+        try:
+            save_bet_tickets(state, [
+                BetTicket(race_date=str(target_date), session=session_name, stadium_code=stadium_code,
+                          race_number=race_number, combination=c, amount=100, bet_type=bt,
+                          odds=(odds_map or {}).get(tuple(map(int, c.split("-")))))
+                for c in combos
+            ])
+            print(f"検証枠 {_title}: {race_number}R 記録")
+        except Exception as e:
+            print(f"検証枠の保存失敗 {bt} {race_number}R: {e}")
+
+
+def _verify_races(target_date: date) -> list:
+    """検証枠の会場(丸亀・平和島・三国・浜名湖)の対象R帯だけを候補にする。plans/日付_verify.json に保存。"""
+    path = os.path.join("plans", f"{target_date}_verify.json")
+    if os.path.exists(path):
+        with open(path, encoding="utf-8") as f:
+            data = json.load(f)
+    else:
+        data = []
+        failed = False
+        for st, name in VERIFY_STADIUM_NAMES.items():
+            ranges = [(r[3], r[4]) for r in VERIFY_RULES if r[1] == st]
+            try:
+                times = fetch_race_deadline_times(st, target_date)
+            except Exception as e:
+                print(f"{name}: 締切時刻取得失敗 {e}")
+                times = {}
+                failed = True
+            for rn, t in (times or {}).items():
+                if any(lo <= rn <= hi for lo, hi in ranges):
+                    data.append({"stadium_code": st, "race_number": rn, "stadium_name": name,
+                                 "deadline": t, "main": False, "gen": False, "verify": True})
+        if not failed:  # 取得失敗があれば保存せず、次回(5分後)に取り直す
+            os.makedirs("plans", exist_ok=True)
+            with open(path, "w", encoding="utf-8") as f:
+                json.dump(data, f, ensure_ascii=False, indent=1)
+        print(f"検証枠の対象レース: {len(data)}R")
+    return [(_session_by_time(r.get("deadline")), r) for r in data]
+
+
 RULE_STADIUM_NAMES = {"03": "江戸川", "09": "津"}
 
 
@@ -258,14 +324,16 @@ def run_final(target_date: date | None = None, model_path: str = "model.txt", db
             for d in db.scalars(select(RaceDecision).where(RaceDecision.race_date == str(target_date)))
         }
 
-    todo = []
-    # 本番の勝負会場(江戸川・津)は、厳選処理を待たずに締切時刻から直接対象にする(2026-10-12)
-    seen = set()
-    for session_name, race in _rule_races(target_date):
+    # 江戸川・津(条件ルール) → 検証枠 → 本予想(gen) の順に集め、同じレースはフラグを合体する
+    merged: dict = {}
+    for session_name, race in _rule_races(target_date) + _verify_races(target_date):
         k = (race["stadium_code"], race["race_number"])
-        if k not in done and k not in seen:
-            todo.append((session_name, race))
-            seen.add(k)
+        if k in done:
+            continue
+        if k in merged:
+            merged[k][1]["verify"] = merged[k][1].get("verify") or race.get("verify", False)
+        else:
+            merged[k] = (session_name, dict(race))
     for session_name in SESSIONS:
         path = plan_path(target_date, session_name)
         if not os.path.exists(path):
@@ -273,11 +341,13 @@ def run_final(target_date: date | None = None, model_path: str = "model.txt", db
         with open(path, encoding="utf-8") as f:
             for race in json.load(f):
                 k = (race["stadium_code"], race["race_number"])
-                if k not in done and k not in seen:
-                    if k[0] in RULE_STADIUM_NAMES:
-                        continue  # 勝負会場は _rule_races 側で扱う
-                    todo.append((session_name, race))
-                    seen.add(k)
+                if k in done:
+                    continue
+                if k in merged:
+                    merged[k][1]["gen"] = merged[k][1].get("gen") or race.get("gen", False)
+                elif k[0] not in RULE_STADIUM_NAMES:  # 勝負会場は _rule_races 側で扱う
+                    merged[k] = (session_name, dict(race))
+    todo = list(merged.values())
 
     if not todo:
         print("処理待ちの厳選レースなし")
@@ -344,7 +414,8 @@ def run_final(target_date: date | None = None, model_path: str = "model.txt", db
             continue
 
         is_main = race.get("main", True)
-        _run_experiment(state, target_date, session_name, stadium_code, race_number, label, indexed, odds_map)
+        if not (race.get("verify") and not race.get("gen") and not is_main):
+            _run_experiment(state, target_date, session_name, stadium_code, race_number, label, indexed, odds_map)
         if race.get("gen"):
             _run_general(state, target_date, session_name, stadium_code, race_number, label, bet_plans)
             if bet_plans:
@@ -365,6 +436,7 @@ def run_final(target_date: date | None = None, model_path: str = "model.txt", db
             _run_tsu(state, target_date, session_name, race_number, odds_map, b1_class)
         if stadium_code == "03":
             _run_edogawa(state, target_date, session_name, race_number, odds_map)
+        _run_verify(state, target_date, session_name, stadium_code, race_number, b1_class, odds_map)
 
         # ===== 本番(2026-10-12 再構築): 会場×1号艇の級の条件ルール =====
         rule_plans = _rule_plans(stadium_code, race_number, b1_class, odds_map, weather) if is_main else None
@@ -381,10 +453,6 @@ def run_final(target_date: date | None = None, model_path: str = "model.txt", db
         if not bet_plans:
             msg = f"【{label}】展示後の最終判断で見送り"
             notify_console(msg)
-            try:
-                notify_discord(msg)
-            except Exception as e:
-                print(f"通知失敗: {e}")
             _record(state, target_date, session_name, stadium_code, race_number, "skipped")
             continue
 
@@ -402,12 +470,8 @@ def run_final(target_date: date | None = None, model_path: str = "model.txt", db
         exh_note = "" if n_exh >= 6 else "（展示タイム未発表のまま予想）"
         message = build_message(session_ja, stadium_name, race_number, bet_plans, deadline_time=race.get("deadline"))
         message = message.replace("予想生成】", f"展示後 最終予想】{exh_note}", 1)
-        try:
-            notify_console(message)
-            notify_discord(message)
-            time.sleep(1.2)
-        except Exception as e:
-            print(f"通知失敗 {label}: {e}")
+        # 2026-10-14 ご主人様指示: 江戸川・津は検証扱い。Discordには流さず最終収支報告で累積だけ出す
+        notify_console(message)
 
 
 if __name__ == "__main__":
