@@ -2,6 +2,8 @@ name: dryrun (claude)
 on:
   push:
     branches: [claude-dryrun]
+permissions:
+  contents: write
 jobs:
   run:
     runs-on: ubuntu-latest
@@ -12,7 +14,7 @@ jobs:
       - run: pip install -e .
       - name: dry
         run: |
-          python - <<'PY'
+          python - > dryrun.txt 2>&1 <<'PY' || true
           from datetime import date
           from src.storage.db import get_state_engine
           from src.reporting.report import session_report, format_report
@@ -25,3 +27,5 @@ jobs:
           for s, r in _verify_races(date(2026, 10, 14)):
               print(s, r)
           PY
+          git config user.name "predictor-bot"; git config user.email "bot@example.com"
+          git add -f dryrun.txt && git commit -m "dryrun output [skip ci]" && git push
