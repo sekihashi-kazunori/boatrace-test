@@ -410,7 +410,7 @@ def run_final(target_date: date | None = None, model_path: str = "model.txt", db
         except Exception as e:
             print(f"{label}: 最終予想失敗 {e}")
             # 締切が迫っていればあきらめる。まだ時間があれば次回再挑戦。
-            if mins is not None and mins < FORCE_IF_LESS_THAN_MIN:
+            if mins is not None and mins < 10:
                 _record(state, target_date, session_name, stadium_code, race_number, "missed")
             continue
 
