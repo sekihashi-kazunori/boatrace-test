@@ -39,8 +39,9 @@ from src.pipeline.session_pipeline import build_message, plan_path, to_race_entr
 JST = ZoneInfo("Asia/Tokyo")
 SESSIONS = {"morning": "モーニング", "day": "デイ", "nighter": "ナイター"}
 
-WAIT_IF_MORE_THAN_MIN = 25
-FORCE_IF_LESS_THAN_MIN = 15
+# 2026-10-14: GitHubの5分おき実行が実際には20〜100分おきにしか動かず、34R取りこぼしたため窓を広げる
+WAIT_IF_MORE_THAN_MIN = 40
+FORCE_IF_LESS_THAN_MIN = 25
 TOO_LATE_MIN = 2
 
 
@@ -418,7 +419,7 @@ def run_final(target_date: date | None = None, model_path: str = "model.txt", db
             _run_experiment(state, target_date, session_name, stadium_code, race_number, label, indexed, odds_map)
         # ===== 本予想(2026-10-14〜): 人気上位5点に票が集中しているレースだけ =====
         # 対象は今処理している全レース(厳選候補・江戸川津・検証枠)。モデルの鉄板5点は使わない。
-        pop_plans, conc = build_popular_plan(odds_map)
+        pop_plans, conc = build_popular_plan(odds_map, min_concentration=0.45)
         print(f"{label}: 集中度{conc * 100:.1f}%")
         if pop_plans:
             _run_general(state, target_date, session_name, stadium_code, race_number, label, pop_plans)
