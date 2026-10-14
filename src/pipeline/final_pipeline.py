@@ -40,8 +40,9 @@ JST = ZoneInfo("Asia/Tokyo")
 SESSIONS = {"morning": "モーニング", "day": "デイ", "nighter": "ナイター"}
 
 # 2026-10-14: GitHubの5分おき実行が実際には20〜100分おきにしか動かず、34R取りこぼしたため窓を広げる
-WAIT_IF_MORE_THAN_MIN = 40
-FORCE_IF_LESS_THAN_MIN = 25
+# 2026-10-15: 常駐見張り(3分おき)になったので、展示タイムを待つ元の設定に戻す
+WAIT_IF_MORE_THAN_MIN = 25
+FORCE_IF_LESS_THAN_MIN = 12
 TOO_LATE_MIN = 2
 
 

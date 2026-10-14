@@ -5,11 +5,8 @@ on:
     - cron: "50 23 * * *"
     - cron: "30 1 * * *"
     - cron: "30 6 * * *"
-    - cron: "0 6 * * *"
-    - cron: "30 9 * * *"
     - cron: "0 14 * * *"
-    # 展示タイム後の最終予想: JST 8:00〜21:55 の5分おき
-    - cron: "*/5 23,0-12 * * *"
+    # 最終予想とモーニング・デイの精算は resident.yml(常駐見張り)に移管(2026-10-15)
   workflow_dispatch:
     inputs:
       session:

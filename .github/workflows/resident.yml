@@ -1,0 +1,65 @@
+name: jouchuu mihari (3-pun oki)
+
+# 2026-10-15: GitHubの「5分おき」cronが実際は20〜100分おきにしか動かず、
+# 1日65Rも取りこぼしたため、1本のジョブが朝から夜まで起きっぱなしで
+# 3分おきに最終予想を回す方式に変更(公開リポジトリなので実行時間は無料)。
+# 1時間おきに起動をかけ、同時に走るのは1本だけ(後続は待機して、前のが終わったら即交代)。
+on:
+  schedule:
+    - cron: "3 22,23,0-12 * * *"   # JST 7:03〜21:03 毎時
+  workflow_dispatch:
+
+concurrency:
+  group: resident
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 355
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e .
+      - name: mihari loop
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        run: |
+          git config user.name "predictor-bot"
+          git config user.email "bot@example.com"
+          START=$(date +%s)
+          save() {
+            git checkout -- boatrace.db 2>/dev/null || true
+            git add plans state.db 2>/dev/null || true
+            git commit -q -m "chore: $1 $(TZ=Asia/Tokyo date +'%Y-%m-%d %H:%M')" || return 0
+            for i in 1 2 3 4 5; do
+              git pull -q --rebase --autostash && git push -q && return 0
+              sleep $((i * 5))
+            done
+          }
+          while true; do
+            NOW=$(TZ=Asia/Tokyo date +%H%M)
+            ELAPSED=$(( ($(date +%s) - START) / 60 ))
+            if [ "$NOW" -ge 2240 ] || [ "$ELAPSED" -ge 340 ]; then echo "終了 $NOW ${ELAPSED}分"; break; fi
+            git checkout -- boatrace.db 2>/dev/null || true
+            git pull -q --rebase --autostash || true
+            python -u -m src.pipeline.final_pipeline || echo "final失敗"
+            save "all final"
+            TODAY=$(TZ=Asia/Tokyo date +%F)
+            # モーニング精算 15:00〜 / デイ精算 18:30〜(1日1回だけ。印のファイルで二重報告を防ぐ)
+            if [ "$NOW" -ge 1500 ] && [ ! -f "plans/${TODAY}_settled_morning" ]; then
+              python -u -m src.pipeline.settle_pipeline --session morning && touch "plans/${TODAY}_settled_morning"
+              save "morning settle"
+            fi
+            if [ "$NOW" -ge 1830 ] && [ ! -f "plans/${TODAY}_settled_day" ]; then
+              python -u -m src.pipeline.settle_pipeline --session day && touch "plans/${TODAY}_settled_day"
+              save "day settle"
+            fi
+            sleep 180
+          done
