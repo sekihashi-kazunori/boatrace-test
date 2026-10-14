@@ -54,22 +54,50 @@ def evaluate(d: date) -> pd.DataFrame:
 
 
 def summary(all_df: pd.DataFrame) -> str:
-    x = all_df[all_df.race_date >= START]
+    """2026-10-14 ご主人様指示で分かりやすく作り直し:
+    何レース買って何レース当たったか、当たったのはどのレースか、を先に出す。"""
+    x = all_df[(all_df.race_date >= START) & (all_df.b1_class == "B")].copy()
     if x.empty:
         return ""
-    lines = [f"【全会場ルール答え合わせ】{x.race_date.min()}〜{x.race_date.max()} ※紙上・全国{len(x)}R"]
-    g = x[x.b1_class == "B"].groupby(["stadium", "group"]).agg(
-        R=("ret456", "size"), hit=("hit456", "sum"), ret=("ret456", "sum"), retE=("retE", "sum"))
-    g["rec456"] = g.ret / (600 * g.R) * 100
-    g["recE"] = g.retE / (1000 * g.R) * 100
-    g = g[g.R >= 3].sort_values("rec456", ascending=False)
-    lines.append("1号艇B級・1-456-456 上位(会場・レース帯 / R数 / 的中 / 回収率 / 江戸川式)")
-    for (st, grp), row in g.head(8).iterrows():
-        lines.append(f"・{st} {grp}: {int(row.R)}R 的中{int(row.hit)} 回収{row.rec456:.0f}% / 江戸川式{row.recE:.0f}%")
-    for st in ("江戸川", "津"):
-        y = x[(x.stadium == st) & (x.b1_class == "B")]
-        if len(y):
-            lines.append(f"[{st}・B級 全R] {len(y)}R 1-456-456 回収{y.ret456.sum() / (600 * len(y)) * 100:.0f}%")
+    day = x.race_date.max()
+    y = x[x.race_date == day]
+    md = f"{int(day[5:7])}/{int(day[8:10])}"
+
+    def total(df):
+        n, h = len(df), int(df.hit456.sum())
+        stake, pay = 600 * n, int(df.ret456.sum())
+        rate = pay / stake * 100 if stake else 0
+        return n, h, stake, pay, rate
+
+    n, h, stake, pay, rate = total(y)
+    lines = [
+        f"【全国答え合わせ {md}】※紙上",
+        "ルール: 1号艇がB級のレースだけ 1-456-456(6点×100円=600円)を買ったら?",
+        "",
+        f"▶ {md} の結果",
+        f"{n}Rに賭けて {h}R的中🎯(的中率{h / n * 100:.0f}%)" if n else "対象レースなし",
+        f"購入{stake:,}円 → 払戻{pay:,}円 / 回収率{rate:.0f}% ({pay - stake:+,}円)",
+    ]
+    hits = y[y.hit456 == 1].sort_values("payout", ascending=False)
+    if len(hits):
+        lines.append("")
+        lines.append("🎯 的中したレース")
+        for _, r in hits.iterrows():
+            lines.append(f"・{r.stadium}{int(r.race_number)}R {r.result} → {int(r.payout):,}円")
+
+    n, h, stake, pay, rate = total(x)
+    lines += ["", f"▶ 累積({START[5:7].lstrip('0')}/{START[8:10].lstrip('0')}〜)",
+              f"{n}Rに賭けて {h}R的中🎯(的中率{h / n * 100:.0f}%)",
+              f"購入{stake:,}円 → 払戻{pay:,}円 / 回収率{rate:.0f}% ({pay - stake:+,}円)"]
+
+    g = x.groupby("stadium").agg(R=("ret456", "size"), hit=("hit456", "sum"), ret=("ret456", "sum"))
+    g["rate"] = g.ret / (600 * g.R) * 100
+    g = g[g.hit > 0].sort_values(["rate", "R"], ascending=False)
+    if len(g):
+        lines += ["", "🏆 当たっている会場(累積・回収率順)"]
+        for st, row in g.head(8).iterrows():
+            lines.append(f"・{st}: {int(row.R)}R中 {int(row.hit)}R的中 / 回収率{row.rate:.0f}%")
+    lines += ["", "※1日数Rなので、1回当たれば100%超え・外れれば0%。何週間か貯まってから判断します"]
     return "\n".join(lines)
 
 
