@@ -216,9 +216,12 @@ def build_popular_plan(
     # 50〜100倍の中で人気上位2点。8/1〜9/18の確定オッズ2,612Rで、
     # 回収率は本命5点だけと同じ78.5%のまま、的中率49%→52%(50倍超の的中は約36Rに1回)。
     # 100倍超にすると回収率が75〜76%に下がるため50〜100倍に限定。
-    longs = sorted(((c, o) for c, o in valid.items() if 50 < o <= 100), key=lambda x: x[1])[:2]
-    plans += [
-        BetPlan("-".join(map(str, c)), "大穴", 100, round(1.0 / o / inv_all * 100, 2), o, "50〜100倍の人気上位2点")
-        for c, o in longs
-    ]
+    # 2026-10-16 ご主人様指示で中穴2点(30〜50倍の人気上位2点・各100円)も追加 → 計1,400円。
+    # 同じ2,612Rで 本命5+中穴2+大穴2 = 的中率56.4%・回収率77.9%(前半77.8/後半78.0)。
+    for lo, hi, cat in ((30, 50, "中穴"), (50, 100, "大穴")):
+        picks = sorted(((c, o) for c, o in valid.items() if lo < o <= hi), key=lambda x: x[1])[:2]
+        plans += [
+            BetPlan("-".join(map(str, c)), cat, 100, round(1.0 / o / inv_all * 100, 2), o, f"{lo}〜{hi}倍の人気上位2点")
+            for c, o in picks
+        ]
     return plans, conc
