@@ -40,9 +40,11 @@ JST = ZoneInfo("Asia/Tokyo")
 SESSIONS = {"morning": "モーニング", "day": "デイ", "nighter": "ナイター"}
 
 # 2026-10-14: GitHubの5分おき実行が実際には20〜100分おきにしか動かず、34R取りこぼしたため窓を広げる
-# 2026-10-15: 常駐見張り(3分おき)になったので、展示タイムを待つ元の設定に戻す
-WAIT_IF_MORE_THAN_MIN = 25
-FORCE_IF_LESS_THAN_MIN = 12
+# 2026-10-15: 常駐見張り(3分おき)になったので、締切10分前まで待って最終予想する。
+# 早い時刻のオッズは票が集まりきっておらず集中度が低く出る(10/15は全43Rで最大41.8%)ため、
+# できるだけ締切直前のオッズで判断する。展示タイムは締切15〜20分前には出ている。
+WAIT_IF_MORE_THAN_MIN = 10
+FORCE_IF_LESS_THAN_MIN = 6
 TOO_LATE_MIN = 2
 
 
@@ -244,15 +246,17 @@ def _run_verify(state, target_date, session_name, stadium_code, race_number, b1_
 
 
 def _verify_races(target_date: date) -> list:
-    """検証枠の会場(丸亀・平和島・三国・浜名湖)の対象R帯だけを候補にする。plans/日付_verify.json に保存。"""
-    path = os.path.join("plans", f"{target_date}_verify.json")
+    """2026-10-15〜: 全国の全レースを候補にする(本予想は全レースから集中度で選ぶため)。
+    朝の厳選(plans)の作成が遅れると、その前のレースを丸ごと取りこぼしていた(10/15に17R)。
+    plans/日付_all.json に保存。検証枠の会場は verify=True を付ける。"""
+    path = os.path.join("plans", f"{target_date}_all.json")
     if os.path.exists(path):
         with open(path, encoding="utf-8") as f:
             data = json.load(f)
     else:
         data = []
         failed = False
-        for st, name in VERIFY_STADIUM_NAMES.items():
+        for st, name in STADIUM_NAMES.items():
             ranges = [(r[3], r[4]) for r in VERIFY_RULES if r[1] == st]
             try:
                 times = fetch_race_deadline_times(st, target_date)
@@ -261,15 +265,15 @@ def _verify_races(target_date: date) -> list:
                 times = {}
                 failed = True
             for rn, t in (times or {}).items():
-                if any(lo <= rn <= hi for lo, hi in ranges):
-                    data.append({"stadium_code": st, "race_number": rn, "stadium_name": name,
-                                 "deadline": t, "main": False, "gen": False, "verify": True})
-        if not failed:  # 取得失敗があれば保存せず、次回(5分後)に取り直す
+                data.append({"stadium_code": st, "race_number": rn, "stadium_name": name, "deadline": t,
+                             "main": False, "gen": False,
+                             "verify": any(lo <= rn <= hi for lo, hi in ranges)})
+        if not failed and data:  # 取得失敗があれば保存せず、次回に取り直す
             os.makedirs("plans", exist_ok=True)
             with open(path, "w", encoding="utf-8") as f:
                 json.dump(data, f, ensure_ascii=False, indent=1)
-        print(f"検証枠の対象レース: {len(data)}R")
-    return [(_session_by_time(r.get("deadline")), r) for r in data]
+        print(f"全国の対象レース: {len(data)}R")
+    return [(_session_by_time(r.get("deadline")), r) for r in data if r["stadium_code"] not in RULE_STADIUM_NAMES]
 
 
 RULE_STADIUM_NAMES = {"03": "江戸川", "09": "津"}
@@ -420,7 +424,7 @@ def run_final(target_date: date | None = None, model_path: str = "model.txt", db
             _run_experiment(state, target_date, session_name, stadium_code, race_number, label, indexed, odds_map)
         # ===== 本予想(2026-10-14〜): 人気上位5点に票が集中しているレースだけ =====
         # 対象は今処理している全レース(厳選候補・江戸川津・検証枠)。モデルの鉄板5点は使わない。
-        pop_plans, conc = build_popular_plan(odds_map, min_concentration=0.45)
+        pop_plans, conc = build_popular_plan(odds_map, min_concentration=0.40)
         print(f"{label}: 集中度{conc * 100:.1f}%")
         if pop_plans:
             _run_general(state, target_date, session_name, stadium_code, race_number, label, pop_plans)
