@@ -1,0 +1,1406 @@
+[
+ {
+  "stadium_code": "02",
+  "race_number": 1,
+  "stadium_name": "戸田",
+  "deadline": "10:47",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "02",
+  "race_number": 2,
+  "stadium_name": "戸田",
+  "deadline": "11:16",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "02",
+  "race_number": 3,
+  "stadium_name": "戸田",
+  "deadline": "11:45",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "02",
+  "race_number": 4,
+  "stadium_name": "戸田",
+  "deadline": "12:14",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "02",
+  "race_number": 5,
+  "stadium_name": "戸田",
+  "deadline": "12:44",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "02",
+  "race_number": 6,
+  "stadium_name": "戸田",
+  "deadline": "13:14",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "02",
+  "race_number": 7,
+  "stadium_name": "戸田",
+  "deadline": "13:44",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "02",
+  "race_number": 8,
+  "stadium_name": "戸田",
+  "deadline": "14:15",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "02",
+  "race_number": 9,
+  "stadium_name": "戸田",
+  "deadline": "14:46",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "02",
+  "race_number": 10,
+  "stadium_name": "戸田",
+  "deadline": "15:18",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "02",
+  "race_number": 11,
+  "stadium_name": "戸田",
+  "deadline": "15:51",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "02",
+  "race_number": 12,
+  "stadium_name": "戸田",
+  "deadline": "16:25",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "04",
+  "race_number": 1,
+  "stadium_name": "平和島",
+  "deadline": "10:30",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "04",
+  "race_number": 2,
+  "stadium_name": "平和島",
+  "deadline": "10:57",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "04",
+  "race_number": 3,
+  "stadium_name": "平和島",
+  "deadline": "11:25",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "04",
+  "race_number": 4,
+  "stadium_name": "平和島",
+  "deadline": "11:54",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "04",
+  "race_number": 5,
+  "stadium_name": "平和島",
+  "deadline": "12:23",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "04",
+  "race_number": 6,
+  "stadium_name": "平和島",
+  "deadline": "12:53",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "04",
+  "race_number": 7,
+  "stadium_name": "平和島",
+  "deadline": "13:24",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "04",
+  "race_number": 8,
+  "stadium_name": "平和島",
+  "deadline": "13:57",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "04",
+  "race_number": 9,
+  "stadium_name": "平和島",
+  "deadline": "14:31",
+  "main": false,
+  "gen": false,
+  "verify": true
+ },
+ {
+  "stadium_code": "04",
+  "race_number": 10,
+  "stadium_name": "平和島",
+  "deadline": "15:06",
+  "main": false,
+  "gen": false,
+  "verify": true
+ },
+ {
+  "stadium_code": "04",
+  "race_number": 11,
+  "stadium_name": "平和島",
+  "deadline": "15:42",
+  "main": false,
+  "gen": false,
+  "verify": true
+ },
+ {
+  "stadium_code": "04",
+  "race_number": 12,
+  "stadium_name": "平和島",
+  "deadline": "16:20",
+  "main": false,
+  "gen": false,
+  "verify": true
+ },
+ {
+  "stadium_code": "06",
+  "race_number": 1,
+  "stadium_name": "浜名湖",
+  "deadline": "11:01",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "06",
+  "race_number": 2,
+  "stadium_name": "浜名湖",
+  "deadline": "11:27",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "06",
+  "race_number": 3,
+  "stadium_name": "浜名湖",
+  "deadline": "11:57",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "06",
+  "race_number": 4,
+  "stadium_name": "浜名湖",
+  "deadline": "12:27",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "06",
+  "race_number": 5,
+  "stadium_name": "浜名湖",
+  "deadline": "12:56",
+  "main": false,
+  "gen": false,
+  "verify": true
+ },
+ {
+  "stadium_code": "06",
+  "race_number": 6,
+  "stadium_name": "浜名湖",
+  "deadline": "13:22",
+  "main": false,
+  "gen": false,
+  "verify": true
+ },
+ {
+  "stadium_code": "06",
+  "race_number": 7,
+  "stadium_name": "浜名湖",
+  "deadline": "13:53",
+  "main": false,
+  "gen": false,
+  "verify": true
+ },
+ {
+  "stadium_code": "06",
+  "race_number": 8,
+  "stadium_name": "浜名湖",
+  "deadline": "14:22",
+  "main": false,
+  "gen": false,
+  "verify": true
+ },
+ {
+  "stadium_code": "06",
+  "race_number": 9,
+  "stadium_name": "浜名湖",
+  "deadline": "14:51",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "06",
+  "race_number": 10,
+  "stadium_name": "浜名湖",
+  "deadline": "15:30",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "06",
+  "race_number": 11,
+  "stadium_name": "浜名湖",
+  "deadline": "15:59",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "06",
+  "race_number": 12,
+  "stadium_name": "浜名湖",
+  "deadline": "16:32",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "10",
+  "race_number": 1,
+  "stadium_name": "三国",
+  "deadline": "08:51",
+  "main": false,
+  "gen": false,
+  "verify": true
+ },
+ {
+  "stadium_code": "10",
+  "race_number": 2,
+  "stadium_name": "三国",
+  "deadline": "09:17",
+  "main": false,
+  "gen": false,
+  "verify": true
+ },
+ {
+  "stadium_code": "10",
+  "race_number": 3,
+  "stadium_name": "三国",
+  "deadline": "09:43",
+  "main": false,
+  "gen": false,
+  "verify": true
+ },
+ {
+  "stadium_code": "10",
+  "race_number": 4,
+  "stadium_name": "三国",
+  "deadline": "10:09",
+  "main": false,
+  "gen": false,
+  "verify": true
+ },
+ {
+  "stadium_code": "10",
+  "race_number": 5,
+  "stadium_name": "三国",
+  "deadline": "10:41",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "10",
+  "race_number": 6,
+  "stadium_name": "三国",
+  "deadline": "11:08",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "10",
+  "race_number": 7,
+  "stadium_name": "三国",
+  "deadline": "11:38",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "10",
+  "race_number": 8,
+  "stadium_name": "三国",
+  "deadline": "12:10",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "10",
+  "race_number": 9,
+  "stadium_name": "三国",
+  "deadline": "12:41",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "10",
+  "race_number": 10,
+  "stadium_name": "三国",
+  "deadline": "13:16",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "10",
+  "race_number": 11,
+  "stadium_name": "三国",
+  "deadline": "13:50",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "10",
+  "race_number": 12,
+  "stadium_name": "三国",
+  "deadline": "14:27",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "11",
+  "race_number": 1,
+  "stadium_name": "びわこ",
+  "deadline": "10:24",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "11",
+  "race_number": 2,
+  "stadium_name": "びわこ",
+  "deadline": "10:49",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "11",
+  "race_number": 3,
+  "stadium_name": "びわこ",
+  "deadline": "11:14",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "11",
+  "race_number": 4,
+  "stadium_name": "びわこ",
+  "deadline": "11:43",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "11",
+  "race_number": 5,
+  "stadium_name": "びわこ",
+  "deadline": "12:17",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "11",
+  "race_number": 6,
+  "stadium_name": "びわこ",
+  "deadline": "12:47",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "11",
+  "race_number": 7,
+  "stadium_name": "びわこ",
+  "deadline": "13:12",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "11",
+  "race_number": 8,
+  "stadium_name": "びわこ",
+  "deadline": "13:39",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "11",
+  "race_number": 9,
+  "stadium_name": "びわこ",
+  "deadline": "14:09",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "11",
+  "race_number": 10,
+  "stadium_name": "びわこ",
+  "deadline": "14:39",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "11",
+  "race_number": 11,
+  "stadium_name": "びわこ",
+  "deadline": "15:14",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "11",
+  "race_number": 12,
+  "stadium_name": "びわこ",
+  "deadline": "15:49",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "12",
+  "race_number": 1,
+  "stadium_name": "住之江",
+  "deadline": "15:16",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "12",
+  "race_number": 2,
+  "stadium_name": "住之江",
+  "deadline": "15:38",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "12",
+  "race_number": 3,
+  "stadium_name": "住之江",
+  "deadline": "16:10",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "12",
+  "race_number": 4,
+  "stadium_name": "住之江",
+  "deadline": "16:36",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "12",
+  "race_number": 5,
+  "stadium_name": "住之江",
+  "deadline": "17:01",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "12",
+  "race_number": 6,
+  "stadium_name": "住之江",
+  "deadline": "17:29",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "12",
+  "race_number": 7,
+  "stadium_name": "住之江",
+  "deadline": "17:57",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "12",
+  "race_number": 8,
+  "stadium_name": "住之江",
+  "deadline": "18:25",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "12",
+  "race_number": 9,
+  "stadium_name": "住之江",
+  "deadline": "18:54",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "12",
+  "race_number": 10,
+  "stadium_name": "住之江",
+  "deadline": "19:24",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "12",
+  "race_number": 11,
+  "stadium_name": "住之江",
+  "deadline": "19:57",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "12",
+  "race_number": 12,
+  "stadium_name": "住之江",
+  "deadline": "20:30",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "13",
+  "race_number": 1,
+  "stadium_name": "尼崎",
+  "deadline": "10:39",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "13",
+  "race_number": 2,
+  "stadium_name": "尼崎",
+  "deadline": "11:06",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "13",
+  "race_number": 3,
+  "stadium_name": "尼崎",
+  "deadline": "11:36",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "13",
+  "race_number": 4,
+  "stadium_name": "尼崎",
+  "deadline": "12:02",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "13",
+  "race_number": 5,
+  "stadium_name": "尼崎",
+  "deadline": "12:38",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "13",
+  "race_number": 6,
+  "stadium_name": "尼崎",
+  "deadline": "13:01",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "13",
+  "race_number": 7,
+  "stadium_name": "尼崎",
+  "deadline": "13:30",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "13",
+  "race_number": 8,
+  "stadium_name": "尼崎",
+  "deadline": "14:05",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "13",
+  "race_number": 9,
+  "stadium_name": "尼崎",
+  "deadline": "14:37",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "13",
+  "race_number": 10,
+  "stadium_name": "尼崎",
+  "deadline": "15:02",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "13",
+  "race_number": 11,
+  "stadium_name": "尼崎",
+  "deadline": "15:33",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "13",
+  "race_number": 12,
+  "stadium_name": "尼崎",
+  "deadline": "16:03",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "14",
+  "race_number": 1,
+  "stadium_name": "鳴門",
+  "deadline": "08:35",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "14",
+  "race_number": 2,
+  "stadium_name": "鳴門",
+  "deadline": "09:01",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "14",
+  "race_number": 3,
+  "stadium_name": "鳴門",
+  "deadline": "09:27",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "14",
+  "race_number": 4,
+  "stadium_name": "鳴門",
+  "deadline": "09:53",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "14",
+  "race_number": 5,
+  "stadium_name": "鳴門",
+  "deadline": "10:21",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "14",
+  "race_number": 6,
+  "stadium_name": "鳴門",
+  "deadline": "10:52",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "14",
+  "race_number": 7,
+  "stadium_name": "鳴門",
+  "deadline": "11:20",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "14",
+  "race_number": 8,
+  "stadium_name": "鳴門",
+  "deadline": "11:49",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "14",
+  "race_number": 9,
+  "stadium_name": "鳴門",
+  "deadline": "12:19",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "14",
+  "race_number": 10,
+  "stadium_name": "鳴門",
+  "deadline": "12:58",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "14",
+  "race_number": 11,
+  "stadium_name": "鳴門",
+  "deadline": "13:34",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "14",
+  "race_number": 12,
+  "stadium_name": "鳴門",
+  "deadline": "14:11",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "15",
+  "race_number": 1,
+  "stadium_name": "丸亀",
+  "deadline": "15:19",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "15",
+  "race_number": 2,
+  "stadium_name": "丸亀",
+  "deadline": "15:44",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "15",
+  "race_number": 3,
+  "stadium_name": "丸亀",
+  "deadline": "16:13",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "15",
+  "race_number": 4,
+  "stadium_name": "丸亀",
+  "deadline": "16:43",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "15",
+  "race_number": 5,
+  "stadium_name": "丸亀",
+  "deadline": "17:08",
+  "main": false,
+  "gen": false,
+  "verify": true
+ },
+ {
+  "stadium_code": "15",
+  "race_number": 6,
+  "stadium_name": "丸亀",
+  "deadline": "17:37",
+  "main": false,
+  "gen": false,
+  "verify": true
+ },
+ {
+  "stadium_code": "15",
+  "race_number": 7,
+  "stadium_name": "丸亀",
+  "deadline": "18:04",
+  "main": false,
+  "gen": false,
+  "verify": true
+ },
+ {
+  "stadium_code": "15",
+  "race_number": 8,
+  "stadium_name": "丸亀",
+  "deadline": "18:32",
+  "main": false,
+  "gen": false,
+  "verify": true
+ },
+ {
+  "stadium_code": "15",
+  "race_number": 9,
+  "stadium_name": "丸亀",
+  "deadline": "19:02",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "15",
+  "race_number": 10,
+  "stadium_name": "丸亀",
+  "deadline": "19:32",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "15",
+  "race_number": 11,
+  "stadium_name": "丸亀",
+  "deadline": "20:04",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "15",
+  "race_number": 12,
+  "stadium_name": "丸亀",
+  "deadline": "20:35",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "20",
+  "race_number": 1,
+  "stadium_name": "若松",
+  "deadline": "15:25",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "20",
+  "race_number": 2,
+  "stadium_name": "若松",
+  "deadline": "15:54",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "20",
+  "race_number": 3,
+  "stadium_name": "若松",
+  "deadline": "16:27",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "20",
+  "race_number": 4,
+  "stadium_name": "若松",
+  "deadline": "16:54",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "20",
+  "race_number": 5,
+  "stadium_name": "若松",
+  "deadline": "17:22",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "20",
+  "race_number": 6,
+  "stadium_name": "若松",
+  "deadline": "17:51",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "20",
+  "race_number": 7,
+  "stadium_name": "若松",
+  "deadline": "18:18",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "20",
+  "race_number": 8,
+  "stadium_name": "若松",
+  "deadline": "18:46",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "20",
+  "race_number": 9,
+  "stadium_name": "若松",
+  "deadline": "19:16",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "20",
+  "race_number": 10,
+  "stadium_name": "若松",
+  "deadline": "19:48",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "20",
+  "race_number": 11,
+  "stadium_name": "若松",
+  "deadline": "20:16",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "20",
+  "race_number": 12,
+  "stadium_name": "若松",
+  "deadline": "20:45",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "21",
+  "race_number": 1,
+  "stadium_name": "芦屋",
+  "deadline": "08:43",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "21",
+  "race_number": 2,
+  "stadium_name": "芦屋",
+  "deadline": "09:11",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "21",
+  "race_number": 3,
+  "stadium_name": "芦屋",
+  "deadline": "09:37",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "21",
+  "race_number": 4,
+  "stadium_name": "芦屋",
+  "deadline": "10:03",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "21",
+  "race_number": 5,
+  "stadium_name": "芦屋",
+  "deadline": "10:29",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "21",
+  "race_number": 6,
+  "stadium_name": "芦屋",
+  "deadline": "11:00",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "21",
+  "race_number": 7,
+  "stadium_name": "芦屋",
+  "deadline": "11:30",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "21",
+  "race_number": 8,
+  "stadium_name": "芦屋",
+  "deadline": "12:00",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "21",
+  "race_number": 9,
+  "stadium_name": "芦屋",
+  "deadline": "12:30",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "21",
+  "race_number": 10,
+  "stadium_name": "芦屋",
+  "deadline": "13:05",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "21",
+  "race_number": 11,
+  "stadium_name": "芦屋",
+  "deadline": "13:41",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "21",
+  "race_number": 12,
+  "stadium_name": "芦屋",
+  "deadline": "14:19",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "22",
+  "race_number": 1,
+  "stadium_name": "福岡",
+  "deadline": "11:03",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "22",
+  "race_number": 2,
+  "stadium_name": "福岡",
+  "deadline": "11:33",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "22",
+  "race_number": 3,
+  "stadium_name": "福岡",
+  "deadline": "12:04",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "22",
+  "race_number": 4,
+  "stadium_name": "福岡",
+  "deadline": "12:33",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "22",
+  "race_number": 5,
+  "stadium_name": "福岡",
+  "deadline": "13:03",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "22",
+  "race_number": 6,
+  "stadium_name": "福岡",
+  "deadline": "13:32",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "22",
+  "race_number": 7,
+  "stadium_name": "福岡",
+  "deadline": "14:02",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "22",
+  "race_number": 8,
+  "stadium_name": "福岡",
+  "deadline": "14:42",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "22",
+  "race_number": 9,
+  "stadium_name": "福岡",
+  "deadline": "15:10",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "22",
+  "race_number": 10,
+  "stadium_name": "福岡",
+  "deadline": "15:36",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "22",
+  "race_number": 11,
+  "stadium_name": "福岡",
+  "deadline": "16:07",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "22",
+  "race_number": 12,
+  "stadium_name": "福岡",
+  "deadline": "16:40",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "24",
+  "race_number": 1,
+  "stadium_name": "大村",
+  "deadline": "15:22",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "24",
+  "race_number": 2,
+  "stadium_name": "大村",
+  "deadline": "15:47",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "24",
+  "race_number": 3,
+  "stadium_name": "大村",
+  "deadline": "16:17",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "24",
+  "race_number": 4,
+  "stadium_name": "大村",
+  "deadline": "16:48",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "24",
+  "race_number": 5,
+  "stadium_name": "大村",
+  "deadline": "17:15",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "24",
+  "race_number": 6,
+  "stadium_name": "大村",
+  "deadline": "17:44",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "24",
+  "race_number": 7,
+  "stadium_name": "大村",
+  "deadline": "18:11",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "24",
+  "race_number": 8,
+  "stadium_name": "大村",
+  "deadline": "18:39",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "24",
+  "race_number": 9,
+  "stadium_name": "大村",
+  "deadline": "19:09",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "24",
+  "race_number": 10,
+  "stadium_name": "大村",
+  "deadline": "19:40",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "24",
+  "race_number": 11,
+  "stadium_name": "大村",
+  "deadline": "20:10",
+  "main": false,
+  "gen": false,
+  "verify": false
+ },
+ {
+  "stadium_code": "24",
+  "race_number": 12,
+  "stadium_name": "大村",
+  "deadline": "20:40",
+  "main": false,
+  "gen": false,
+  "verify": false
+ }
+]
