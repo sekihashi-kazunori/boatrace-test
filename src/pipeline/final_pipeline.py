@@ -230,6 +230,31 @@ VERIFY_RULES = [
 VERIFY_STADIUM_NAMES = {"15": "丸亀", "04": "平和島", "10": "三国", "06": "浜名湖"}
 
 
+def _outer_faster(before_info) -> bool | None:
+    """展示タイムで外(4〜6号艇の平均)が内(2・3号艇の平均)より速いか。6艇そろわなければ None。"""
+    ex = {b.get("lane"): b.get("exhibition_time") for b in (before_info or [])}
+    if any(ex.get(i) is None for i in range(2, 7)):
+        return None
+    return (ex[2] + ex[3]) / 2 > (ex[4] + ex[5] + ex[6]) / 3
+
+
+def _run_tsu_ex(state, target_date, session_name, race_number, b1_class, odds_map, before_info) -> None:
+    """検証枠(2026-10-16〜): 津・1号艇B級 かつ 展示で外が内より速いレースだけ 1-456-456。
+    1〜10月: 前半185%・後半229%(津B級全体は117%・142%)。的中が前半10回・後半5回と少ないので実戦で確認する。"""
+    if not (b1_class and b1_class.startswith("B")) or not _outer_faster(before_info):
+        return
+    try:
+        save_bet_tickets(state, [
+            BetTicket(race_date=str(target_date), session=session_name, stadium_code="09",
+                      race_number=race_number, combination=c, amount=100, bet_type="v_tsu_ex",
+                      odds=(odds_map or {}).get(tuple(map(int, c.split("-")))))
+            for c in EDOGAWA_COMBOS
+        ])
+        print(f"検証枠 津B級+外の展示が速い: {race_number}R 記録")
+    except Exception as e:
+        print(f"津(展示)枠の保存失敗 {race_number}R: {e}")
+
+
 def _run_verify(state, target_date, session_name, stadium_code, race_number, b1_class, odds_map) -> None:
     for bt, st, cls, rmin, rmax, combos, _title in VERIFY_RULES:
         if st != stadium_code or not (rmin <= race_number <= rmax):
@@ -448,6 +473,8 @@ def run_final(target_date: date | None = None, model_path: str = "model.txt", db
         if stadium_code == "03":
             _run_edogawa(state, target_date, session_name, race_number, odds_map)
         _run_verify(state, target_date, session_name, stadium_code, race_number, b1_class, odds_map)
+        if stadium_code == "09":
+            _run_tsu_ex(state, target_date, session_name, race_number, b1_class, odds_map, before_info)
 
         # ===== 本番(2026-10-12 再構築): 会場×1号艇の級の条件ルール =====
         rule_plans = _rule_plans(stadium_code, race_number, b1_class, odds_map, weather) if is_main else None

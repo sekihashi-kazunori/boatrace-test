@@ -154,6 +154,7 @@ def verify_summary(engine, target_date: date) -> str:
     S = PROMOTE_SINCE
     lines.append(line("江戸川 B級1〜4R 1-456-456", experiment_report(engine, target_date, "edo", 4, "B", since=S)))
     lines.append(line("津 B級 全R 1-456-456", experiment_report(engine, target_date, "tsu", since=S)))
+    lines.append(line("津 B級＋展示で外が速い 1-456-456", experiment_report(engine, target_date, "v_tsu_ex", since=S)))
     for bt, *_rest, title in VERIFY_RULES:
         lines.append(line(title, experiment_report(engine, target_date, bt, since=S)))
     lines.append(line("実験枠(モデル期待値)", experiment_report(engine, target_date, "exp", since=S)))
