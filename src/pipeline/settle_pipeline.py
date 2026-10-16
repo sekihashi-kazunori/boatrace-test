@@ -18,6 +18,21 @@ KINDS = (("rule", "江戸川・津"), ("main", "本予想"))
 
 
 def race_review(engine, target_date: date, session_name: str, kind: str = "rule") -> str | None:
+    rows = race_rows(engine, target_date, session_name, kind)
+    if not rows:
+        return None
+    lines = ["【レース振り返り】"]
+    for r in rows:
+        if r["status"] == "wait":
+            lines.append(f"{r['name']} 結果待ち")
+        elif r["status"] == "hit":
+            lines.append(f"{r['name']} {r['order']} 的中🎯 {r['payout']:,}円")
+        else:
+            lines.append(f"{r['name']} {r['order']} ハズレ")
+    return "\n".join(lines)
+
+
+def race_rows(engine, target_date: date, session_name: str, kind: str = "rule") -> list[dict]:
     """セッションの各レースの振り返り(結果の3連単と、的中なら払戻額)。
 
     例:
@@ -36,12 +51,12 @@ def race_review(engine, target_date: date, session_name: str, kind: str = "rule"
             for r in db.scalars(select(RaceResult).where(RaceResult.race_date == str(target_date)))
         }
     if not tickets:
-        return None
+        return []
 
     from src.reporting.report import _main_only
     tickets = _main_only(tickets, kind)
     if not tickets:
-        return None
+        return []
     races: dict = {}
     for t in tickets:
         races.setdefault((str(t.stadium_code).zfill(2), t.race_number), []).append(t)
@@ -53,19 +68,16 @@ def race_review(engine, target_date: date, session_name: str, kind: str = "rule"
                 for r in json.load(f):
                     deadlines.setdefault((r["stadium_code"], r["race_number"]), r.get("deadline") or "")
 
-    lines = ["【レース振り返り】"]
+    out = []
     for key in sorted(races, key=lambda k: (deadlines.get(k, "99:99"), k)):
         ts = races[key]
-        name = f"{STADIUM_NAMES.get(key[0], key[0])}{key[1]}R"
-        order = (results.get(key) or "").replace("-", "")
-        if any(t.result is None for t in ts):
-            lines.append(f"{name} 結果待ち")
-        elif any(t.result == "hit" for t in ts):
-            payout = sum(t.payout or 0 for t in ts)
-            lines.append(f"{name} {order} 的中🎯 {payout:,}円")
-        else:
-            lines.append(f"{name} {order} ハズレ")
-    return "\n".join(lines)
+        status = "wait" if any(t.result is None for t in ts) else (
+            "hit" if any(t.result == "hit" for t in ts) else "miss")
+        out.append({"name": f"{STADIUM_NAMES.get(key[0], key[0])}{key[1]}R",
+                     "order": (results.get(key) or "").replace("-", ""),
+                     "stake": sum(t.amount for t in ts),
+                     "payout": sum(t.payout or 0 for t in ts), "status": status})
+    return out
 
 
 def run_settle(session_name: str, target_date: date | None = None, is_last_session_of_day: bool = False) -> None:
@@ -109,19 +121,17 @@ def run_settle(session_name: str, target_date: date | None = None, is_last_sessi
 
     # 2026-10-14 ご主人様指示: セッションごとの報告は本予想だけ。
     # 江戸川・津と検証枠は、ナイター後の最終収支報告でまとめて出す。
+    # 2026-10-17 ご主人様指示: 見やすく・分析しやすい表示に作り直し
+    from src.reporting.discord_format import session_message
     summary = session_report(engine, target_date, session_name, "main")
-    report = format_report(summary, f"{session_name_ja} 本予想 収支報告")
-    review = race_review(engine, target_date, session_name, "main")
-    if review:
-        report += "\n" + review
+    report = session_message(session_name_ja, f"{target_date.month}/{target_date.day}", summary,
+                             race_rows(engine, target_date, session_name, "main"))
     notify_console(report)
     notify_discord(report)
 
     if is_last_session_of_day:
         # 2026-10-17 ご主人様指示: 最終振り返りはモーニング・デイ・ナイター・合計の収支を出す
-        msgs = [session_breakdown(engine, target_date, "main")]
-        if target_date >= CUMULATIVE_START:
-            msgs.append(format_report(cumulative_report(engine, target_date, "main"), "累積収支 本予想"))
+        msgs = [session_breakdown(engine, target_date, "main")]  # 当日・累積・日別推移を1通で
         msgs.append(verify_summary(engine, target_date))
         for msg in msgs:
             notify_console(msg)
@@ -138,33 +148,28 @@ def verify_summary(engine, target_date: date) -> str:
     """検証枠(紙上)の10/14以降の累積を1通にまとめ、昇格ラインを満たした枠に印を付ける。"""
     from src.pipeline.final_pipeline import VERIFY_RULES
     from src.reporting.report import cumulative_report as _cum
-    lines = [f"【検証枠 累積】※紙上検証 {PROMOTE_SINCE.month}/{PROMOTE_SINCE.day}〜",
-             f"昇格ライン: {PROMOTE_MIN_RACES}R以上・的中{PROMOTE_MIN_HITS}R以上・回収率{PROMOTE_MIN_RATE:.0f}%以上"]
-    promoted = []
+    from src.reporting.discord_format import verify_message
+    S = PROMOTE_SINCE
 
-    def line(title, r):
-        if not r["races"]:
-            return f"・{title}: まだ対象なし"
+    def item(title, r):
         ok = (r["races"] >= PROMOTE_MIN_RACES and r["hit_races"] >= PROMOTE_MIN_HITS
               and r["recovery_rate"] >= PROMOTE_MIN_RATE)
-        if ok:
-            promoted.append(title)
-        return (f"・{title}: {r['races']}R 的中{r['hit_races']}R "
-                f"回収率{r['recovery_rate']}% ({r['payout'] - r['stake']:+,}円)" + (" 🎉昇格条件クリア" if ok else ""))
+        return (title, r, ok)
 
-    S = PROMOTE_SINCE
-    lines.append(line("江戸川 B級1〜4R 1-456-456", experiment_report(engine, target_date, "edo", 4, "B", since=S)))
-    lines.append(line("津 B級 全R 1-456-456", experiment_report(engine, target_date, "tsu", since=S)))
-    lines.append(line("津 B級＋展示で外が速い 1-456-456", experiment_report(engine, target_date, "v_tsu_ex", since=S)))
+    items = [
+        item("江戸川 B級1〜4R 1-456-456", experiment_report(engine, target_date, "edo", 4, "B", since=S)),
+        item("津 B級 全R 1-456-456", experiment_report(engine, target_date, "tsu", since=S)),
+        item("津 B級＋展示で外が速い 1-456-456", experiment_report(engine, target_date, "v_tsu_ex", since=S)),
+    ]
     for bt, *_rest, title in VERIFY_RULES:
-        lines.append(line(title, experiment_report(engine, target_date, bt, since=S)))
-    lines.append(line("実験枠(モデル期待値)", experiment_report(engine, target_date, "exp", since=S)))
+        items.append(item(title, experiment_report(engine, target_date, bt, since=S)))
+    items.append(item("実験枠(モデル期待値)", experiment_report(engine, target_date, "exp", since=S)))
     rule = _cum(engine, target_date, "rule")
-    lines.append(f"(参考)江戸川・津 旧本番ルール: {rule['race_count']}R 的中{rule['hit_race_count']}R 回収率{rule['recovery_rate']}%")
-    if promoted:
-        lines.append("👉 昇格候補: " + "、".join(promoted) + "（執事に本予想への昇格を指示してください）")
-    return "\n".join(lines)
-
+    extra = (f"(参考)江戸川・津 旧本番ルール: {rule['race_count']}R 的中{rule['hit_race_count']}R "
+             f"回収率{rule['recovery_rate']:.0f}%")
+    return verify_message(f"{S.month}/{S.day}",
+                          f"昇格ライン: {PROMOTE_MIN_RACES}R以上・的中{PROMOTE_MIN_HITS}R以上・回収率{PROMOTE_MIN_RATE:.0f}%以上",
+                          items, extra)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
