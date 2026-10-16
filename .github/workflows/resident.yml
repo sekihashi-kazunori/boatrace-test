@@ -46,7 +46,8 @@ jobs:
           while true; do
             NOW=$(TZ=Asia/Tokyo date +%H%M)
             ELAPSED=$(( ($(date +%s) - START) / 60 ))
-            if [ "$NOW" -ge 2240 ] || [ "$ELAPSED" -ge 340 ]; then echo "終了 $NOW ${ELAPSED}分"; break; fi
+            # 夜中(0:00〜6:30)に遅れて起動した場合もすぐ終了する(10/16夜、3時間遅れの起動が朝まで空回りした)
+            if (( 10#$NOW >= 2240 || 10#$NOW < 630 )) || [ "$ELAPSED" -ge 340 ]; then echo "終了 $NOW ${ELAPSED}分"; break; fi
             git checkout -- boatrace.db 2>/dev/null || true
             git pull -q --rebase --autostash || true
             mkdir -p logs
@@ -55,13 +56,18 @@ jobs:
             save "all final"
             TODAY=$(TZ=Asia/Tokyo date +%F)
             # モーニング精算 15:00〜 / デイ精算 18:30〜(1日1回だけ。印のファイルで二重報告を防ぐ)
-            if [ "$NOW" -ge 1500 ] && [ ! -f "plans/${TODAY}_settled_morning" ]; then
+            if (( 10#$NOW >= 1500 )) && [ ! -f "plans/${TODAY}_settled_morning" ]; then
               python -u -m src.pipeline.settle_pipeline --session morning && touch "plans/${TODAY}_settled_morning"
               save "morning settle"
             fi
-            if [ "$NOW" -ge 1830 ] && [ ! -f "plans/${TODAY}_settled_day" ]; then
+            if (( 10#$NOW >= 1830 )) && [ ! -f "plans/${TODAY}_settled_day" ]; then
               python -u -m src.pipeline.settle_pipeline --session day && touch "plans/${TODAY}_settled_day"
               save "day settle"
+            fi
+            # ナイター精算＋最終収支報告 22:00〜(10/16はGitHubの23時の定時実行が丸ごと飛んだため常駐側に移管)
+            if (( 10#$NOW >= 2200 )) && [ ! -f "plans/${TODAY}_settled_nighter" ]; then
+              python -u -m src.pipeline.settle_pipeline --session nighter --last-of-day && touch "plans/${TODAY}_settled_nighter"
+              save "nighter settle"
             fi
             sleep 180
           done

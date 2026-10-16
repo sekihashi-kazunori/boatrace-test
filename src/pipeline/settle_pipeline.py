@@ -169,5 +169,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--session", choices=["morning", "day", "nighter"], required=True)
     parser.add_argument("--last-of-day", action="store_true")
+    parser.add_argument("--date", default=None, help="精算する日(YYYY-MM-DD)。省略時は日本時間の今日")
     args = parser.parse_args()
-    run_settle(args.session, is_last_session_of_day=args.last_of_day)
+    run_settle(args.session, target_date=date.fromisoformat(args.date) if args.date else None,
+               is_last_session_of_day=args.last_of_day)
