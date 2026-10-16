@@ -134,3 +134,25 @@ def format_experiment(r: dict, title: str = "実験枠") -> str:
                 f"{r['races']}R / 的中{r['hit_races']}R / 購入{r['stake']:,}円 / 払戻{r['payout']:,}円 / 回収率{r['recovery_rate']}%")
     return (f"【{title} 累積】※本番とは別の紙上検証\n"
             f"{r['bets']}点 / 的中{r['hits']}点 / 購入{r['stake']:,}円 / 払戻{r['payout']:,}円 / 回収率{r['recovery_rate']}%")
+
+
+SESSION_JA = (("morning", "モーニング"), ("day", "デイ"), ("nighter", "ナイター"))
+
+
+def session_breakdown(engine, race_date: date, kind: str = "main") -> str:
+    """最終振り返り用(2026-10-17 ご主人様指示): モーニング・デイ・ナイター・合計の収支を1通に。"""
+    md = f"{race_date.month}/{race_date.day}"
+    lines = [f"【本日総収支 {md} 本予想】"]
+
+    def row(label, s):
+        if not s["race_count"]:
+            return f"・{label}: 対象なし"
+        return (f"・{label}: {s['race_count']}R 的中{s['hit_race_count']}R({s['hit_rate']}%) "
+                f"購入{s['total_stake']:,}円 払戻{s['total_payout']:,}円 "
+                f"収支{s['profit']:+,}円 回収率{s['recovery_rate']}%")
+
+    for key, ja in SESSION_JA:
+        lines.append(row(ja, session_report(engine, race_date, key, kind)))
+    lines.append("―――――")
+    lines.append(row("合計", daily_report(engine, race_date, kind)))
+    return "\n".join(lines)

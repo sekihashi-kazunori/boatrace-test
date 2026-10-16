@@ -10,7 +10,7 @@ from sqlalchemy.orm import Session as OrmSession
 
 from src.storage.db import get_state_engine, BetTicket, save_race_result, RaceResult
 from src.results.fetch_results import fetch_race_result, settle_tickets
-from src.reporting.report import session_report, daily_report, cumulative_report, format_report, CUMULATIVE_START, experiment_report, format_experiment
+from src.reporting.report import session_report, daily_report, session_breakdown, cumulative_report, format_report, CUMULATIVE_START, experiment_report, format_experiment
 from src.notify.notifier import notify_console, notify_discord
 
 
@@ -118,7 +118,8 @@ def run_settle(session_name: str, target_date: date | None = None, is_last_sessi
     notify_discord(report)
 
     if is_last_session_of_day:
-        msgs = [format_report(daily_report(engine, target_date, "main"), "本日総収支 本予想")]
+        # 2026-10-17 ご主人様指示: 最終振り返りはモーニング・デイ・ナイター・合計の収支を出す
+        msgs = [session_breakdown(engine, target_date, "main")]
         if target_date >= CUMULATIVE_START:
             msgs.append(format_report(cumulative_report(engine, target_date, "main"), "累積収支 本予想"))
         msgs.append(verify_summary(engine, target_date))
