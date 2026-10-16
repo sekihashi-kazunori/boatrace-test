@@ -216,6 +216,23 @@ def _perm(heads, seconds, thirds):
     return [f"{a}-{b}-{c}" for a in heads for b in seconds for c in thirds if len({a, b, c}) == 3]
 
 
+# 本予想の絞り込み(2026-10-17 ご主人様と決定・お試し):
+# 各セッション(モーニング・デイ・ナイター)最大5Rまで、集中度の基準も0.40→0.45に上げる。
+# 8/1〜9/18の確定オッズ7,600Rの試算: 上限なし(集中度0.50相当)13R/日・回収率80% →
+# 1セッション5Rまでにすると 約11R/日・的中率67%・回収率80〜83%。モーニング増額は見送り(過去はむしろ弱い)。
+MAIN_MIN_CONC = 0.45
+MAIN_MAX_PER_SESSION = 5
+
+
+def _main_count(state, target_date, session_name) -> int:
+    """その日・そのセッションで本予想(gen)を買ったレース数。"""
+    with OrmSession(state) as db:
+        rows = db.execute(select(BetTicket.stadium_code, BetTicket.race_number).where(
+            BetTicket.race_date == str(target_date), BetTicket.session == session_name,
+            BetTicket.bet_type == "gen").distinct()).all()
+    return len(rows)
+
+
 VERIFY_RULES = [
     # (bet_type, 場コード, 1号艇の級の頭文字, 最小R, 最大R, 買い目, 表示名)
     ("v_edo14", "03", "B", 1, 4, _perm([1], [4], [2, 3, 5, 6]), "江戸川 B級1〜4R 1-4-全"),
@@ -452,8 +469,11 @@ def run_final(target_date: date | None = None, model_path: str = "model.txt", db
             _run_experiment(state, target_date, session_name, stadium_code, race_number, label, indexed, odds_map)
         # ===== 本予想(2026-10-14〜): 人気上位5点に票が集中しているレースだけ =====
         # 対象は今処理している全レース(厳選候補・江戸川津・検証枠)。モデルの鉄板5点は使わない。
-        pop_plans, conc = build_popular_plan(odds_map, min_concentration=0.40)
+        pop_plans, conc = build_popular_plan(odds_map, min_concentration=MAIN_MIN_CONC)
         print(f"{label}: 集中度{conc * 100:.1f}%")
+        if pop_plans and _main_count(state, target_date, session_name) >= MAIN_MAX_PER_SESSION:
+            print(f"{label}: 本予想は{session_ja}で既に{MAIN_MAX_PER_SESSION}R買ったので見送り")
+            pop_plans = []
         if pop_plans:
             _run_general(state, target_date, session_name, stadium_code, race_number, label, pop_plans)
             ref = build_message(session_ja, stadium_name, race_number, pop_plans, deadline_time=race.get("deadline"))
