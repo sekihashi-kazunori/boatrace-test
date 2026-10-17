@@ -148,7 +148,9 @@ def _rule_plans(stadium_code, race_number, b1_class, odds_map, weather=None):
                 for c in ("1-2-3", "1-3-2")] + \
                [BetPlan(c, "江戸川穴", 100, 0.0, _odds(odds_map, c), f"江戸川前半・1号艇{b1_class}は逃げにくく外が届く")
                 for c in EDOGAWA_COMBOS]
-    if stadium_code == "09":
+    # 2026-10-17 ご主人様と決定: 津は停止。1〜10月の127%は上位5本の万舟頼み(抜くと53%)、
+    # 月別も40〜60%の月が大半で、10/14以降も28%だったため。
+    if False and stadium_code == "09":
         wind = (weather or {}).get("wind")
         rough = (wind is not None and wind >= 5) or (wave is not None and wave >= 3)
         # 強風(5m以上)か波3cm以上の日は金額2倍(過去268%・ただし前半90%/後半520%とムラがあるため、
@@ -488,13 +490,9 @@ def run_final(target_date: date | None = None, model_path: str = "model.txt", db
         weather = LAST_WEATHER.get((stadium_code, race_number, str(target_date)), {})
         # 全レースで1号艇の級と天候・風・波を記録(今後の条件づくりの材料)
         _save_meta(state, target_date, stadium_code, race_number, b1_class, weather)
-        if stadium_code == "09":
-            _run_tsu(state, target_date, session_name, race_number, odds_map, b1_class)
         if stadium_code == "03":
             _run_edogawa(state, target_date, session_name, race_number, odds_map)
         _run_verify(state, target_date, session_name, stadium_code, race_number, b1_class, odds_map)
-        if stadium_code == "09":
-            _run_tsu_ex(state, target_date, session_name, race_number, b1_class, odds_map, before_info)
 
         # ===== 本番(2026-10-12 再構築): 会場×1号艇の級の条件ルール =====
         rule_plans = _rule_plans(stadium_code, race_number, b1_class, odds_map, weather) if is_main else None

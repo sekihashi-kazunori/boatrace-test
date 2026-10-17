@@ -121,10 +121,15 @@ def experiment_report(engine, up_to_date: date, bet_type="exp", race_max: int | 
     hits = [t for t in tickets if t.result == "hit"]
     stake = sum(t.amount for t in tickets)
     payout = sum(t.payout or 0 for t in hits)
+    by_race: dict = {}
+    for t in hits:
+        k = (t.race_date, t.stadium_code, t.race_number)
+        by_race[k] = by_race.get(k, 0) + (t.payout or 0)
     races = {(t.race_date, t.stadium_code, t.race_number) for t in tickets}
     hit_races = {(t.race_date, t.stadium_code, t.race_number) for t in hits}
     return {"bets": n, "hits": len(hits), "stake": stake, "payout": payout,
             "races": len(races), "hit_races": len(hit_races),
+            "max_race_payout": max(by_race.values(), default=0),
             "recovery_rate": round(payout / stake * 100, 1) if stake else 0.0}
 
 

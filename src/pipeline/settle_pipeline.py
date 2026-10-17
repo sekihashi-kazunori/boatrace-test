@@ -158,8 +158,7 @@ def verify_summary(engine, target_date: date) -> str:
 
     items = [
         item("江戸川 B級1〜4R 1-456-456", experiment_report(engine, target_date, "edo", 4, "B", since=S)),
-        item("津 B級 全R 1-456-456", experiment_report(engine, target_date, "tsu", since=S)),
-        item("津 B級＋展示で外が速い 1-456-456", experiment_report(engine, target_date, "v_tsu_ex", since=S)),
+        # 津の2枠は 2026-10-17 停止(万舟頼みで実力なし)
     ]
     for bt, *_rest, title in VERIFY_RULES:
         items.append(item(title, experiment_report(engine, target_date, bt, since=S)))

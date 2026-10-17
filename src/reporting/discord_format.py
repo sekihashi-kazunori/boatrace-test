@@ -128,6 +128,10 @@ def verify_message(since_md: str, rule_text: str, items: list[tuple[str, dict, b
         lines.append(f"{icon} **{title}**")
         lines.append(f"　{r['races']}R 的中{r['hit_races']} │ 購入{r['stake']:,}円 → 払戻{r['payout']:,}円")
         lines.append(f"　収支 {yen(r['payout'] - r['stake'])}円 │ 回収率 {r['recovery_rate']:.0f}%")
+        # 2026-10-17: 万舟頼みかどうかを見るため、一番大きい当たり1本を抜いた回収率も出す
+        mx = r.get("max_race_payout", 0)
+        if r["hit_races"] >= 1 and r["stake"]:
+            lines.append(f"　最大の当たり{mx:,}円を抜くと 回収率 {(r['payout'] - mx) / r['stake'] * 100:.0f}%")
     st, py = sum(x[1]["stake"] for x in active), sum(x[1]["payout"] for x in active)
     if st:
         lines.append(f"📦 検証枠 合計: 購入{st:,}円 → 払戻{py:,}円 / 収支 {yen(py - st)}円 / 回収率 {py / st * 100:.0f}%")
