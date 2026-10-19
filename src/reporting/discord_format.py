@@ -117,29 +117,42 @@ def final_message(md: str, today: list[tuple[str, dict]], today_total: dict,
     return "\n".join(lines)
 
 
-def verify_message(since_md: str, rule_text: str, items: list[tuple[str, dict, bool]], extra: str = "") -> str:
-    """検証枠の累積。items: [(表示名, {"races","hit_races","stake","payout","recovery_rate"}, 昇格OK)]
-    回収率の高い順に並べ、対象なしは最後にまとめる。"""
-    lines = [f"**🧪 検証枠 累積** ※紙上 {since_md}〜", rule_text]
+def verify_message(since_md: str, today_md: str, rule_text: str, items: list, extra: str = "") -> str:
+    """検証枠。items: [(表示名, 累積, 昇格OK, 本日)]  各 dict は races/hit_races/stake/payout/recovery_rate。
+    2026-10-20: 本日分と累積を並べる。累積の回収率が高い順、対象なしは最後にまとめる。"""
+    def one(r):
+        if not r["races"]:
+            return "対象なし"
+        return (f"{r['races']}R 的中{r['hit_races']} │ {r['stake']:,}→{r['payout']:,}円 │ "
+                f"{yen(r['payout'] - r['stake'])}円 ({r['recovery_rate']:.0f}%)")
+
+    lines = [f"**🧪 検証枠** ※紙上　本日={today_md} / 累積={since_md}〜", rule_text]
     active = sorted([x for x in items if x[1]["races"]], key=lambda x: -x[1]["recovery_rate"])
     idle = [x[0] for x in items if not x[1]["races"]]
-    for title, r, ok in active:
+    for title, r, ok, t in active:
         icon = "🎉" if ok else mark(r["payout"] - r["stake"], r["races"])
+        hit = " 🎯" if t["hit_races"] else ""
         lines.append(f"{icon} **{title}**")
-        lines.append(f"　{r['races']}R 的中{r['hit_races']} │ 購入{r['stake']:,}円 → 払戻{r['payout']:,}円")
-        lines.append(f"　収支 {yen(r['payout'] - r['stake'])}円 │ 回収率 {r['recovery_rate']:.0f}%")
-        # 2026-10-17: 万舟頼みかどうかを見るため、一番大きい当たり1本を抜いた回収率も出す
+        lines.append(f"　本日: {one(t)}{hit}")
+        lines.append(f"　累積: {one(r)}")
         mx = r.get("max_race_payout", 0)
         if r["hit_races"] >= 1 and r["stake"]:
-            lines.append(f"　最大の当たり{mx:,}円を抜くと 回収率 {(r['payout'] - mx) / r['stake'] * 100:.0f}%")
-    st, py = sum(x[1]["stake"] for x in active), sum(x[1]["payout"] for x in active)
-    if st:
-        lines.append(f"📦 検証枠 合計: 購入{st:,}円 → 払戻{py:,}円 / 収支 {yen(py - st)}円 / 回収率 {py / st * 100:.0f}%")
+            lines.append(f"　最大の当たり{mx:,}円を抜くと 累積回収率 {(r['payout'] - mx) / r['stake'] * 100:.0f}%")
+
+    def total(idx):
+        st = sum(x[idx]["stake"] for x in items)
+        py = sum(x[idx]["payout"] for x in items)
+        return st, py
+    ts, tp = total(3)
+    cs, cp = total(1)
+    lines.append("📦 **検証枠 合計**")
+    lines.append(f"　本日: {ts:,}→{tp:,}円 │ {yen(tp - ts)}円" + (f" ({tp / ts * 100:.0f}%)" if ts else ""))
+    lines.append(f"　累積: {cs:,}→{cp:,}円 │ {yen(cp - cs)}円" + (f" ({cp / cs * 100:.0f}%)" if cs else ""))
     if idle:
         lines.append("➖ まだ対象なし: " + "、".join(idle))
     if extra:
         lines.append(extra)
-    promoted = [t for t, _, ok in items if ok]
+    promoted = [x[0] for x in items if x[2]]
     if promoted:
         lines.append("👉 昇格候補: " + "、".join(promoted) + "（執事に本予想への昇格を指示してください）")
     return "\n".join(lines)

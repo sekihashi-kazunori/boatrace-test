@@ -151,22 +151,25 @@ def verify_summary(engine, target_date: date) -> str:
     from src.reporting.discord_format import verify_message
     S = PROMOTE_SINCE
 
-    def item(title, r):
+    # 2026-10-20 ご主人様指示: 本日分と累積を並べて出す
+    def item(title, *args):
+        r = experiment_report(engine, target_date, *args, since=S)
+        today = experiment_report(engine, target_date, *args, since=target_date)
         ok = (r["races"] >= PROMOTE_MIN_RACES and r["hit_races"] >= PROMOTE_MIN_HITS
               and r["recovery_rate"] >= PROMOTE_MIN_RATE)
-        return (title, r, ok)
+        return (title, r, ok, today)
 
     items = [
-        item("江戸川 B級1〜4R 1-456-456", experiment_report(engine, target_date, "edo", 4, "B", since=S)),
+        item("江戸川 B級1〜4R 1-456-456", "edo", 4, "B"),
         # 津の2枠は 2026-10-17 停止(万舟頼みで実力なし)
     ]
     for bt, *_rest, title in VERIFY_RULES:
-        items.append(item(title, experiment_report(engine, target_date, bt, since=S)))
-    items.append(item("実験枠(モデル期待値)", experiment_report(engine, target_date, "exp", since=S)))
+        items.append(item(title, bt))
+    items.append(item("実験枠(モデル期待値)", "exp"))
     rule = _cum(engine, target_date, "rule")
     extra = (f"(参考)江戸川・津 旧本番ルール: {rule['race_count']}R 的中{rule['hit_race_count']}R "
              f"回収率{rule['recovery_rate']:.0f}%")
-    return verify_message(f"{S.month}/{S.day}",
+    return verify_message(f"{S.month}/{S.day}", f"{target_date.month}/{target_date.day}",
                           f"昇格ライン: {PROMOTE_MIN_RACES}R以上・的中{PROMOTE_MIN_HITS}R以上・回収率{PROMOTE_MIN_RATE:.0f}%以上",
                           items, extra)
 
