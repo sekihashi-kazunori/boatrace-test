@@ -190,10 +190,14 @@ def build_popular_plan(
         return [], 0.0
     valid = {c: o for c, o in odds_map.items() if o and o > 0}
     inv_all = sum(1.0 / o for o in valid.values())
-    ranked = sorted(valid.items(), key=lambda x: x[1])[:n]
-    conc = sum(1.0 / o for _, o in ranked) / inv_all
+    # 集中度はこれまで通り人気上位5点で測る(レースの選び方は変えない)
+    conc = sum(1.0 / o for _, o in sorted(valid.items(), key=lambda x: x[1])[:5]) / inv_all
     if conc < min_concentration:
         return [], conc
+    # 2026-10-20 ご主人様決定「ロマン枠」: 本命は上位4点・900円 + 大穴(50〜100倍の人気1位)1点・100円 = 1,000円。
+    # 8/1〜9/18の1,372Rで 的中率50%・ガミ1%・回収率81%(現行 本命5+中穴2+大穴2 は76%・ガミ21%)。
+    n, total_stake = 4, 900
+    ranked = sorted(valid.items(), key=lambda x: x[1])[:n]
 
     inv = [1.0 / o for _, o in ranked]
     stakes = [max(100, int(total_stake * w / sum(inv) / 100 + 0.5) * 100) for w in inv]
@@ -218,10 +222,10 @@ def build_popular_plan(
     # 100倍超にすると回収率が75〜76%に下がるため50〜100倍に限定。
     # 2026-10-16 ご主人様指示で中穴2点(30〜50倍の人気上位2点・各100円)も追加 → 計1,400円。
     # 同じ2,612Rで 本命5+中穴2+大穴2 = 的中率56.4%・回収率77.9%(前半77.8/後半78.0)。
-    for lo, hi, cat in ((30, 50, "中穴"), (50, 100, "大穴")):
-        picks = sorted(((c, o) for c, o in valid.items() if lo < o <= hi), key=lambda x: x[1])[:2]
+    for lo, hi, cat, k in ((50, 100, "大穴", 1),):
+        picks = sorted(((c, o) for c, o in valid.items() if lo < o <= hi), key=lambda x: x[1])[:k]
         plans += [
-            BetPlan("-".join(map(str, c)), cat, 100, round(1.0 / o / inv_all * 100, 2), o, f"{lo}〜{hi}倍の人気上位2点")
+            BetPlan("-".join(map(str, c)), cat, 100, round(1.0 / o / inv_all * 100, 2), o, f"{lo}〜{hi}倍の人気1位(ロマン枠)")
             for c, o in picks
         ]
     return plans, conc
