@@ -133,6 +133,14 @@ def run_settle(session_name: str, target_date: date | None = None, is_last_sessi
         # 2026-10-17 ご主人様指示: 最終振り返りはモーニング・デイ・ナイター・合計の収支を出す
         msgs = [session_breakdown(engine, target_date, "main")]  # 当日・累積・日別推移を1通で
         msgs.append(verify_summary(engine, target_date))
+        # 2026-10-22 ご主人様指示: 予想屋さん(スクショから書き起こした分)も今日の収支に出す
+        try:
+            from src.reporting.tipsters import tipster_summary
+            t = tipster_summary(target_date)
+            if t:
+                msgs.append(t)
+        except Exception as e:
+            print(f"予想屋さんの採点失敗: {e}")
         for msg in msgs:
             notify_console(msg)
             notify_discord(msg)
