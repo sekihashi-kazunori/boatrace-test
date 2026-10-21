@@ -1,0 +1,47 @@
+name: asoka yosou hozon (あそかぶの予想・結果を保存)
+
+# 2026-10-21 ご主人様OK: あそかぶ(a-so-ka.work)の無料予想を検証枠で採点するための下調べ。
+# まずは予想ページ・結果ページと、そこから読み込まれているデータファイルをそのまま保存する。
+# 朝7:10(予想)と深夜0:10(前日の結果)に自動で動く。手動(いつものやつ)でも動かせる。
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "10 22 * * *"   # 日本時間 7:10
+    - cron: "10 15 * * *"   # 日本時間 0:10
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: hozon
+        run: |
+          set -u
+          D=$(TZ=Asia/Tokyo date +%F_%H%M)
+          OUT=asoka_raw/$D
+          mkdir -p "$OUT"
+          UA="Mozilla/5.0 (compatible; boatrace-test research)"
+          for name in boatrace/boatrace_forecast.html boatrace/boatrace_result.html boatrace_forecast/ boatrace_result/; do
+            f=$(echo "$name" | tr '/' '_')
+            curl -sSL -A "$UA" --max-time 60 "https://a-so-ka.work/$name" -o "$OUT/${f:-index}.html" || echo "取得失敗 $name"
+          done
+          # ページが読み込んでいる同じサイトのデータ(json/csv/js)も保存
+          grep -hoE '(src|href)="[^"]+\.(json|csv|js)[^"]*"|fetch\(["'"'"'][^"'"'"']+' "$OUT"/*.html 2>/dev/null \
+            | sed -E 's/^(src|href)="//; s/"$//; s/^fetch\(["'"'"']//' | sort -u | head -30 > "$OUT/assets.txt" || true
+          while read -r u; do
+            case "$u" in
+              http*) case "$u" in https://a-so-ka.work/*) ;; *) continue ;; esac; url="$u" ;;
+              /*) url="https://a-so-ka.work$u" ;;
+              *) url="https://a-so-ka.work/boatrace/$u" ;;
+            esac
+            fn=$(echo "$url" | sed -E 's#https://a-so-ka.work/##; s#[/?=&]#_#g' | cut -c1-120)
+            curl -sSL -A "$UA" --max-time 60 "$url" -o "$OUT/asset_$fn" || true
+          done < "$OUT/assets.txt"
+          ls -la "$OUT"
+          git config user.name "predictor-bot"
+          git config user.email "bot@example.com"
+          git add asoka_raw
+          git commit -q -m "chore: asoka raw $D" || exit 0
+          for i in 1 2 3 4 5; do git pull --rebase --autostash -q && git push -q && exit 0; sleep $((i*5)); done
+          exit 1
