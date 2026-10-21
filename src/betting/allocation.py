@@ -172,6 +172,44 @@ def experimental_bets(
     return sorted(out, key=lambda b: b.odds)
 
 
+# 2026-10-21 ご主人様OK: 締切10分前のオッズは確定までに下がる(10/14〜の的中65本で
+# 〜5倍は103%・5〜10倍は93%・10倍以上は約80%)。下がる分を見込んで、どれが当たっても
+# 払戻が合計1,000円(本命900+大穴100)を下回らないように配分する。
+def _expected_final_odds(o: float) -> float:
+    return o if o < 5 else (o * 0.9 if o < 10 else o * 0.8)
+
+
+def _no_gami_stakes(odds: list[float], total: int, target: int) -> list[int] | None:
+    """各点の(下がる分を見込んだ)払戻が target 以上になる最低額を100円単位で置き、余りは払戻が一番少ない点へ。
+    total に収まらなければ一番オッズの高い点を外して再計算(最低3点)。無理なら None。"""
+    import math
+    for k in range(len(odds), 2, -1):
+        adj = [_expected_final_odds(o) for o in odds[:k]]
+        st = [max(100, math.ceil(target / a / 100) * 100) for a in adj]
+        if sum(st) > total:
+            continue
+        while sum(st) < total:
+            i = min(range(k), key=lambda j: st[j] * adj[j])
+            st[i] += 100
+        return st
+    return None
+
+
+def _inverse_stakes(odds: list[float], total: int) -> list[int]:
+    inv = [1.0 / o for o in odds]
+    stakes = [max(100, int(total * w / sum(inv) / 100 + 0.5) * 100) for w in inv]
+    while sum(stakes) > total:
+        for i in reversed(range(len(stakes))):
+            if stakes[i] > 100:
+                stakes[i] -= 100
+                break
+        else:
+            break
+    while sum(stakes) < total:
+        stakes[0] += 100
+    return stakes
+
+
 def build_popular_plan(
     odds_map: dict[tuple[int, int, int], float] | None,
     total_stake: int = 1000,
@@ -198,20 +236,14 @@ def build_popular_plan(
     # 8/1〜9/18の1,372Rで 的中率50%・ガミ1%・回収率81%(現行 本命5+中穴2+大穴2 は76%・ガミ21%)。
     n, total_stake = 4, 900
     ranked = sorted(valid.items(), key=lambda x: x[1])[:n]
+    stakes = _no_gami_stakes([o for _, o in ranked], total_stake, target=1000)
+    if stakes is None:
+        # どう割り振ってもガミを避けられない(4点とも低オッズ)ときは、これまで通りオッズの逆数で配分
+        stakes = _inverse_stakes([o for _, o in ranked], total_stake)
+    else:
+        ranked = ranked[:len(stakes)]
 
-    inv = [1.0 / o for _, o in ranked]
-    stakes = [max(100, int(total_stake * w / sum(inv) / 100 + 0.5) * 100) for w in inv]
-    while sum(stakes) > total_stake:
-        for i in reversed(range(len(stakes))):
-            if stakes[i] > 100:
-                stakes[i] -= 100
-                break
-        else:
-            break
-    while sum(stakes) < total_stake:
-        stakes[0] += 100
-
-    reason = f"人気上位{n}点に票が集中（集中度{conc * 100:.0f}%）"
+    reason = f"人気上位{len(ranked)}点に票が集中（集中度{conc * 100:.0f}%）"
     plans = [
         BetPlan("-".join(map(str, c)), "本命", st, round(1.0 / o / inv_all * 100, 2), o, reason)
         for (c, o), st in zip(ranked, stakes)
