@@ -52,6 +52,176 @@
     }
    }
   },
+  "odds": {
+   "races": 7715,
+   "ratio1.2_odds20": {
+    "bets": 2868,
+    "races_bought": 2315,
+    "hits": 135,
+    "recovery": 0.783,
+    "前半": 0.701,
+    "後半": 0.866
+   },
+   "ratio1.2_odds30": {
+    "bets": 11265,
+    "races_bought": 5687,
+    "hits": 393,
+    "recovery": 0.776,
+    "前半": 0.701,
+    "後半": 0.852
+   },
+   "ratio1.2_odds50": {
+    "bets": 30530,
+    "races_bought": 7528,
+    "hits": 770,
+    "recovery": 0.761,
+    "前半": 0.761,
+    "後半": 0.761
+   },
+   "ratio1.2_odds100": {
+    "bets": 71047,
+    "races_bought": 7701,
+    "hits": 1197,
+    "recovery": 0.75,
+    "前半": 0.748,
+    "後半": 0.751
+   },
+   "ratio1.5_odds20": {
+    "bets": 529,
+    "races_bought": 502,
+    "hits": 26,
+    "recovery": 0.818,
+    "前半": 0.764,
+    "後半": 0.869
+   },
+   "ratio1.5_odds30": {
+    "bets": 3816,
+    "races_bought": 2871,
+    "hits": 133,
+    "recovery": 0.837,
+    "前半": 0.744,
+    "後半": 0.928
+   },
+   "ratio1.5_odds50": {
+    "bets": 15337,
+    "races_bought": 6499,
+    "hits": 362,
+    "recovery": 0.786,
+    "前半": 0.82,
+    "後半": 0.752
+   },
+   "ratio1.5_odds100": {
+    "bets": 44754,
+    "races_bought": 7583,
+    "hits": 679,
+    "recovery": 0.776,
+    "前半": 0.783,
+    "後半": 0.768
+   },
+   "ratio1.7_odds20": {
+    "bets": 145,
+    "races_bought": 142,
+    "hits": 8,
+    "recovery": 0.989,
+    "前半": 0.554,
+    "後半": 1.323
+   },
+   "ratio1.7_odds30": {
+    "bets": 1698,
+    "races_bought": 1482,
+    "hits": 59,
+    "recovery": 0.871,
+    "前半": 0.582,
+    "後半": 1.156
+   },
+   "ratio1.7_odds50": {
+    "bets": 9303,
+    "races_bought": 5207,
+    "hits": 207,
+    "recovery": 0.781,
+    "前半": 0.753,
+    "後半": 0.808
+   },
+   "ratio1.7_odds100": {
+    "bets": 32433,
+    "races_bought": 7338,
+    "hits": 456,
+    "recovery": 0.771,
+    "前半": 0.75,
+    "後半": 0.793
+   },
+   "ratio2.0_odds20": {
+    "bets": 16,
+    "races_bought": 16,
+    "hits": 2,
+    "recovery": 2.231,
+    "前半": 0.0,
+    "後半": 3.245
+   },
+   "ratio2.0_odds30": {
+    "bets": 450,
+    "races_bought": 427,
+    "hits": 14,
+    "recovery": 0.77,
+    "前半": 0.418,
+    "後半": 1.142
+   },
+   "ratio2.0_odds50": {
+    "bets": 4176,
+    "races_bought": 3017,
+    "hits": 84,
+    "recovery": 0.725,
+    "前半": 0.71,
+    "後半": 0.742
+   },
+   "ratio2.0_odds100": {
+    "bets": 19698,
+    "races_bought": 6537,
+    "hits": 244,
+    "recovery": 0.738,
+    "前半": 0.735,
+    "後半": 0.741
+   },
+   "ratio2.5_odds30": {
+    "bets": 43,
+    "races_bought": 43,
+    "hits": 3,
+    "recovery": 2.0,
+    "前半": 1.323,
+    "後半": 2.71
+   },
+   "ratio2.5_odds50": {
+    "bets": 980,
+    "races_bought": 864,
+    "hits": 16,
+    "recovery": 0.609,
+    "前半": 0.515,
+    "後半": 0.716
+   },
+   "ratio2.5_odds100": {
+    "bets": 8403,
+    "races_bought": 4437,
+    "hits": 91,
+    "recovery": 0.73,
+    "前半": 0.775,
+    "後半": 0.682
+   },
+   "top6_ratio1.0": {
+    "bets": 21955,
+    "hits": 707,
+    "recovery": 0.754
+   },
+   "top6_ratio1.2": {
+    "bets": 16185,
+    "hits": 430,
+    "recovery": 0.742
+   },
+   "top6_ratio1.5": {
+    "bets": 10369,
+    "hits": 228,
+    "recovery": 0.752
+   }
+  },
   "importance_win": {
    "course": 333346.0,
    "nat1_diff": 76245.0,
@@ -121,6 +291,184 @@
      "2026-09": 0.712,
      "2026-10": 0.775
     }
+   }
+  },
+  "odds": {
+   "races": 7715,
+   "ratio1.2_odds20": {
+    "bets": 2997,
+    "races_bought": 2369,
+    "hits": 136,
+    "recovery": 0.739,
+    "前半": 0.63,
+    "後半": 0.854
+   },
+   "ratio1.2_odds30": {
+    "bets": 11382,
+    "races_bought": 5758,
+    "hits": 410,
+    "recovery": 0.797,
+    "前半": 0.696,
+    "後半": 0.9
+   },
+   "ratio1.2_odds50": {
+    "bets": 30582,
+    "races_bought": 7545,
+    "hits": 783,
+    "recovery": 0.768,
+    "前半": 0.768,
+    "後半": 0.767
+   },
+   "ratio1.2_odds100": {
+    "bets": 71234,
+    "races_bought": 7702,
+    "hits": 1209,
+    "recovery": 0.752,
+    "前半": 0.756,
+    "後半": 0.749
+   },
+   "ratio1.5_odds20": {
+    "bets": 579,
+    "races_bought": 545,
+    "hits": 28,
+    "recovery": 0.811,
+    "前半": 0.678,
+    "後半": 0.938
+   },
+   "ratio1.5_odds30": {
+    "bets": 3784,
+    "races_bought": 2907,
+    "hits": 120,
+    "recovery": 0.749,
+    "前半": 0.639,
+    "後半": 0.857
+   },
+   "ratio1.5_odds50": {
+    "bets": 14837,
+    "races_bought": 6433,
+    "hits": 339,
+    "recovery": 0.768,
+    "前半": 0.796,
+    "後半": 0.74
+   },
+   "ratio1.5_odds100": {
+    "bets": 43815,
+    "races_bought": 7573,
+    "hits": 640,
+    "recovery": 0.749,
+    "前半": 0.767,
+    "後半": 0.73
+   },
+   "ratio1.7_odds20": {
+    "bets": 165,
+    "races_bought": 161,
+    "hits": 11,
+    "recovery": 1.149,
+    "前半": 1.379,
+    "後半": 0.958
+   },
+   "ratio1.7_odds30": {
+    "bets": 1651,
+    "races_bought": 1444,
+    "hits": 50,
+    "recovery": 0.725,
+    "前半": 0.545,
+    "後半": 0.909
+   },
+   "ratio1.7_odds50": {
+    "bets": 8804,
+    "races_bought": 5052,
+    "hits": 187,
+    "recovery": 0.752,
+    "前半": 0.777,
+    "後半": 0.725
+   },
+   "ratio1.7_odds100": {
+    "bets": 31227,
+    "races_bought": 7292,
+    "hits": 420,
+    "recovery": 0.749,
+    "前半": 0.77,
+    "後半": 0.728
+   },
+   "ratio2.0_odds20": {
+    "bets": 29,
+    "races_bought": 29,
+    "hits": 1,
+    "recovery": 0.641,
+    "前半": 0.0,
+    "後半": 1.329
+   },
+   "ratio2.0_odds30": {
+    "bets": 462,
+    "races_bought": 434,
+    "hits": 12,
+    "recovery": 0.641,
+    "前半": 0.433,
+    "後半": 0.872
+   },
+   "ratio2.0_odds50": {
+    "bets": 3870,
+    "races_bought": 2839,
+    "hits": 81,
+    "recovery": 0.792,
+    "前半": 0.765,
+    "後半": 0.821
+   },
+   "ratio2.0_odds100": {
+    "bets": 18455,
+    "races_bought": 6392,
+    "hits": 239,
+    "recovery": 0.788,
+    "前半": 0.799,
+    "後半": 0.776
+   },
+   "ratio2.5_odds20": {
+    "bets": 2,
+    "races_bought": 2,
+    "hits": 0,
+    "recovery": 0.0,
+    "前半": 0.0,
+    "後半": 0.0
+   },
+   "ratio2.5_odds30": {
+    "bets": 53,
+    "races_bought": 52,
+    "hits": 2,
+    "recovery": 1.074,
+    "前半": 0.0,
+    "後半": 2.107
+   },
+   "ratio2.5_odds50": {
+    "bets": 859,
+    "races_bought": 769,
+    "hits": 16,
+    "recovery": 0.734,
+    "前半": 0.716,
+    "後半": 0.752
+   },
+   "ratio2.5_odds100": {
+    "bets": 7566,
+    "races_bought": 4158,
+    "hits": 86,
+    "recovery": 0.796,
+    "前半": 0.835,
+    "後半": 0.756
+   },
+   "top6_ratio1.0": {
+    "bets": 21503,
+    "hits": 729,
+    "recovery": 0.78
+   },
+   "top6_ratio1.2": {
+    "bets": 15617,
+    "hits": 447,
+    "recovery": 0.786
+   },
+   "top6_ratio1.5": {
+    "bets": 9709,
+    "hits": 222,
+    "recovery": 0.776
    }
   },
   "importance_win": {
