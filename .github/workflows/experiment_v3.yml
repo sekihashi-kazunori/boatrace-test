@@ -1,4 +1,4 @@
-name: experiment v3 (今節の調子・モーターのコース別実績を足したAIの検証)
+name: experiment v3
 
 on:
   workflow_dispatch:
