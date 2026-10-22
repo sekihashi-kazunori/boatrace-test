@@ -310,6 +310,28 @@ def _run_verify(state, target_date, session_name, stadium_code, race_number, b1_
             print(f"検証枠の保存失敗 {bt} {race_number}R: {e}")
 
 
+# 荒れ枠(2026-10-22 ご主人様OK): 全会場×風・波・流れを総当たりして、3期すべて100%超えはこれだけ。
+# 三国・風5m以上で 23-1-全(8点): 1〜10月375R 回収112%(108/117/110%)・上位3本抜き87%。
+WIND_RULES = [("v_mikuni_wind", "10", 5, _perm([2, 3], [1], [2, 3, 4, 5, 6]), "三国 風5m+ 23-1-全")]
+
+
+def _run_wind_verify(state, target_date, session_name, stadium_code, race_number, odds_map, weather) -> None:
+    wind = (weather or {}).get("wind")
+    for bt, st, min_wind, combos, title in WIND_RULES:
+        if st != stadium_code or wind is None or wind < min_wind:
+            continue
+        try:
+            save_bet_tickets(state, [
+                BetTicket(race_date=str(target_date), session=session_name, stadium_code=stadium_code,
+                          race_number=race_number, combination=c, amount=100, bet_type=bt,
+                          odds=(odds_map or {}).get(tuple(map(int, c.split("-")))))
+                for c in combos
+            ])
+            print(f"検証枠 {title}: {race_number}R 風{wind}m 記録")
+        except Exception as e:
+            print(f"荒れ枠の保存失敗 {bt} {race_number}R: {e}")
+
+
 def _verify_races(target_date: date) -> list:
     """2026-10-15〜: 全国の全レースを候補にする(本予想は全レースから集中度で選ぶため)。
     朝の厳選(plans)の作成が遅れると、その前のレースを丸ごと取りこぼしていた(10/15に17R)。
@@ -515,6 +537,7 @@ def run_final(target_date: date | None = None, model_path: str = "model.txt", db
         if stadium_code == "03":
             _run_edogawa(state, target_date, session_name, race_number, odds_map)
         _run_verify(state, target_date, session_name, stadium_code, race_number, b1_class, odds_map)
+        _run_wind_verify(state, target_date, session_name, stadium_code, race_number, odds_map, weather)
 
         # ===== 本番(2026-10-12 再構築): 会場×1号艇の級の条件ルール =====
         rule_plans = _rule_plans(stadium_code, race_number, b1_class, odds_map, weather) if is_main else None
