@@ -226,6 +226,20 @@ MAIN_MIN_CONC = 0.45
 MAIN_MAX_PER_SESSION = 5
 
 
+def _main_skip_reason(card, before_info) -> str | None:
+    """本予想の足切り(2026-10-22 ご主人様OK・ボートレース検証ラボの着眼点から)。
+    8〜9月の本予想1,372Rで: 1号艇B級は66%、外の艇の展示が2位と0.06秒以上離れて1位は76%
+    (全体81%)。両方を除くと約83〜84%。外の艇の展示が抜けると世間が飛びつきすぎて割高になる。"""
+    b1 = next((r.get("racer_class") for r in (card or {}).get("racers", []) if r.get("lane") == 1), None)
+    if b1 and b1.startswith("B"):
+        return f"1号艇が{b1}"
+    ex = sorted((b.get("exhibition_time"), b.get("lane")) for b in (before_info or [])
+                if b.get("exhibition_time") is not None)
+    if len(ex) >= 6 and ex[0][1] != 1 and ex[1][0] - ex[0][0] >= 0.06 - 1e-9:
+        return f"{ex[0][1]}号艇の展示が{ex[1][0] - ex[0][0]:.2f}秒抜けている"
+    return None
+
+
 def _main_count(state, target_date, session_name) -> int:
     """その日・そのセッションで本予想(gen)を買ったレース数。"""
     with OrmSession(state) as db:
@@ -477,6 +491,10 @@ def run_final(target_date: date | None = None, model_path: str = "model.txt", db
         # 対象は今処理している全レース(厳選候補・江戸川津・検証枠)。モデルの鉄板5点は使わない。
         pop_plans, conc = build_popular_plan(odds_map, min_concentration=MAIN_MIN_CONC)
         print(f"{label}: 集中度{conc * 100:.1f}%")
+        skip = _main_skip_reason(card, before_info)
+        if pop_plans and skip:
+            print(f"{label}: 本予想は見送り({skip})")
+            pop_plans = []
         if pop_plans and _main_count(state, target_date, session_name) >= MAIN_MAX_PER_SESSION:
             print(f"{label}: 本予想は{session_ja}で既に{MAIN_MAX_PER_SESSION}R買ったので見送り")
             pop_plans = []
