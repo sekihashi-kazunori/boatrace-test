@@ -315,11 +315,19 @@ def _run_verify(state, target_date, session_name, stadium_code, race_number, b1_
 WIND_RULES = [("v_mikuni_wind", "10", 5, _perm([2, 3], [1], [2, 3, 4, 5, 6]), "三国 風5m+ 23-1-全")]
 
 
+# 天気枠(2026-10-22 ご主人様判断で追加): 大村・曇りの日 123BOX。1〜10月469R 回収137%(248/107/120%)・上位3本抜き107%。
+# ただし大村の逃げ率は晴59%/曇60%/雨60%と天気で変わらず、偶然の可能性が高い(執事の見立て)。紙上で確かめる。
+WEATHER_RULES = [("v_omura_cloud", "24", "曇り", _perm([1, 2, 3], [1, 2, 3], [1, 2, 3]), "大村 曇り 123BOX")]
+
+
 def _run_wind_verify(state, target_date, session_name, stadium_code, race_number, odds_map, weather) -> None:
     wind = (weather or {}).get("wind")
-    for bt, st, min_wind, combos, title in WIND_RULES:
-        if st != stadium_code or wind is None or wind < min_wind:
-            continue
+    tenki = (weather or {}).get("weather")
+    rules = [(bt, st, combos, title) for bt, st, mw, combos, title in WIND_RULES
+             if st == stadium_code and wind is not None and wind >= mw]
+    rules += [(bt, st, combos, title) for bt, st, tk, combos, title in WEATHER_RULES
+              if st == stadium_code and tenki == tk]
+    for bt, st, combos, title in rules:
         try:
             save_bet_tickets(state, [
                 BetTicket(race_date=str(target_date), session=session_name, stadium_code=stadium_code,
@@ -327,7 +335,7 @@ def _run_wind_verify(state, target_date, session_name, stadium_code, race_number
                           odds=(odds_map or {}).get(tuple(map(int, c.split("-")))))
                 for c in combos
             ])
-            print(f"検証枠 {title}: {race_number}R 風{wind}m 記録")
+            print(f"検証枠 {title}: {race_number}R 風{wind}m {tenki} 記録")
         except Exception as e:
             print(f"荒れ枠の保存失敗 {bt} {race_number}R: {e}")
 
