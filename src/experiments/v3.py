@@ -201,6 +201,59 @@ def evaluate(P, races: pd.DataFrame, tag: str) -> tuple[dict, pd.DataFrame]:
     return res, detail
 
 
+def odds_eval(P, races: pd.DataFrame) -> dict:
+    """8/1〜9/18の確定オッズ(odds_hist)がある分で、AIの確率と世間の確率(オッズ)を比べて買う方式を試す。
+    ※確定オッズは締切前より穴が1〜2割低いので、実戦は少し悪くなる前提で見ること。"""
+    frames = []
+    for f in sorted(glob.glob("odds_hist/*.csv")):
+        o = pd.read_csv(f)
+        frames.append(o.assign(race_date=os.path.basename(f)[:10]))
+    if not frames:
+        return {}
+    O = pd.concat(frames)
+    O["stadium_code"] = O["stadium_code"].astype(int)
+    r = races.reset_index(drop=True).copy()
+    r["_i"] = np.arange(len(r))
+    m = r.merge(O, on=["race_date", "stadium_code", "race_number"], how="inner")
+    if m.empty:
+        return {}
+    odds = m[COMBO].values.astype(float)
+    odds[~(odds > 0)] = np.nan
+    q = (1 / odds) / np.nansum(1 / odds, 1, keepdims=True)
+    Pm = P[m["_i"].values]
+    pay = np.nan_to_num(m["trifecta_payout"].values.astype(float))
+    win = m["trifecta_combination"].map({s: n for n, s in enumerate(COMBO)}).values
+    half = np.where(m["race_date"].values < "2026-08-26", "前半", "後半")
+    out = {"races": int(len(m))}
+    ratio = Pm / q
+    for rmin in (1.2, 1.5, 1.7, 2.0, 2.5):
+        for omax in (20, 30, 50, 100):
+            buy = (ratio >= rmin) & (odds <= omax)
+            n = buy.sum()
+            if n == 0:
+                continue
+            hit = buy[np.arange(len(m)), np.nan_to_num(win, nan=0).astype(int)] & ~np.isnan(win)
+            ret = (pay * hit).sum()
+            res = {"bets": int(n), "races_bought": int(buy.any(1).sum()), "hits": int(hit.sum()),
+                   "recovery": round(float(ret / (100 * n)), 3)}
+            for h in ("前半", "後半"):
+                s = half == h
+                nn = buy[s].sum()
+                res[h] = round(float((pay * hit)[s].sum() / max(100 * nn, 1)), 3)
+            out[f"ratio{rmin}_odds{omax}"] = res
+    # 上位6点のうち、世間より高く見ている点だけ買う
+    order = np.argsort(-Pm, 1)[:, :6]
+    sel = np.zeros_like(Pm, dtype=bool)
+    np.put_along_axis(sel, order, True, 1)
+    for rmin in (1.0, 1.2, 1.5):
+        buy = sel & (ratio >= rmin)
+        n = buy.sum()
+        hit = buy[np.arange(len(m)), np.nan_to_num(win, nan=0).astype(int)] & ~np.isnan(win)
+        out[f"top6_ratio{rmin}"] = {"bets": int(n), "hits": int(hit.sum()),
+                                    "recovery": round(float((pay * hit).sum() / max(100 * n, 1)), 3)}
+    return out
+
+
 def main():
     df = load()
     df = add_base(df)
@@ -215,6 +268,11 @@ def main():
     for tag, feats in (("base", BASE), ("new", BASE + NEW)):
         P, pwin, imp = fit_predict(tr, va, feats)
         m, d = evaluate(P, races, tag)
+        try:
+            m["odds"] = odds_eval(P, races)
+            print(tag, "odds", json.dumps(m["odds"], ensure_ascii=False)[:2000])
+        except Exception as e:
+            print("odds_eval失敗", e)
         m["importance_win"] = imp["win"]
         metrics[tag] = m
         details.append(d)
