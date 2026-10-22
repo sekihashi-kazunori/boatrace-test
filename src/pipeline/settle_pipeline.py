@@ -76,7 +76,10 @@ def race_rows(engine, target_date: date, session_name: str, kind: str = "rule") 
         out.append({"name": f"{STADIUM_NAMES.get(key[0], key[0])}{key[1]}R",
                      "order": (results.get(key) or "").replace("-", ""),
                      "stake": sum(t.amount for t in ts),
-                     "payout": sum(t.payout or 0 for t in ts), "status": status})
+                     "payout": sum(t.payout or 0 for t in ts), "status": status,
+                     # 2026-10-22: 当たった買い目の100円あたり払戻(30倍以上なら大穴として目立たせる)
+                     "hit_per100": max((int((t.payout or 0) * 100 / t.amount) for t in ts
+                                        if t.result == "hit" and t.amount), default=0)})
     return out
 
 

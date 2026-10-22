@@ -75,9 +75,13 @@ def session_message(session_ja: str, md: str, s: dict, races: list[dict]) -> str
                 rows.append([r["name"], "待ち", f"{r['stake']:,}", "-", "⏳"])
                 continue
             pr = r["payout"] - r["stake"]
-            icon = ("🎯" if pr > 0 else "🎯ガミ") if r["status"] == "hit" else ""
+            big = r.get("hit_per100", 0) >= 3000
+            icon = ("💥大穴" if big else ("🎯" if pr > 0 else "🎯ガミ")) if r["status"] == "hit" else ""
             rows.append([r["name"], r["order"] or "-", f"{r['stake']:,}", yen(pr), icon])
         lines.append(table(["レース", "結果", "購入", "収支", ""], rows))
+        bigs = [r for r in races if r["status"] == "hit" and r.get("hit_per100", 0) >= 3000]
+        for r in bigs:
+            lines.append(f"💥 大穴的中! {r['name']} {r['order']} {r['hit_per100'] / 100:.1f}倍 → 払戻{r['payout']:,}円")
     return "\n".join(lines)
 
 
