@@ -236,7 +236,7 @@ def build_popular_plan(
     # 8/1〜9/18の1,372Rで 的中率50%・ガミ1%・回収率81%(現行 本命5+中穴2+大穴2 は76%・ガミ21%)。
     n, total_stake = 4, 900
     ranked = sorted(valid.items(), key=lambda x: x[1])[:n]
-    stakes = _no_gami_stakes([o for _, o in ranked], total_stake, target=1000)
+    stakes = _no_gami_stakes([o for _, o in ranked], total_stake, target=1100)  # 本命900+ロマン100+万舟100
     if stakes is None:
         # どう割り振ってもガミを避けられない(4点とも低オッズ)ときは、これまで通りオッズの逆数で配分
         stakes = _inverse_stakes([o for _, o in ranked], total_stake)
@@ -260,4 +260,11 @@ def build_popular_plan(
             BetPlan("-".join(map(str, c)), cat, 100, round(1.0 / o / inv_all * 100, 2), o, f"{lo}〜{hi}倍の人気1位(ロマン枠)")
             for c, o in picks
         ]
+    # 2026-10-22 ご主人様OK「万舟枠」: 1号艇頭で100〜200倍の中の一番人気を100円(ロマン枠と重複しない)。
+    # 8〜9月の本予想1,372Rで 8本的中・回収率81%(ロマン枠80%と同水準)、6日に1本ペース。
+    taken = {p.combination for p in plans}
+    man = sorted(((c, o) for c, o in valid.items()
+                  if 100 < o <= 200 and c[0] == 1 and "-".join(map(str, c)) not in taken), key=lambda x: x[1])[:1]
+    plans += [BetPlan("-".join(map(str, c)), "万舟", 100, round(1.0 / o / inv_all * 100, 2), o, "1号艇頭・100〜200倍の一番人気(万舟枠)")
+              for c, o in man]
     return plans, conc
