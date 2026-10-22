@@ -1,0 +1,59 @@
+name: probe site (サイトの中身を1回保存して確認)
+
+# 2026-10-22: 予想サイト(穴熊 anaguma-boatrace.com)の形を確認するための1回きりの保存。
+# 同じサイト内のHTMLページだけを最大20ページ保存する(画像・広告は取らない)。
+on:
+  workflow_dispatch:
+    inputs:
+      url:
+        default: "https://www.anaguma-boatrace.com/"
+        required: true
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install requests
+      - name: hozon
+        run: |
+          python - "${{ inputs.url }}" <<'PY'
+          import os, re, sys, requests
+          from urllib.parse import urljoin, urlparse
+          start = sys.argv[1]; host = urlparse(start).netloc
+          out = os.path.join("probe", host); os.makedirs(out, exist_ok=True)
+          seen, queue, n = set(), [start], 0
+          H = {"User-Agent": "Mozilla/5.0 (boatrace-test research)"}
+          while queue and n < 20:
+              u = queue.pop(0).split("#")[0]
+              if u in seen: continue
+              seen.add(u)
+              try:
+                  r = requests.get(u, headers=H, timeout=30)
+              except Exception as e:
+                  print("NG", u, e); continue
+              ct = r.headers.get("content-type", "")
+              print(r.status_code, len(r.content), ct, u)
+              if not any(t in ct for t in ("html", "json", "csv", "text/plain")) or len(r.content) > 3_000_000:
+                  continue
+              n += 1
+              name = re.sub(r"[^A-Za-z0-9._-]+", "_", urlparse(u).path.strip("/") or "index")[:100]
+              ext = ".json" if "json" in ct else (".csv" if "csv" in ct else ".html")
+              open(os.path.join(out, f"{n:02d}_{name}{ext}"), "wb").write(r.content)
+              if "html" in ct:
+                  for h in re.findall(r'(?:href|src)="([^"]+)"', r.text) + re.findall(r'fetch\(["\']([^"\']+)', r.text):
+                      v = urljoin(u, h)
+                      if urlparse(v).netloc == host and not re.search(r"\.(png|jpe?g|gif|svg|webp|ico|css|woff2?|js)(\?|$)", v):
+                          queue.append(v)
+          PY
+          ls -la probe/*/
+          git config user.name "predictor-bot"
+          git config user.email "bot@example.com"
+          git add probe
+          git commit -q -m "chore: probe ${{ inputs.url }}" || exit 0
+          for i in 1 2 3 4 5; do git pull --rebase --autostash -q && git push -q && exit 0; sleep $((i*5)); done
+          exit 1
