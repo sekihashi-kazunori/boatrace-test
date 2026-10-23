@@ -1,0 +1,35 @@
+name: fetch shinen
+
+# 2026-10-23 ご主人様OK: 深淵(kyotei-ai-shinen.com)のAI予想を勉強用に保存する。
+# サイトが公開しているデータ(index.json / perf.json / day_日付.json)をそのまま保存。
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "40 14 * * *"   # 日本時間 23:40(その日の結果が入ったあと)
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: hozon
+        run: |
+          set -u
+          mkdir -p shinen
+          UA="Mozilla/5.0 (boatrace-test research)"
+          curl -sSL -A "$UA" --max-time 60 https://kyotei-ai-shinen.com/assets/app.js -o shinen/app.js || true
+          base=$(grep -oE '(DATA|BASE|ROOT)[A-Z_]* *= *["'"'"'`][^"'"'"'`]+' shinen/app.js | head -1 | sed -E 's/.*["'"'"'`]//')
+          [ -z "$base" ] && base="data/"
+          echo "base=$base"
+          get() { u="https://kyotei-ai-shinen.com/${base}$1"; curl -sSLf -A "$UA" --max-time 60 "$u" -o "shinen/$1" && echo "OK $u" || { u2="https://kyotei-ai-shinen.com/$1"; curl -sSLf -A "$UA" --max-time 60 "$u2" -o "shinen/$1" && echo "OK $u2" || echo "NG $1"; }; }
+          get index.json
+          get perf.json
+          for i in 0 1 2 3 4 5 6 7; do d=$(TZ=Asia/Tokyo date -d "-$i day" +%Y%m%d); get "day_${d}.json"; d2=$(TZ=Asia/Tokyo date -d "-$i day" +%F); get "day_${d2}.json"; done
+          ls -la shinen
+          git config user.name "predictor-bot"
+          git config user.email "bot@example.com"
+          git add shinen
+          git commit -q -m "chore: shinen $(TZ=Asia/Tokyo date +%F_%H%M)" || exit 0
+          for i in 1 2 3 4 5; do git pull --rebase --autostash -q && git push -q && exit 0; sleep $((i*5)); done
+          exit 1
