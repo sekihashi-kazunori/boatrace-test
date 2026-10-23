@@ -199,7 +199,14 @@ def fetch_race_card(stadium_code: str, race_number: int, target_date: Optional[d
         local_win_rate = None
         motor_2rate = None
         boat_2rate = None
+        avg_st = None
         if len(lineh2) >= 5:
+            # 2026-10-24: 平均ST(F数|L数|平均ST)。外枠の頭検証枠(津 6-1-全)で使う
+            try:
+                m_st = re.findall(r"\d?\.\d{2}", lineh2[0].get_text(separator="|"))
+                avg_st = float(m_st[-1]) if m_st else None
+            except (ValueError, IndexError):
+                pass
             try:
                 national_win_rate = float(lineh2[1].get_text(separator="|").split("|")[0])
             except (ValueError, IndexError):
@@ -229,6 +236,7 @@ def fetch_race_card(stadium_code: str, race_number: int, target_date: Optional[d
             "local_win_rate": local_win_rate,
             "motor_2rate": motor_2rate,
             "boat_2rate": boat_2rate,
+            "avg_st": avg_st,
         })
 
     return {

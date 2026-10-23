@@ -398,6 +398,63 @@ def _run_manshu_verify(state, target_date, session_name, stadium_code, race_numb
             print(f"万舟検証枠の保存失敗 {bt}: {e}")
 
 
+# 外枠の頭 検証枠(2026-10-24 ご主人様OK「5-1-全/6-1-全で調べて」「万舟の時の5・6号艇の有利な点」)。
+# 13万R(2024/6〜2026/10)。() は 2024後半/2025/2026 の回収率。
+OUTER_RULES = [
+    ("v_5tilt", "全国 5号艇チルト伸び×当地1位×1号艇B級 5-1-全"),  # 456R 的中39 124%(106/107/150) 上位3抜き91%
+    ("v_tsu61", "津 1号艇B級×6号艇平均ST1位 6-1-全"),              # 574R 的中31 259%(407/196/214) 上位3抜き134%
+    ("v_biwa51", "びわこ 5号艇勝率2位内 5-1-全"),                   # 1608R 的中86 120%(137/122/107) 上位3抜き99%
+    ("v_kojima51", "児島 5号艇A1×今節1位 5-1-全"),                  # 299R 的中24 131%(134/143/119) 上位3抜き94%
+]
+
+
+def _rank(vals: dict, lane: int, high: bool = True) -> int | None:
+    """lane の順位(同値は上位扱い)。値がそろわなければ None。"""
+    if any(v is None for v in vals.values()) or len(vals) < 6:
+        return None
+    v = vals[lane]
+    return 1 + sum(1 for x in vals.values() if (x > v if high else x < v))
+
+
+def _run_outer_verify(state, target_date, session_name, stadium_code, race_number, odds_map, card, before_info) -> None:
+    racers = {r.get("lane"): r for r in (card or {}).get("racers", [])}
+    if len(racers) < 6:
+        return
+    b1 = racers[1].get("racer_class") or ""
+    g = lambda k: {l: racers[l].get(k) for l in range(1, 7)}
+    bi = {b.get("lane"): b for b in (before_info or [])}
+    picks = []
+    tilt5 = (bi.get(5) or {}).get("tilt")
+    ex = {l: (bi.get(l) or {}).get("exhibition_time") for l in range(1, 7)}
+    if (b1.startswith("B") and tilt5 is not None and tilt5 >= 0.5 and _rank(g("local_win_rate"), 5) == 1
+            and (_rank(g("national_win_rate"), 5) == 1 or _rank(ex, 5, high=False) == 1)):
+        picks.append(("v_5tilt", 5))
+    if stadium_code == "09" and b1.startswith("B") and _rank(g("avg_st"), 6, high=False) == 1:
+        picks.append(("v_tsu61", 6))
+    if stadium_code == "11" and (_rank(g("national_win_rate"), 5) or 9) <= 2:
+        picks.append(("v_biwa51", 5))
+    if stadium_code == "16" and racers[5].get("racer_class") == "A1":
+        try:
+            from src.tools.series_form import series_avg
+            ser = series_avg(stadium_code, target_date)
+            form = {l: ser.get(str(int(racers[l].get("number") or 0)), (0, None))[1] for l in range(1, 7)}
+            if _rank(form, 5, high=False) == 1:
+                picks.append(("v_kojima51", 5))
+        except Exception as e:
+            print(f"今節の調子の計算失敗: {e}")
+    for bt, head in picks:
+        combos = [f"{head}-1-{c}" for c in range(2, 7) if c != head]
+        try:
+            save_bet_tickets(state, [
+                BetTicket(race_date=str(target_date), session=session_name, stadium_code=stadium_code,
+                          race_number=race_number, combination=c, amount=100, bet_type=bt,
+                          odds=(odds_map or {}).get(tuple(map(int, c.split("-")))))
+                for c in combos])
+            print(f"外枠の頭 検証枠 {bt}: {race_number}R {head}-1-全")
+        except Exception as e:
+            print(f"外枠の頭 検証枠の保存失敗 {bt}: {e}")
+
+
 def _verify_races(target_date: date) -> list:
     """2026-10-15〜: 全国の全レースを候補にする(本予想は全レースから集中度で選ぶため)。
     朝の厳選(plans)の作成が遅れると、その前のレースを丸ごと取りこぼしていた(10/15に17R)。
@@ -605,6 +662,7 @@ def run_final(target_date: date | None = None, model_path: str = "model.txt", db
         _run_verify(state, target_date, session_name, stadium_code, race_number, b1_class, odds_map)
         _run_wind_verify(state, target_date, session_name, stadium_code, race_number, odds_map, weather)
         _run_manshu_verify(state, target_date, session_name, stadium_code, race_number, odds_map, card)
+        _run_outer_verify(state, target_date, session_name, stadium_code, race_number, odds_map, card, before_info)
 
         # ===== 本番(2026-10-12 再構築): 会場×1号艇の級の条件ルール =====
         rule_plans = _rule_plans(stadium_code, race_number, b1_class, odds_map, weather) if is_main else None
