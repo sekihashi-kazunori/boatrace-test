@@ -51,8 +51,10 @@ def evaluate(d: date) -> list[dict]:
         if (st, rn) not in res or not res[(st, rn)][0]:
             continue  # 中止・結果なし
         fo, pay = res[(st, rn)]
-        if kind == "win1":
-            hit = fo.startswith("1-")
+        if kind in ("win1", "win"):
+            # 1着予想(win1は1号艇、winはcombo欄の艇番)
+            boat = "1" if kind == "win1" else ps[0]["combo"]
+            hit = fo.split("-")[0] == boat
             stake = payout = 0
         else:
             stake = sum(int(p["amount"]) for p in ps)
@@ -96,8 +98,8 @@ def tipster_summary(d: date) -> str | None:
         today = [r for r in new if r["tipster"] == tip]
         cum = [r for r in rows if r["tipster"] == tip]
         since = min(r["race_date"] for r in cum)
-        if today[0]["kind"] == "win1":
-            lines.append(f"**{tip}**(1号艇の1着予想)")
+        if today[0]["kind"] in ("win1", "win"):
+            lines.append(f"**{tip}**(1着予想)")
             lines.append(f"　本日: {len(today)}R中 {sum(r['hit'] for r in today)}R的中 / "
                          f"累積: {len(cum)}R中 {sum(r['hit'] for r in cum)}R的中")
             lines.append("　" + " ".join(f"{NAMES.get(r['stadium_code'], r['stadium_code'])}{r['race_number']}R"
