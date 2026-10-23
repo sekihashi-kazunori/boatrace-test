@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>会場データ</title>
+<meta name="description" content="全国24場ごとの1号艇の1着率、AIの本命の1着率、3タイプの的中率を比べられます。">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="theme-color" content="#0b5cad">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="競艇AI予想「深淵」">
+<meta property="og:title" content="競艇AI予想「深淵」— 展示航走まで見てから、AIが全レースを予想">
+<meta property="og:description" content="AIが全レースの3連単を締切前に予想。的中特化型・絞り込み型・一撃重視型の3タイプの買い目と、結果・的中率・回収率をすべて公開します。">
+<meta property="og:url" content="https://kyotei-ai-shinen.com/">
+<meta property="og:image" content="https://kyotei-ai-shinen.com/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:locale" content="ja_JP">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="assets/style.css?v=51a8481b">
+</head>
+<body>
+<div id="header"></div>
+<main><div class="wrap" id="main"><div class="empty">読み込み中…</div></div></main>
+<div id="footer"></div>
+<script src="assets/app.js?v=b377d486"></script>
+<script>
+header("venues");
+(async () => {
+  const main = document.getElementById("main");
+  let perf;
+  try { perf = await getJSON("perf.json"); } catch { return fail(main, "データを読み込めませんでした"); }
+  const MIN_DAYS = 7;
+  const intro = `<h1>会場データ</h1>
+    <p class="muted">競艇場ごとに、1号艇がどれくらい1着になっているか、AIの本命や3タイプの買い目がどれくらい当たっているかを比べられます。</p>`;
+  if ((perf.days || 0) < MIN_DAYS) {
+    main.innerHTML = intro + comingSoon("会場データの比較", `会場ごとのレース数がまだ少ないため、${MIN_DAYS}日分そろってから公開します(現在${perf.days || 0}日)。`);
+    return;
+  }
+  const rate = (k, vc) => { const v = perf.plans.find((p) => p.key === k).venues.find((x) => x.venue_code === vc); return v && v.rate != null ? `${f1(v.rate)}%` : "-"; };
+  main.innerHTML = intro + `
+    <p class="muted small">${fmtDate(perf.first)}〜${fmtDate(perf.last)}(${perf.days}日)の結果から集計。</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th class="left">会場</th><th>レース</th><th>1号艇の1着率</th><th>本命の1着率</th>${PLAN_TYPES.map(([, n]) => `<th>${n}<br>的中率</th>`).join("")}</tr></thead>
+      <tbody>${perf.venues.map((v) => `<tr><td class="left">${esc(v.venue)}</td><td>${v.races}</td>
+        <td>${f1(v.boat1_rate)}%</td><td>${f1(v.honmei_rate)}%</td>${PLAN_TYPES.map(([k]) => `<td>${rate(k, v.venue_code)}</td>`).join("")}</tr>`).join("")}</tbody>
+    </table></div>`;
+})();
+</script>
+</body>
+</html>
