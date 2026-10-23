@@ -112,25 +112,38 @@ def _stats(rows):
 
 
 def summary(all_rows: list[dict], day: str) -> str:
+    """2026-10-23 ご主人様指示で作り直し: 信頼度ごとに「いくら使って、いくら戻ったか」を円で出す。"""
     y = [r for r in all_rows if r["race_date"] == day]
     md = f"{int(day[5:7])}/{int(day[8:10])}"
     start = min(r["race_date"] for r in all_rows)
-    lines = [f"**🤖 あそかぶ予想 答え合わせ {md}** ※紙上・3連単1点100円",
-             "```", "信頼度   本日R 的中 回収 │ 累積R 的中  回収"]
+    sm = f"{int(start[5:7])}/{int(start[8:10])}"
+    label = {"A": "A 自信あり", "B": "B", "C": "C", "D": "D", "E": "E 見送り推奨"}
+
+    def yen(v):
+        return f"{v:+,}" if v else "±0"
+
+    def one(rows):
+        n, h, ret, rate = _stats(rows)
+        st = 100 * n
+        return f"{n}R 的中{h} │ {st:,}→{ret:,}円 │ {yen(ret - st)}円 ({rate:.0f}%)" if n else "対象なし"
+
+    lines = [f"**🤖 あそかぶ予想 答え合わせ {md}**",
+             "※あそかぶの予想(3連単1点)を、全部100円ずつ買っていたら(紙上)", ""]
     for c in CONFS:
         t, a = [r for r in y if r["conf"] == c], [r for r in all_rows if r["conf"] == c]
-        tn, th, _, tr = _stats(t)
-        an, ah, _, ar = _stats(a)
-        lines.append(f"{c:<7} {tn:5d} {th:4d} {tr:4.0f}% │ {an:5d} {ah:4d} {ar:4.0f}%")
-    tn, th, _, tr = _stats(y)
-    an, ah, _, ar = _stats(all_rows)
-    lines.append(f"{'合計':<6} {tn:5d} {th:4d} {tr:4.0f}% │ {an:5d} {ah:4d} {ar:4.0f}%")
-    lines.append("```")
+        _, _, ar, arate = _stats(a)
+        icon = "✅" if arate >= 100 else "🔻"
+        lines.append(f"{icon} **信頼度{label[c]}**")
+        lines.append(f"　本日: {one(t)}")
+        lines.append(f"　累積: {one(a)}")
+    _, _, _, trate = _stats(all_rows)
+    lines += ["", "📦 **全部の合計**", f"　本日: {one(y)}", f"　累積: {one(all_rows)}　※{sm}〜"]
+    best = max(CONFS, key=lambda c: _stats([r for r in all_rows if r["conf"] == c])[3])
+    lines.append(f"💡 累積で一番良いのは 信頼度{best}。物差し: 1-2-3を全レース1点買いは過去80%")
     hits = sorted((r for r in y if r["hit"]), key=lambda r: -r["ret"])
     if hits:
-        lines.append("🎯 " + " / ".join(f"{r['venue']}{r['race_number']}R({r['conf']}) {r['combo']} {r['ret']:,}円"
-                                       for r in hits[:8]))
-    lines.append(f"累積は{int(start[5:7])}/{int(start[8:10])}〜。比較: 1-2-3を全レース1点買いは過去80%")
+        lines.append("🎯 本日の当たり: " + " / ".join(f"{r['venue']}{r['race_number']}R({r['conf']}) {r['ret']:,}円"
+                                              for r in hits[:6]))
     return "\n".join(lines)
 
 
