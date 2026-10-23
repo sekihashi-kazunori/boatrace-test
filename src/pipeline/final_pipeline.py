@@ -340,6 +340,56 @@ def _run_wind_verify(state, target_date, session_name, stadium_code, race_number
             print(f"荒れ枠の保存失敗 {bt} {race_number}R: {e}")
 
 
+# ===== 万舟検証枠(2026-10-23 ご主人様OK・紙上・1R100円) =====
+# 万舟の典型は「1号艇より実力が上の外の艇が1着」。8〜9月の全国7,706Rで、100〜200倍の中から
+#  A: 1号艇B級のとき、勝率1位の艇が頭の一番オッズが低い1点 → 2,794R 的中23本 回収96%(85/108%)
+#  B: 勝率1位かつ今節一番好調の艇が1号艇以外のとき、その艇が頭の1点 → 1,719R 的中19本 回収126%(59/198%)
+MANSHU_RULES = [("v_man_a", "万舟A 1号艇B級×勝率1位が頭"), ("v_man_b", "万舟B 勝率1位&今節好調1位が頭")]
+
+
+def _manshu_pick(odds_map, head: int) -> tuple[str, float] | None:
+    c = [(o, k) for k, o in (odds_map or {}).items() if o and 100 < o <= 200 and k[0] == head]
+    if not c:
+        return None
+    o, k = min(c)
+    return "-".join(map(str, k)), o
+
+
+def _run_manshu_verify(state, target_date, session_name, stadium_code, race_number, odds_map, card) -> None:
+    racers = {r.get("lane"): r for r in (card or {}).get("racers", [])}
+    if len(racers) < 6 or not odds_map:
+        return
+    try:
+        wr = {l: float(racers[l].get("national_win_rate") or 0) for l in range(1, 7)}
+    except (TypeError, ValueError):
+        return
+    wr_top = max(wr, key=wr.get)
+    picks = []
+    b1 = racers[1].get("racer_class") or ""
+    if b1.startswith("B") and wr_top != 1:
+        picks.append(("v_man_a", wr_top))
+    try:
+        from src.tools.series_form import series_avg
+        ser = series_avg(stadium_code, target_date)
+        form = {l: ser.get(str(int(racers[l].get("number") or 0)), (0, 9.0)) for l in range(1, 7)}
+        if all(n > 0 for n, _ in form.values()):
+            best = min(form, key=lambda l: form[l][1])
+            if best == wr_top and wr_top != 1:
+                picks.append(("v_man_b", wr_top))
+    except Exception as e:
+        print(f"今節の調子の計算失敗: {e}")
+    for bt, head in picks:
+        p = _manshu_pick(odds_map, head)
+        if not p:
+            continue
+        try:
+            save_bet_tickets(state, [BetTicket(race_date=str(target_date), session=session_name, stadium_code=stadium_code,
+                                               race_number=race_number, combination=p[0], amount=100, bet_type=bt, odds=p[1])])
+            print(f"万舟検証枠 {bt}: {race_number}R {p[0]} {p[1]}倍")
+        except Exception as e:
+            print(f"万舟検証枠の保存失敗 {bt}: {e}")
+
+
 def _verify_races(target_date: date) -> list:
     """2026-10-15〜: 全国の全レースを候補にする(本予想は全レースから集中度で選ぶため)。
     朝の厳選(plans)の作成が遅れると、その前のレースを丸ごと取りこぼしていた(10/15に17R)。
@@ -546,6 +596,7 @@ def run_final(target_date: date | None = None, model_path: str = "model.txt", db
             _run_edogawa(state, target_date, session_name, race_number, odds_map)
         _run_verify(state, target_date, session_name, stadium_code, race_number, b1_class, odds_map)
         _run_wind_verify(state, target_date, session_name, stadium_code, race_number, odds_map, weather)
+        _run_manshu_verify(state, target_date, session_name, stadium_code, race_number, odds_map, card)
 
         # ===== 本番(2026-10-12 再構築): 会場×1号艇の級の条件ルール =====
         rule_plans = _rule_plans(stadium_code, race_number, b1_class, odds_map, weather) if is_main else None

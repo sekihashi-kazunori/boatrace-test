@@ -177,6 +177,9 @@ def verify_summary(engine, target_date: date) -> str:
     for bt, *_rest, title in VERIFY_RULES:
         items.append(item(title, bt))
     from src.pipeline.final_pipeline import WIND_RULES, WEATHER_RULES
+    from src.pipeline.final_pipeline import MANSHU_RULES
+    for bt, title in MANSHU_RULES:
+        items.append(item(title, bt))
     for bt, _st, _w, _c, title in WIND_RULES + WEATHER_RULES:
         items.append(item(title, bt))
     items.append(item("実験枠(モデル期待値)", "exp"))

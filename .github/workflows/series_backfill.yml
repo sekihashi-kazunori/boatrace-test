@@ -1,0 +1,32 @@
+name: series backfill
+
+on:
+  workflow_dispatch:
+    inputs:
+      start:
+        default: "2026-10-12"
+        required: true
+      end:
+        default: "2026-10-22"
+        required: true
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e .
+      - run: python -u -m src.tools.series_form --start "${{ inputs.start }}" --end "${{ inputs.end }}"
+      - name: hozon
+        run: |
+          git config user.name "predictor-bot"
+          git config user.email "bot@example.com"
+          git add racer_hist.csv
+          git commit -q -m "chore: racer_hist backfill" || exit 0
+          for i in 1 2 3 4 5; do git pull --rebase --autostash -q && git push -q && exit 0; sleep $((i*5)); done
+          exit 1

@@ -28,6 +28,8 @@ jobs:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
         run: |
           if [ -n "${{ inputs.date }}" ]; then python -u -m src.tools.rule_check --date "${{ inputs.date }}"; else python -u -m src.tools.rule_check; fi
+      - name: konsetsu (今節の調子用に前日の着順を保存)
+        run: python -u -m src.tools.series_form || true
       - name: asoka saiten (あそかぶ予想の答え合わせ)
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
@@ -38,7 +40,7 @@ jobs:
           git config user.name "predictor-bot"
           git config user.email "bot@example.com"
           git checkout -- boatrace.db 2>/dev/null || true
-          git add rule_eval.csv asoka_eval.csv 2>/dev/null || git add rule_eval.csv
+          for f in rule_eval.csv asoka_eval.csv racer_hist.csv; do [ -f "$f" ] && git add "$f"; done
           git commit -q -m "chore: rule kotaeawase $(TZ=Asia/Tokyo date +'%Y-%m-%d')" || exit 0
           for i in 1 2 3 4 5; do git pull --rebase --autostash -q && git push -q && exit 0; sleep $((i*5)); done
           exit 1
