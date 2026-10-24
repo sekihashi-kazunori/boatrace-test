@@ -16,7 +16,7 @@ jobs:
     timeout-minutes: 350
     strategy:
       fail-fast: false
-      max-parallel: 16
+      max-parallel: 8   # 公式サイトに負担をかけすぎない(同時48リクエストまで)
       matrix:
         month: ${{ fromJSON(inputs.months) }}
     steps:
