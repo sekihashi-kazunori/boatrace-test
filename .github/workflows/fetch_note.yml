@@ -23,8 +23,8 @@ jobs:
           import json, os, time, requests
           H = {"User-Agent": "Mozilla/5.0 (boatrace-test research)"}
           os.makedirs("note", exist_ok=True)
-          # 2026-10-24: kyotei1224 を追加(ご主人様から)
-          for creator in ("fune_kensho_lab", "kyotei1224"):
+          # kyotei1224(えびちゃん)は成績非公開のため 2026-10-24 ご主人様判断で対象外
+          for creator in ("fune_kensho_lab",):
             idx_path = f"note/{creator}.json"
             idx = json.load(open(idx_path)) if os.path.exists(idx_path) else {}
             page, new = 1, 0
