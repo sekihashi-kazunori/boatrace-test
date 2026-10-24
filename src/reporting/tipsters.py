@@ -33,10 +33,20 @@ def _results(d: date, keys) -> dict:
     return out
 
 
+def _woman(d: date) -> list[dict]:
+    """2026-10-24〜: 競艇の女は記録ページから自動で読み取る(締切後に買い目・レース後に結果が載る)。"""
+    try:
+        from src.tools.kyoteiwoman import fetch, eval_rows
+        return eval_rows(fetch(d))
+    except Exception as e:
+        print(f"競艇の女の読み取り失敗: {e}")
+        return []
+
+
 def evaluate(d: date) -> list[dict]:
     path = os.path.join(DIR, f"{d}.csv")
     if not os.path.exists(path):
-        return []
+        return _woman(d)
     with open(path, encoding="utf-8") as f:
         picks = list(csv.DictReader(f))
     for p in picks:
@@ -63,7 +73,7 @@ def evaluate(d: date) -> list[dict]:
             hit = bool(hits)
         out.append({"race_date": str(d), "tipster": tip, "kind": kind, "stadium_code": st, "race_number": rn,
                     "stake": stake, "payout": payout, "hit": int(hit), "result": fo})
-    return out
+    return out + _woman(d)
 
 
 def _save(d: date, new: list[dict]) -> list[dict]:
@@ -93,7 +103,7 @@ def tipster_summary(d: date) -> str | None:
         return None
     rows = _save(d, new)
     md = f"{d.month}/{d.day}"
-    lines = [f"**🕵️ 予想屋さん 答え合わせ {md}** ※紙上・1点100円"]
+    lines = [f"**🕵️ 予想屋さん 答え合わせ {md}** ※紙上・1点100円(競艇の女は1R1,000円を配分どおり)"]
     for tip in dict.fromkeys(r["tipster"] for r in new):
         today = [r for r in new if r["tipster"] == tip]
         cum = [r for r in rows if r["tipster"] == tip]
@@ -124,6 +134,9 @@ def tipster_summary(d: date) -> str | None:
 if __name__ == "__main__":
     import argparse
     ap = argparse.ArgumentParser()
-    ap.add_argument("--date", required=True)
+    ap.add_argument("--date", default=None, help="空なら昨日(朝の答え合わせで、夜に結果待ちだった分を埋め直す)")
     a = ap.parse_args()
-    print(tipster_summary(date.fromisoformat(a.date)))
+    from datetime import datetime, timedelta
+    from zoneinfo import ZoneInfo
+    d = date.fromisoformat(a.date) if a.date else datetime.now(ZoneInfo("Asia/Tokyo")).date() - timedelta(days=1)
+    print(tipster_summary(d))

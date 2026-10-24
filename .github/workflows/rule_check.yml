@@ -35,12 +35,15 @@ jobs:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
         run: |
           if [ -n "${{ inputs.date }}" ]; then python -u -m src.tools.asoka eval --date "${{ inputs.date }}" || true; else python -u -m src.tools.asoka eval || true; fi
+      - name: yosouya (予想屋さんの前日分を結果待ち込みで埋め直す・通知なし)
+        run: |
+          if [ -n "${{ inputs.date }}" ]; then python -u -m src.reporting.tipsters --date "${{ inputs.date }}" || true; else python -u -m src.reporting.tipsters || true; fi
       - name: hozon
         run: |
           git config user.name "predictor-bot"
           git config user.email "bot@example.com"
           git checkout -- boatrace.db 2>/dev/null || true
-          for f in rule_eval.csv asoka_eval.csv racer_hist.csv; do [ -f "$f" ] && git add "$f"; done
+          for f in rule_eval.csv asoka_eval.csv racer_hist.csv plans/tipster_eval.csv; do [ -f "$f" ] && git add "$f"; done
           git commit -q -m "chore: rule kotaeawase $(TZ=Asia/Tokyo date +'%Y-%m-%d')" || exit 0
           for i in 1 2 3 4 5; do git pull --rebase --autostash -q && git push -q && exit 0; sleep $((i*5)); done
           exit 1
