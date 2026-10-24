@@ -1,0 +1,44 @@
+name: kako odds bulk (過去の確定オッズを月ごとに並列で集める)
+
+# 2026-10-24 ご主人様「一日でも早く高精度予想システムを」: オッズの形を使った検証のため、
+# 2025-06〜2026-10 の締切時オッズを月ごとに同時に集める(1日約4分×30日=1か月約2時間)。
+on:
+  workflow_dispatch:
+    inputs:
+      months:
+        description: "JSON list of YYYY-MM"
+        required: true
+        default: '["2025-06","2025-07","2025-08","2025-09","2025-10","2025-11","2025-12","2026-01","2026-02","2026-03","2026-04","2026-05","2026-06","2026-07","2026-09","2026-10"]'
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    strategy:
+      fail-fast: false
+      max-parallel: 16
+      matrix:
+        month: ${{ fromJSON(inputs.months) }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e .
+      - name: shuushuu
+        run: |
+          git config user.name "predictor-bot"
+          git config user.email "bot@example.com"
+          d="${{ matrix.month }}-01"
+          end=$(date -I -d "$d + 1 month - 1 day")
+          today=$(TZ=Asia/Tokyo date -I)
+          while [ "$(date -d "$d" +%s)" -le "$(date -d "$end" +%s)" ] && [ "$d" \< "$today" ]; do
+            timeout 900 python -u -m src.tools.collect_odds_history --date "$d" | tail -2 || true
+            git checkout -- boatrace.db 2>/dev/null || true
+            git add odds_hist
+            if git commit -q -m "chore: kako odds $d"; then
+              for i in 1 2 3 4 5 6 7 8; do git pull --rebase --autostash -q && git push -q && break; sleep $((i*7)); done
+            fi
+            d=$(date -I -d "$d + 1 day")
+          done

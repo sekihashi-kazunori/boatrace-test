@@ -20,6 +20,20 @@ COMBOS = ["-".join(map(str, p)) for p in itertools.permutations(range(1, 7), 3)]
 OUT_DIR = "odds_hist"
 
 
+def _races_openapi(d: date) -> list:
+    """2026-10-24: 2025年分も集めるため、レース一覧は openapi_data/YYYY-MM.csv.gz から作る。"""
+    import gzip
+    path = os.path.join("openapi_data", f"{d:%Y-%m}.csv.gz")
+    if not os.path.exists(path):
+        return []
+    out = set()
+    with gzip.open(path, "rt", encoding="utf-8") as f:
+        for r in csv.DictReader(f):
+            if r["race_date"] == str(d) and r.get("trifecta_combination"):
+                out.add((str(r["stadium_code"]).zfill(2), int(float(r["race_number"]))))
+    return sorted(out)
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--date", required=True)
@@ -30,10 +44,12 @@ def main():
     if os.path.exists(path):
         print(f"{d}: 保存済み")
         return
-    c = sqlite3.connect("boatrace.db")
-    races = c.execute(
-        "select distinct stadium_code, race_number from race_results where race_date=? order by 1, 2", (str(d),)
-    ).fetchall()
+    races = _races_openapi(d)
+    if not races:
+        c = sqlite3.connect("boatrace.db")
+        races = c.execute(
+            "select distinct stadium_code, race_number from race_results where race_date=? order by 1, 2", (str(d),)
+        ).fetchall()
     # GitHubから公式サイトまで1リクエスト約9秒かかるため、6本並行で取る
     from concurrent.futures import ThreadPoolExecutor
 
