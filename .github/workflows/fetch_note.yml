@@ -1,0 +1,60 @@
+name: note kensho lab (ボートレース検証ラボのnote記事一覧を保存)
+
+# 2026-10-24 ご主人様OK: 検証ラボ(note.com/fune_kensho_lab)の記事一覧(題名・公開時刻・価格)と
+# 無料部分の本文を保存して、予想の出し方と成績を執事が勉強する。
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "40 14 * * *"   # 日本時間 23:40
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install requests
+      - name: hozon
+        run: |
+          python - <<'PY'
+          import json, os, time, requests
+          H = {"User-Agent": "Mozilla/5.0 (boatrace-test research)"}
+          os.makedirs("note", exist_ok=True)
+          idx_path = "note/index.json"
+          idx = json.load(open(idx_path)) if os.path.exists(idx_path) else {}
+          page, new = 1, 0
+          while page <= 40:
+              r = requests.get(f"https://note.com/api/v2/creators/fune_kensho_lab/contents?kind=note&page={page}", headers=H, timeout=30)
+              d = r.json().get("data", {})
+              cs = d.get("contents", [])
+              stop = False
+              for c in cs:
+                  k = c["key"]
+                  if k in idx and idx[k].get("body") is not None:
+                      if not c.get("isPinned"): stop = True
+                      continue
+                  body = None
+                  try:
+                      b = requests.get(f"https://note.com/api/v3/notes/{k}", headers=H, timeout=30).json().get("data", {})
+                      body = b.get("body") or ""
+                  except Exception as e:
+                      print("body NG", k, e)
+                  idx[k] = {"publishAt": c.get("publishAt"), "name": c.get("name"), "price": c.get("price"),
+                            "body": body}
+                  new += 1
+                  time.sleep(0.5)
+              if d.get("isLastPage") or not cs or stop:
+                  break
+              page += 1
+          json.dump(idx, open(idx_path, "w"), ensure_ascii=False, indent=0)
+          print(f"{len(idx)}件 (新規{new})")
+          PY
+          git config user.name "predictor-bot"
+          git config user.email "bot@example.com"
+          git add note
+          git commit -q -m "chore: note kensho lab $(TZ=Asia/Tokyo date +%F)" || exit 0
+          for i in 1 2 3 4 5; do git pull --rebase --autostash -q && git push -q && exit 0; sleep $((i*5)); done
+          exit 1
