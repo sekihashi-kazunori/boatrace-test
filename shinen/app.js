@@ -37,6 +37,7 @@ const grade = (g) => (g && g !== "一般" ? `<span class="grade ${esc(g)}">${esc
 const hhmm = (iso) => (iso ? iso.slice(11, 16) : "-");
 
 function resultBadge(race) {
+  if (raceStatus(race) === "pending") return `<span class="badge wait">予想前</span>`;
   if (raceStatus(race) === "canceled") return `<span class="badge miss">中止</span>`;
   if (raceStatus(race) === "no_prediction") return `<span class="badge miss">予想なし</span>`;
   if (isSkipped(race)) return `<span class="badge miss">見送り</span>`;
@@ -68,7 +69,7 @@ function header(active) {
 const PLAN_TYPES = [
   ["hit", "的中特化型", "当たる確率を最優先。AIの確率が高い順に15点"],
   ["narrow", "絞り込み型", "AIの自信が高いレースだけ。確率が高い順に6点で勝負"],
-  ["shot", "一撃重視型", "本命の1着確率50%以下の荒れそうなレースだけ。高配当になる組を確率順に10点"],
+  ["shot", "一撃重視型", "本命の1着確率50%以下の荒れそうなレースだけ。1号艇は3着まで、万舟になる組を確率順に10点"],
 ];
 const T = PLAN_TYPES.some(([k]) => k === qs("t")) ? qs("t") : "hit";
 const T_NAME = PLAN_TYPES.find(([k]) => k === T)[1];
@@ -82,10 +83,28 @@ const sameWithType = (key) => {
 const planOf = (r, key = T) => (r.plans || []).find((p) => p.key === key);
 // 表示中のタイプでの的中。3タイプが無い日(サイト開始前の確認用)はAI確率上位10点で判定
 // 【2026-10-21】予想をしなかったレース("no_prediction")・中止のレース("canceled")。成績には数えない
+// 【2026-10-26】"pending" = 朝に並べただけで、まだ予想を出していないレース(予想前)
 const raceStatus = (r) => (r.status === "canceled" || (r.result && r.result.canceled) ? "canceled"
-  : r.status === "no_prediction" ? "no_prediction" : null);
+  : r.status === "no_prediction" ? "no_prediction" : r.status === "pending" ? "pending" : null);
 const statusText = (r) => (raceStatus(r) === "canceled" ? (r.reason || "このレースは中止になりました。")
+  : raceStatus(r) === "pending" ? (r.reason || "予想は締切の十数分前に公開します。")
   : (r.reason || "このレースは予想をしていません。"));
+// 【2026-10-26】フライングなどの返還(返還艇を含む買い目は、買った金額が戻る)
+const refundText = (r) => (r.result && (r.result.refund || []).length ? `返還 ${r.result.refund.join("・")}号艇` : "");
+const refundOf = (r, key = T) => ((r.result && r.result.refunds) || {})[key] || 0;
+
+// 【2026-10-26】締切5分前を切った締切時刻を目立たせる。data-dl="YYYYMMDD HH:MM" を付けた所が対象
+const SOON_MIN = 5;
+const dlAttr = (date, deadline) => (deadline ? `data-dl="${date} ${esc(deadline)}"` : "");
+function markSoon() {
+  const now = Date.now();
+  for (const el of document.querySelectorAll("[data-dl]")) {
+    const [d, t] = el.dataset.dl.split(" ");
+    const dl = new Date(+d.slice(0, 4), +d.slice(4, 6) - 1, +d.slice(6, 8), ...t.split(":").map(Number)).getTime();
+    el.classList.toggle("soon", dl - now <= SOON_MIN * 60000 && dl > now);
+  }
+}
+setInterval(markSoon, 15000);
 // 【2026-10-17】絞り込み型・一撃重視型は、条件に入らないレースを「見送り」(skip)にしている
 const isSkipped = (r, key = T) => { const pl = planOf(r, key); return !!(pl && pl.skip); };
 // 表示中のタイプでの的中。見送りは null(的中にも不的中にも数えない)
@@ -129,6 +148,7 @@ function dayStats(races) {
       const a = out.plans[k];
       a.n += 1; a.pts += pl.n; a.cost += 100 * pl.n;
       if ((r.result.plans || {})[k]) { a.hits += 1; a.ret += r.result.payout; }
+      a.ret += 100 * refundOf(r, k);   // 返還分
     }
   }
   return out;
@@ -150,7 +170,7 @@ function planRows(s, label) {
         <span class="pr-num"><small>回収率</small>${p(a.ret, a.cost)}</span>
       </div>`;
     }).join("")}
-    <p class="muted small">回収率は、各タイプの買い目を1点100円で買ったとした場合です。絞り込み型・一撃重視型は、買ったレース(参戦)だけで数えています。3連単は売上の約25%が差し引かれて払い戻されるため、100%を下回るのが普通です。</p>
+    <p class="muted small">回収率は、各タイプの買い目を1点100円で買ったとした場合です(フライングなどで返還になった買い目は100円が戻った扱い)。絞り込み型・一撃重視型は、買ったレース(参戦)だけで数えています。3連単は売上の約25%が差し引かれて払い戻されるため、100%を下回るのが普通です。</p>
   </div>`;
 }
 
