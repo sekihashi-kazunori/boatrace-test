@@ -455,6 +455,37 @@ def _run_outer_verify(state, target_date, session_name, stadium_code, race_numbe
             print(f"外枠の頭 検証枠の保存失敗 {bt}: {e}")
 
 
+def _run_exp2(state, target_date, session_name, stadium_code, race_number, odds_map, card, before_info, weather) -> None:
+    """実験枠②(2026-10-26 ご主人様OK): 世間の見落とし補正AI。割安度0.9以上・100倍未満を1点100円で紙上記録。
+    答えを見ていない2026年7〜10月の確定オッズでは回収率約90%(全部買うと77%)。本番は締切前オッズなので少し下がる見込み。"""
+    try:
+        from src.models.adjust import boat_features, value_picks
+        racers = {r.get("lane"): r for r in (card or {}).get("racers", [])}
+        bi = {b.get("lane"): b for b in (before_info or [])}
+        if len(racers) < 6 or not odds_map:
+            return
+        rows = []
+        for l in range(1, 7):
+            r, b = racers[l], bi.get(l) or {}
+            ex = b.get("exhibition_time")
+            rows.append({"wr": r.get("national_win_rate"), "top2": r.get("top2"), "local": r.get("local_win_rate"),
+                         "motor": r.get("motor_2rate"), "boat": r.get("boat_2rate"), "ex": ex if ex and ex > 0 else None,
+                         "avgst": r.get("avg_st"), "pvst": b.get("start_timing"), "tilt": b.get("tilt"),
+                         "age": r.get("age"), "weight": r.get("weight"), "cls": r.get("racer_class"),
+                         "F": r.get("flying"), "course": b.get("course")})
+        feats = boat_features(rows, wind=(weather or {}).get("wind"), wave=(weather or {}).get("wave"))
+        odds = {"-".join(map(str, k)): float(o) for k, o in odds_map.items() if o}
+        picks = value_picks(odds, feats)
+        if not picks:
+            return
+        save_bet_tickets(state, [BetTicket(race_date=str(target_date), session=session_name, stadium_code=stadium_code,
+                                           race_number=race_number, combination=c, amount=100, bet_type="exp2", odds=o)
+                                 for c, o, _v in picks])
+        print(f"実験枠② {race_number}R {len(picks)}点: " + " ".join(f"{c}({o}倍)" for c, o, _ in picks[:6]))
+    except Exception as e:
+        print(f"実験枠②の失敗 {race_number}R: {e}")
+
+
 def _verify_races(target_date: date) -> list:
     """2026-10-15〜: 全国の全レースを候補にする(本予想は全レースから集中度で選ぶため)。
     朝の厳選(plans)の作成が遅れると、その前のレースを丸ごと取りこぼしていた(10/15に17R)。
@@ -663,6 +694,7 @@ def run_final(target_date: date | None = None, model_path: str = "model.txt", db
         _run_wind_verify(state, target_date, session_name, stadium_code, race_number, odds_map, weather)
         _run_manshu_verify(state, target_date, session_name, stadium_code, race_number, odds_map, card)
         _run_outer_verify(state, target_date, session_name, stadium_code, race_number, odds_map, card, before_info)
+        _run_exp2(state, target_date, session_name, stadium_code, race_number, odds_map, card, before_info, weather)
 
         # ===== 本番(2026-10-12 再構築): 会場×1号艇の級の条件ルール =====
         rule_plans = _rule_plans(stadium_code, race_number, b1_class, odds_map, weather) if is_main else None

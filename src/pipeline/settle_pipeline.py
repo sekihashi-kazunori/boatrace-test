@@ -184,6 +184,7 @@ def verify_summary(engine, target_date: date) -> str:
     for bt, _st, _w, _c, title in WIND_RULES + WEATHER_RULES:
         items.append(item(title, bt))
     items.append(item("実験枠(モデル期待値)", "exp"))
+    items.append(item("実験枠② 見落とし補正AI(割安度0.9以上)", "exp2"))
     rule = _cum(engine, target_date, "rule")
     extra = (f"(参考)江戸川・津 旧本番ルール: {rule['race_count']}R 的中{rule['hit_race_count']}R "
              f"回収率{rule['recovery_rate']:.0f}%")

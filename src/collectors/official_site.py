@@ -200,7 +200,18 @@ def fetch_race_card(stadium_code: str, race_number: int, target_date: Optional[d
         motor_2rate = None
         boat_2rate = None
         avg_st = None
+        top2 = flying = age = weight = None
+        # 2026-10-26: 見落とし補正AI(実験枠②)用に 年齢・体重・F数・全国2連率 も読む
+        m_aw = re.search(r"(\d+)歳/([\d.]+)kg", row.get_text(" ", strip=True))
+        if m_aw:
+            age, weight = int(m_aw.group(1)), float(m_aw.group(2))
         if len(lineh2) >= 5:
+            try:
+                m_f = re.search(r"F(\d+)", lineh2[0].get_text())
+                flying = int(m_f.group(1)) if m_f else None
+                top2 = float(lineh2[1].get_text(separator="|").split("|")[1])
+            except (ValueError, IndexError):
+                pass
             # 2026-10-24: 平均ST(F数|L数|平均ST)。外枠の頭検証枠(津 6-1-全)で使う
             try:
                 m_st = re.findall(r"\d?\.\d{2}", lineh2[0].get_text(separator="|"))
@@ -237,6 +248,10 @@ def fetch_race_card(stadium_code: str, race_number: int, target_date: Optional[d
             "motor_2rate": motor_2rate,
             "boat_2rate": boat_2rate,
             "avg_st": avg_st,
+            "top2": top2,
+            "flying": flying,
+            "age": age,
+            "weight": weight,
         })
 
     return {
@@ -344,14 +359,43 @@ def fetch_before_info(stadium_code: str, race_number: int, target_date: Optional
     print(f"展示タイム取得件数: {len(exhibition_by_lane)}件（本来6件） 中身={exhibition_by_lane}")
     print(f"チルト取得件数: {len(tilt_by_lane)}件（本来6件） 中身={tilt_by_lane}")
 
+    st_by_lane, course_by_lane = _parse_start_exhibition(res.text)
     entries = []
     for lane in range(1, 7):
         entries.append({
             "lane": lane,
             "exhibition_time": exhibition_by_lane.get(lane),
             "tilt": tilt_by_lane.get(lane),
+            "start_timing": st_by_lane.get(lane),
+            "course": course_by_lane.get(lane),
         })
     return entries
+
+
+def _parse_start_exhibition(html: str) -> tuple[dict[int, float], dict[int, int]]:
+    """2026-10-26: スタート展示の表から 艇番ごとの展示ST(フライングはマイナス) と 進入コース(上から順) を読む。"""
+    soup = BeautifulSoup(html, "html.parser")
+    st: dict[int, float] = {}
+    course: dict[int, int] = {}
+    for table in soup.find_all("table"):
+        if "スタート展示" not in table.get_text(" ", strip=True)[:200]:
+            continue
+        for i, div in enumerate(table.find_all("div", class_="table1_boatImage1")):
+            num = div.find("span", class_="table1_boatImage1Number")
+            tm = div.find("span", class_="table1_boatImage1Time")
+            try:
+                lane = int(num.get_text(strip=True))
+            except (AttributeError, ValueError):
+                continue
+            course[lane] = i + 1
+            txt = tm.get_text(strip=True) if tm else ""
+            m = re.search(r"(F)?\s*(\d*\.\d+)", txt)
+            if m:
+                v = float(m.group(2))
+                st[lane] = -v if m.group(1) else v
+        if course:
+            break
+    return st, course
 
 
 def fetch_race_deadline_times(stadium_code: str, target_date: Optional[date] = None) -> dict[int, str]:
