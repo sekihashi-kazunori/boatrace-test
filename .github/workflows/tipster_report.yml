@@ -1,0 +1,32 @@
+name: tipster report (予想屋さんの採点だけを今すぐ実行・通知なし)
+
+on:
+  workflow_dispatch:
+    inputs:
+      date:
+        description: "YYYY-MM-DD"
+        required: true
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    concurrency:
+      group: state
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e .
+      - run: python -u -m src.reporting.tipsters --date "${{ inputs.date }}"
+      - name: hozon
+        run: |
+          git config user.name "predictor-bot"
+          git config user.email "bot@example.com"
+          git add plans/tipster_eval.csv
+          git commit -q -m "chore: tipster report ${{ inputs.date }}" || exit 0
+          for i in 1 2 3 4 5; do git pull --rebase --autostash -q && git push -q && exit 0; sleep $((i*5)); done
+          exit 1
