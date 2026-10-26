@@ -1,0 +1,54 @@
+name: odds other (単勝・複勝・2連単・2連複・拡連複の確定オッズを保存)
+
+# 2026-10-27 ご主人様OK: ブレの小さい券種で「世間のクセ」がお金になるかを調べる。
+# 毎朝7:30に前日分。手動なら months に月を並べると、月ごとに同時に集める(過去分)。
+on:
+  schedule:
+    - cron: "30 22 * * *"   # 日本時間 7:30
+  workflow_dispatch:
+    inputs:
+      months:
+        description: 'JSON list of YYYY-MM (空なら前日だけ)'
+        required: false
+        default: ''
+
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    outputs:
+      months: ${{ steps.m.outputs.months }}
+    steps:
+      - id: m
+        run: |
+          if [ -n "${{ inputs.months }}" ]; then echo 'months=${{ inputs.months }}' >> $GITHUB_OUTPUT; else echo 'months=["yesterday"]' >> $GITHUB_OUTPUT; fi
+  run:
+    needs: plan
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    strategy:
+      fail-fast: false
+      max-parallel: 6
+      matrix:
+        month: ${{ fromJSON(needs.plan.outputs.months) }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -e .
+      - name: shuushuu
+        run: |
+          git config user.name "predictor-bot"
+          git config user.email "bot@example.com"
+          today=$(TZ=Asia/Tokyo date -I)
+          if [ "${{ matrix.month }}" = "yesterday" ]; then d=$(TZ=Asia/Tokyo date -I -d "yesterday"); end=$d; else d="${{ matrix.month }}-01"; end=$(date -I -d "$d + 1 month - 1 day"); fi
+          while [ "$(date -d "$d" +%s)" -le "$(date -d "$end" +%s)" ] && [ "$d" \< "$today" ]; do
+            timeout 1500 python -u -m src.tools.collect_odds_other --date "$d" | tail -2 || true
+            git checkout -- boatrace.db 2>/dev/null || true
+            git add odds_hist2 2>/dev/null || true
+            if git commit -q -m "chore: odds other $d"; then
+              for i in 1 2 3 4 5 6 7 8; do git pull --rebase --autostash -q && git push -q && break; sleep $((i*7)); done
+            fi
+            d=$(date -I -d "$d + 1 day")
+          done
