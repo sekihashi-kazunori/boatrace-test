@@ -1,0 +1,326 @@
+[
+ {
+  "stadium_code": "24",
+  "race_number": 10,
+  "stadium_name": "大村",
+  "deadline": "19:36",
+  "score": 0.3627,
+  "main": false,
+  "gen": true
+ },
+ {
+  "stadium_code": "24",
+  "race_number": 7,
+  "stadium_name": "大村",
+  "deadline": "18:04",
+  "score": 0.35,
+  "main": false,
+  "gen": true
+ },
+ {
+  "stadium_code": "24",
+  "race_number": 12,
+  "stadium_name": "大村",
+  "deadline": "20:38",
+  "score": 0.3354,
+  "main": false,
+  "gen": true
+ },
+ {
+  "stadium_code": "24",
+  "race_number": 1,
+  "stadium_name": "大村",
+  "deadline": "15:20",
+  "score": 0.3311,
+  "main": false,
+  "gen": true
+ },
+ {
+  "stadium_code": "24",
+  "race_number": 4,
+  "stadium_name": "大村",
+  "deadline": "16:44",
+  "score": 0.3307,
+  "main": false,
+  "gen": true
+ },
+ {
+  "stadium_code": "01",
+  "race_number": 6,
+  "stadium_name": "桐生",
+  "deadline": "17:46",
+  "score": 0.3226,
+  "main": false,
+  "gen": true
+ },
+ {
+  "stadium_code": "24",
+  "race_number": 9,
+  "stadium_name": "大村",
+  "deadline": "19:04",
+  "score": 0.3178,
+  "main": false,
+  "gen": true
+ },
+ {
+  "stadium_code": "15",
+  "race_number": 12,
+  "stadium_name": "丸亀",
+  "deadline": "20:30",
+  "score": 0.3144,
+  "main": false,
+  "gen": false
+ },
+ {
+  "stadium_code": "24",
+  "race_number": 3,
+  "stadium_name": "大村",
+  "deadline": "16:19",
+  "score": 0.3059,
+  "main": false,
+  "gen": false
+ },
+ {
+  "stadium_code": "15",
+  "race_number": 10,
+  "stadium_name": "丸亀",
+  "deadline": "19:25",
+  "score": 0.287,
+  "main": false,
+  "gen": false
+ },
+ {
+  "stadium_code": "24",
+  "race_number": 5,
+  "stadium_name": "大村",
+  "deadline": "17:10",
+  "score": 0.2688,
+  "main": false,
+  "gen": false
+ },
+ {
+  "stadium_code": "24",
+  "race_number": 2,
+  "stadium_name": "大村",
+  "deadline": "15:55",
+  "score": 0.2646,
+  "main": false,
+  "gen": false
+ },
+ {
+  "stadium_code": "01",
+  "race_number": 8,
+  "stadium_name": "桐生",
+  "deadline": "18:43",
+  "score": 0.2636,
+  "main": false,
+  "gen": false
+ },
+ {
+  "stadium_code": "15",
+  "race_number": 1,
+  "stadium_name": "丸亀",
+  "deadline": "15:17",
+  "score": 0.2615,
+  "main": false,
+  "gen": false
+ },
+ {
+  "stadium_code": "24",
+  "race_number": 11,
+  "stadium_name": "大村",
+  "deadline": "20:07",
+  "score": 0.2606,
+  "main": false,
+  "gen": false
+ },
+ {
+  "stadium_code": "24",
+  "race_number": 8,
+  "stadium_name": "大村",
+  "deadline": "18:33",
+  "score": 0.2605,
+  "main": false,
+  "gen": false
+ },
+ {
+  "stadium_code": "24",
+  "race_number": 6,
+  "stadium_name": "大村",
+  "deadline": "17:37",
+  "score": 0.245,
+  "main": false,
+  "gen": false
+ },
+ {
+  "stadium_code": "01",
+  "race_number": 5,
+  "stadium_name": "桐生",
+  "deadline": "17:19",
+  "score": 0.2362,
+  "main": false,
+  "gen": false
+ },
+ {
+  "stadium_code": "15",
+  "race_number": 5,
+  "stadium_name": "丸亀",
+  "deadline": "17:01",
+  "score": 0.2326,
+  "main": false,
+  "gen": false
+ },
+ {
+  "stadium_code": "01",
+  "race_number": 10,
+  "stadium_name": "桐生",
+  "deadline": "19:47",
+  "score": 0.2265,
+  "main": false,
+  "gen": false
+ },
+ {
+  "stadium_code": "15",
+  "race_number": 6,
+  "stadium_name": "丸亀",
+  "deadline": "17:28",
+  "score": 0.2259,
+  "main": false,
+  "gen": false
+ },
+ {
+  "stadium_code": "15",
+  "race_number": 4,
+  "stadium_name": "丸亀",
+  "deadline": "16:32",
+  "score": 0.224,
+  "main": false,
+  "gen": false
+ },
+ {
+  "stadium_code": "15",
+  "race_number": 9,
+  "stadium_name": "丸亀",
+  "deadline": "18:54",
+  "score": 0.2231,
+  "main": false,
+  "gen": false
+ },
+ {
+  "stadium_code": "15",
+  "race_number": 8,
+  "stadium_name": "丸亀",
+  "deadline": "18:23",
+  "score": 0.2174,
+  "main": false,
+  "gen": false
+ },
+ {
+  "stadium_code": "01",
+  "race_number": 7,
+  "stadium_name": "桐生",
+  "deadline": "18:13",
+  "score": 0.2163,
+  "main": false,
+  "gen": false
+ },
+ {
+  "stadium_code": "01",
+  "race_number": 12,
+  "stadium_name": "桐生",
+  "deadline": "20:45",
+  "score": 0.2092,
+  "main": false,
+  "gen": false
+ },
+ {
+  "stadium_code": "15",
+  "race_number": 2,
+  "stadium_name": "丸亀",
+  "deadline": "15:40",
+  "score": 0.1709,
+  "main": false,
+  "gen": false
+ },
+ {
+  "stadium_code": "01",
+  "race_number": 2,
+  "stadium_name": "桐生",
+  "deadline": "15:50",
+  "score": 0.1707,
+  "main": false,
+  "gen": false
+ },
+ {
+  "stadium_code": "15",
+  "race_number": 3,
+  "stadium_name": "丸亀",
+  "deadline": "16:06",
+  "score": 0.159,
+  "main": false,
+  "gen": false
+ },
+ {
+  "stadium_code": "15",
+  "race_number": 7,
+  "stadium_name": "丸亀",
+  "deadline": "17:55",
+  "score": 0.1533,
+  "main": false,
+  "gen": false
+ },
+ {
+  "stadium_code": "01",
+  "race_number": 11,
+  "stadium_name": "桐生",
+  "deadline": "20:16",
+  "score": 0.148,
+  "main": false,
+  "gen": false
+ },
+ {
+  "stadium_code": "01",
+  "race_number": 1,
+  "stadium_name": "桐生",
+  "deadline": "15:22",
+  "score": 0.1462,
+  "main": false,
+  "gen": false
+ },
+ {
+  "stadium_code": "01",
+  "race_number": 4,
+  "stadium_name": "桐生",
+  "deadline": "16:48",
+  "score": 0.13,
+  "main": false,
+  "gen": false
+ },
+ {
+  "stadium_code": "01",
+  "race_number": 9,
+  "stadium_name": "桐生",
+  "deadline": "19:14",
+  "score": 0.115,
+  "main": false,
+  "gen": false
+ },
+ {
+  "stadium_code": "15",
+  "race_number": 11,
+  "stadium_name": "丸亀",
+  "deadline": "19:58",
+  "score": 0.1024,
+  "main": false,
+  "gen": false
+ },
+ {
+  "stadium_code": "01",
+  "race_number": 3,
+  "stadium_name": "桐生",
+  "deadline": "16:16",
+  "score": 0.0963,
+  "main": false,
+  "gen": false
+ }
+]
