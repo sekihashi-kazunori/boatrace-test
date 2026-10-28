@@ -15,6 +15,7 @@ concurrency:
 
 permissions:
   contents: write
+  actions: write
 
 jobs:
   run:
@@ -47,7 +48,16 @@ jobs:
             NOW=$(TZ=Asia/Tokyo date +%H%M)
             ELAPSED=$(( ($(date +%s) - START) / 60 ))
             # 夜中(0:00〜6:30)に遅れて起動した場合もすぐ終了する(10/16夜、3時間遅れの起動が朝まで空回りした)
-            if (( 10#$NOW >= 2240 || 10#$NOW < 630 )) || [ "$ELAPSED" -ge 340 ]; then echo "終了 $NOW ${ELAPSED}分"; break; fi
+            # 2026-10-29: 22:40で切っていたため、21時台に交代が遅れると ナイター精算(22:00〜)が丸ごと飛んでいた(10/27・10/28)。
+            # 夜は23:30まで粘り、ナイター精算が済んだら終了。
+            if (( 10#$NOW >= 2330 || 10#$NOW < 630 )); then echo "終了 $NOW ${ELAPSED}分"; break; fi
+            if (( 10#$NOW >= 2200 )) && [ -f "plans/$(TZ=Asia/Tokyo date +%F)_settled_nighter" ]; then echo "ナイター精算済みで終了"; break; fi
+            # 制限時間が近づいたら、次の見張りを自分で起動してから終了(GitHubの毎時起動は1〜数時間遅れることがある)
+            if [ "$ELAPSED" -ge 340 ]; then
+              echo "交代 $NOW ${ELAPSED}分"
+              GH_TOKEN="${{ github.token }}" gh workflow run resident.yml --ref main || true
+              break
+            fi
             git checkout -- boatrace.db 2>/dev/null || true
             git pull -q --rebase --autostash || true
             mkdir -p logs
