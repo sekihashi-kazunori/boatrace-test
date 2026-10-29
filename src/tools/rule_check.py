@@ -150,7 +150,15 @@ def main():
         old = old[old.race_date != str(d)]
     all_df = pd.concat([old, new], ignore_index=True)
     all_df.to_csv(PATH, index=False)
-    msgs = [summary(all_df), patterns_summary(all_df)]
+    # 2026-10-30: 前日の精算(モーニング・デイ・ナイター)がちゃんと済んだかを毎朝自己点検して報告
+    chk = []
+    for k, ja in (("morning", "モーニング"), ("day", "デイ"), ("nighter", "ナイター＋最終振り返り")):
+        ok = os.path.exists(os.path.join("plans", f"{d}_settled_{k}"))
+        chk.append(f"{'✅' if ok else '❌'}{ja}")
+    health = f"【執事の自己点検 {d.month}/{d.day}】精算と報告: " + " / ".join(chk)
+    if "❌" in health:
+        health += "\n⚠️ 抜けがあります。執事に「昨日の精算をやり直して」と伝えてください"
+    msgs = [health, summary(all_df), patterns_summary(all_df)]
     for msg in msgs:
         if not msg:
             continue
