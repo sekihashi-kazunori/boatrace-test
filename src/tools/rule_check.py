@@ -101,6 +101,43 @@ def summary(all_df: pd.DataFrame) -> str:
     return "\n".join(lines)
 
 
+import itertools
+# 2026-10-30 ご主人様指示: 全レースで 1-456-456・123BOX・456BOX を買っていたら、を毎朝出す
+PATTERNS = {
+    "1-456-456": ONE456,
+    "123BOX": {"-".join(map(str, p)) for p in itertools.permutations((1, 2, 3))},
+    "456BOX": {"-".join(map(str, p)) for p in itertools.permutations((4, 5, 6))},
+}
+LONGRUN = {"1-456-456": 66, "123BOX": 72, "456BOX": 52}  # 2024/6〜2026/10 の13.4万R・全レース
+
+
+def patterns_summary(all_df: pd.DataFrame) -> str:
+    x = all_df[all_df.race_date >= START].copy()
+    if x.empty:
+        return ""
+    day = x.race_date.max()
+    md = f"{int(day[5:7])}/{int(day[8:10])}"
+    lines = [f"【全レース 3つの買い方 {md}】※紙上・各6点×100円=600円を全レース"]
+
+    def one(df, S):
+        h = df[df.result.isin(S)]
+        st, py = 600 * len(df), int(h.payout.sum())
+        return len(df), len(h), st, py, (py / st * 100 if st else 0), h
+
+    for name, S in PATTERNS.items():
+        n, h, st, py, rate, hits = one(x[x.race_date == day], S)
+        cn, ch, cst, cpy, crate, _ = one(x, S)
+        icon = "✅" if rate >= 100 else "🔻"
+        lines += ["", f"{icon} **{name}**",
+                  f"　本日: {n}R 的中{h} │ {st:,}→{py:,}円 │ {py - st:+,}円 ({rate:.0f}%)",
+                  f"　累積: {cn}R 的中{ch} │ {cst:,}→{cpy:,}円 │ {cpy - cst:+,}円 ({crate:.0f}%)　※{START[5:7].lstrip('0')}/{START[8:10].lstrip('0')}〜",
+                  f"　(参考)2年半の回収率 {LONGRUN[name]}%"]
+        top = hits.sort_values("payout", ascending=False).head(5)
+        if len(top):
+            lines.append("　🎯 " + " / ".join(f"{r.stadium}{int(r.race_number)}R {r.result} {int(r.payout):,}円" for r in top.itertuples()))
+    return "\n".join(lines)
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--date", default=None)
@@ -113,8 +150,10 @@ def main():
         old = old[old.race_date != str(d)]
     all_df = pd.concat([old, new], ignore_index=True)
     all_df.to_csv(PATH, index=False)
-    msg = summary(all_df)
-    if msg:
+    msgs = [summary(all_df), patterns_summary(all_df)]
+    for msg in msgs:
+        if not msg:
+            continue
         notify_console(msg)
         try:
             notify_discord(msg)
