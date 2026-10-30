@@ -503,6 +503,34 @@ def _run_exp2(state, target_date, session_name, stadium_code, race_number, odds_
         print(f"実験枠②の失敗 {race_number}R: {e}")
 
 
+def _run_tanfuku(target_date, session_name, stadium_code, race_number, before_info) -> None:
+    """1号艇の単勝・複勝 検証枠(2026-10-30 ご主人様「1コース1号艇の複勝はとことんやってみな」)。
+    締切前の単勝・複勝オッズを plans/tanfuku/日付.csv に記録し、翌朝の答え合わせで採点する。
+    確定オッズ(2026/4〜10・展示1コースの1号艇2.9万R)では毎月100%超え:
+      A 単勝3.0倍以上の1号艇の単勝   4,242R 116%(上位10本抜き112%)
+      B 複勝(下限)1.4倍以上の1号艇の複勝 5,783R 113%(上位10本抜き109%)
+    締切前オッズでも同じになるかを確かめる。"""
+    try:
+        bi = {b.get("lane"): b for b in (before_info or [])}
+        course1 = (bi.get(1) or {}).get("course")
+        from src.tools.collect_odds_other import _get, parse_tf
+        od = parse_tf(_get("oddstf", stadium_code, race_number, target_date))
+        w, pl = od.get("win_1"), od.get("place_1")
+        if w is None or pl is None:
+            return
+        os.makedirs(os.path.join("plans", "tanfuku"), exist_ok=True)
+        path = os.path.join("plans", "tanfuku", f"{target_date}.csv")
+        new_file = not os.path.exists(path)
+        with open(path, "a", encoding="utf-8") as f:
+            if new_file:
+                f.write("session,stadium_code,race_number,course1,win_1,place_1,time\n")
+            f.write(f"{session_name},{stadium_code},{race_number},{course1 if course1 else ''},{w},{pl},"
+                    f"{datetime.now(JST):%H:%M}\n")
+        print(f"単複記録 {stadium_code} {race_number}R 1号艇 単{w} 複{pl} 進入{course1}")
+    except Exception as e:
+        print(f"単複記録の失敗 {race_number}R: {e}")
+
+
 def _verify_races(target_date: date) -> list:
     """2026-10-15〜: 全国の全レースを候補にする(本予想は全レースから集中度で選ぶため)。
     朝の厳選(plans)の作成が遅れると、その前のレースを丸ごと取りこぼしていた(10/15に17R)。
@@ -719,6 +747,7 @@ def run_final(target_date: date | None = None, model_path: str = "model.txt", db
         _run_manshu_verify(state, target_date, session_name, stadium_code, race_number, odds_map, card)
         _run_outer_verify(state, target_date, session_name, stadium_code, race_number, odds_map, card, before_info)
         _run_exp2(state, target_date, session_name, stadium_code, race_number, odds_map, card, before_info, weather)
+        _run_tanfuku(target_date, session_name, stadium_code, race_number, before_info)
 
         # ===== 本番(2026-10-12 再構築): 会場×1号艇の級の条件ルール =====
         rule_plans = _rule_plans(stadium_code, race_number, b1_class, odds_map, weather) if is_main else None
