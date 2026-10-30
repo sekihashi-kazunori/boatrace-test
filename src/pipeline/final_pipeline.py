@@ -531,6 +531,33 @@ def _run_tanfuku(target_date, session_name, stadium_code, race_number, before_in
         print(f"単複記録の失敗 {race_number}R: {e}")
 
 
+# 当たりやすいレースだけ枠(2026-10-30 ご主人様「当たりやすいレースに絞ろう」)。
+# オッズから出した「その買い方が当たる確率」が高いレースだけ買う。確定オッズ16か月(7.6万R)での回収率:
+#   123BOX    当たる確率24%以上(上位約20%)  約80%(全レースだと64%)
+#   1-456-456 当たる確率12%以上(上位約20%)  約75〜80%(全レースだと58%)
+LIKELY_RULES = [("v_123hi", _perm([1, 2, 3], [1, 2, 3], [1, 2, 3]), 0.24, "当たりやすい 123BOX(確率24%以上)"),
+                ("v_456hi", _perm([1], [4, 5, 6], [4, 5, 6]), 0.12, "当たりやすい 1-456-456(確率12%以上)")]
+
+
+def _run_likely(state, target_date, session_name, stadium_code, race_number, odds_map) -> None:
+    inv = {k: 1 / o for k, o in (odds_map or {}).items() if o and o > 0}
+    tot = sum(inv.values())
+    if not tot:
+        return
+    for bt, combos, th, title in LIKELY_RULES:
+        p = sum(inv.get(tuple(map(int, c.split("-"))), 0) for c in combos) / tot
+        if p < th:
+            continue
+        try:
+            save_bet_tickets(state, [BetTicket(race_date=str(target_date), session=session_name, stadium_code=stadium_code,
+                                               race_number=race_number, combination=c, amount=100, bet_type=bt,
+                                               odds=(odds_map or {}).get(tuple(map(int, c.split("-")))))
+                                     for c in combos])
+            print(f"{title}: {race_number}R 確率{p * 100:.0f}%")
+        except Exception as e:
+            print(f"当たりやすい枠の保存失敗 {bt}: {e}")
+
+
 def _verify_races(target_date: date) -> list:
     """2026-10-15〜: 全国の全レースを候補にする(本予想は全レースから集中度で選ぶため)。
     朝の厳選(plans)の作成が遅れると、その前のレースを丸ごと取りこぼしていた(10/15に17R)。
@@ -748,6 +775,7 @@ def run_final(target_date: date | None = None, model_path: str = "model.txt", db
         _run_outer_verify(state, target_date, session_name, stadium_code, race_number, odds_map, card, before_info)
         _run_exp2(state, target_date, session_name, stadium_code, race_number, odds_map, card, before_info, weather)
         _run_tanfuku(target_date, session_name, stadium_code, race_number, before_info)
+        _run_likely(state, target_date, session_name, stadium_code, race_number, odds_map)
 
         # ===== 本番(2026-10-12 再構築): 会場×1号艇の級の条件ルール =====
         rule_plans = _rule_plans(stadium_code, race_number, b1_class, odds_map, weather) if is_main else None
