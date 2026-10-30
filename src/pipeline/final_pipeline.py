@@ -223,7 +223,24 @@ def _perm(heads, seconds, thirds):
 # 8/1〜9/18の確定オッズ7,600Rの試算: 上限なし(集中度0.50相当)13R/日・回収率80% →
 # 1セッション5Rまでにすると 約11R/日・的中率67%・回収率80〜83%。モーニング増額は見送り(過去はむしろ弱い)。
 MAIN_MIN_CONC = 0.45
-MAIN_MAX_PER_SESSION = 5
+# 2026-10-30 ご主人様指示「必ずモーニング・デイ・ナイターで10レースは予想を出す」
+MAIN_MAX_PER_SESSION = 10
+MAIN_TARGET_PER_SESSION = 10
+# 締切前オッズの集中度(上位5点)の分布(10/11〜10/29の2,419R)。CONC_Q[i] より上のレースが全体の (i+1)*5%
+CONC_Q = [0.466, 0.429, 0.403, 0.383, 0.366, 0.35, 0.337, 0.325, 0.311, 0.297, 0.284, 0.273, 0.261, 0.248,
+          0.235, 0.222, 0.21, 0.193, 0.172]
+
+
+def _quota_threshold(need: int, remaining: int) -> float:
+    """残りレースの中から need レース選ぶための集中度の下限。
+    集中度0.45以上はいつでも買う。足りなさそうなら、残りの上位 need/remaining の割合まで下げる。"""
+    if need <= 0:
+        return 9.0
+    if remaining <= need:
+        return 0.0
+    frac = need / remaining
+    i = min(len(CONC_Q) - 1, max(0, int(frac * 20 + 0.999) - 1))
+    return min(MAIN_MIN_CONC, CONC_Q[i])
 
 
 def _main_skip_reason(card, before_info) -> str | None:
@@ -665,9 +682,16 @@ def run_final(target_date: date | None = None, model_path: str = "model.txt", db
             _run_experiment(state, target_date, session_name, stadium_code, race_number, label, indexed, odds_map)
         # ===== 本予想(2026-10-14〜): 人気上位5点に票が集中しているレースだけ =====
         # 対象は今処理している全レース(厳選候補・江戸川津・検証枠)。モデルの鉄板5点は使わない。
-        pop_plans, conc = build_popular_plan(odds_map, min_concentration=MAIN_MIN_CONC)
-        print(f"{label}: 集中度{conc * 100:.1f}%")
+        done_n = _main_count(state, target_date, session_name)
+        need = MAIN_TARGET_PER_SESSION - done_n
+        remaining = sum(1 for sn, r in todo if sn == session_name
+                        and (r.get("deadline") or "99:99") >= (race.get("deadline") or "99:99"))
+        thr = _quota_threshold(need, remaining)
+        pop_plans, conc = build_popular_plan(odds_map, min_concentration=min(thr, 1.0))
+        print(f"{label}: 集中度{conc * 100:.1f}% (本予想{done_n}/{MAIN_TARGET_PER_SESSION}R・残り{remaining}R・下限{thr * 100:.0f}%)")
         skip = _main_skip_reason(card, before_info)
+        if skip and remaining <= need * 1.5:
+            skip = None  # 10Rに届かなくなりそうな時は足切りしない
         if pop_plans and skip:
             print(f"{label}: 本予想は見送り({skip})")
             pop_plans = []
