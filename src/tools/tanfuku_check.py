@@ -75,6 +75,57 @@ def summary(rows: list[dict], d: date) -> str:
     return "\n".join(lines)
 
 
+def _fun_rows(d_from: str, d_to: str) -> dict:
+    """楽しむ枠(3連単の本予想・当たりやすい123BOX・1-456-456)の日ごとの購入・払戻(state.db)。"""
+    import sqlite3
+    out = {}
+    if not os.path.exists("state.db"):
+        return out
+    c = sqlite3.connect("state.db")
+    for d, st, py in c.execute(
+            "select race_date, sum(amount), sum(coalesce(payout,0)) from bet_tickets "
+            "where bet_type in ('gen','v_123hi','v_456hi') and result is not null and race_date between ? and ? "
+            "group by race_date", (d_from, d_to)):
+        out[d] = (st or 0, py or 0)
+    return out
+
+
+def portfolio(rows: list[dict], d: date) -> str:
+    """2026-10-31 ご主人様OK: 稼ぐ枠(単複)7割＋楽しむ枠(3連単・ボックス)3割で、1日1万円を配ったら。
+    それぞれの回収率を、その日の使った割合で平均する。"""
+    days = sorted({r["race_date"] for r in rows if r["slot"] in ("A", "B")})
+    fun = _fun_rows(START, str(d))
+
+    def day_rate(dd):
+        x = [r for r in rows if r["race_date"] == dd and r["slot"] in ("A", "B")]
+        st = 100 * len(x)
+        t = sum(int(r["payout"]) for r in x) / st if st else None
+        f = fun.get(dd)
+        u = f[1] / f[0] if f and f[0] else None
+        return t, u
+    lines = ["", "【組み合わせ(1日1万円で配ったら)】稼ぐ枠=1号艇単複A+B / 楽しむ枠=3連単本予想+当たりやすい123BOX・1-456-456"]
+    for wt, wf in ((10, 0), (7, 3), (5, 5)):
+        tot_in = tot_out = 0
+        today = None
+        for dd in days:
+            t, u = day_rate(dd)
+            if t is None and u is None:
+                continue
+            t = t if t is not None else 1.0
+            u = u if u is not None else 1.0
+            out = 1000 * wt * t + 1000 * wf * u
+            tot_in += 10000
+            tot_out += out
+            if dd == str(d):
+                today = out
+        if not tot_in:
+            continue
+        lab = f"単複{wt}割" + (f"＋楽しむ{wf}割" if wf else "だけ")
+        lines.append(f"・{lab}: 本日 {('%+d円' % (today - 10000)) if today is not None else '-'}"
+                     f" / 累積 {tot_out - tot_in:+,.0f}円 ({tot_out / tot_in * 100:.0f}%・{len(days)}日)")
+    return "\n".join(lines)
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--date", default=None)
@@ -94,6 +145,10 @@ def main():
         w.writeheader()
         w.writerows(rows)
     msg = summary(rows, d)
+    try:
+        msg += portfolio(rows, d)
+    except Exception as e:
+        print(f"組み合わせ計算の失敗: {e}")
     print(msg)
     try:
         from src.notify.notifier import notify_discord
