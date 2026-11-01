@@ -1,0 +1,15 @@
+deadline,stadium_code,race_number,kind
+09:17,21,2,Threads
+09:35,18,3,Threads
+09:43,21,3,Threads
+10:49,22,1,Threads
+12:41,21,9,Threads
+13:09,18,10,Threads
+14:15,22,8,Threads
+15:13,22,10,Threads
+18:17,24,7,Threads
+18:45,24,8,Threads
+19:30,19,5,オプチャ
+20:45,24,12,Threads
+20:59,19,8,オプチャ
+21:25,19,9,オプチャ
