@@ -38,7 +38,7 @@ const hhmm = (iso) => (iso ? iso.slice(11, 16) : "-");
 
 function resultBadge(race) {
   if (raceStatus(race) === "pending") return `<span class="badge wait">予想前</span>`;
-  if (raceStatus(race) === "canceled") return `<span class="badge miss">中止</span>`;
+  if (raceStatus(race) === "canceled") return `<span class="badge miss">${isVoid(race) ? "不成立" : "中止"}</span>`;
   if (raceStatus(race) === "no_prediction") return `<span class="badge miss">予想なし</span>`;
   if (isSkipped(race)) return `<span class="badge miss">見送り</span>`;
   if (!race.result) return `<span class="badge wait">結果待ち</span>`;
@@ -86,7 +86,10 @@ const planOf = (r, key = T) => (r.plans || []).find((p) => p.key === key);
 // 【2026-10-26】"pending" = 朝に並べただけで、まだ予想を出していないレース(予想前)
 const raceStatus = (r) => (r.status === "canceled" || (r.result && r.result.canceled) ? "canceled"
   : r.status === "no_prediction" ? "no_prediction" : r.status === "pending" ? "pending" : null);
-const statusText = (r) => (raceStatus(r) === "canceled" ? (r.reason || "このレースは中止になりました。")
+// 【2026-11-01】3連単の不成立(ゴールできたのが2艇以下など)。全額返還なので、中止と同じく成績には数えない
+const isVoid = (r) => !!(r.result && r.result.not_established);
+const statusText = (r) => (raceStatus(r) === "canceled" ? (isVoid(r) ? "3連単が不成立になり、全額返還になりました。成績には数えません。"
+    : (r.reason || "このレースは中止になりました。"))
   : raceStatus(r) === "pending" ? (r.reason || "予想は締切の十数分前に公開します。")
   : (r.reason || "このレースは予想をしていません。"));
 // 【2026-10-26】フライングなどの返還(返還艇を含む買い目は、買った金額が戻る)
