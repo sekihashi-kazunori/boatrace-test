@@ -503,7 +503,31 @@ def _run_exp2(state, target_date, session_name, stadium_code, race_number, odds_
         print(f"実験枠②の失敗 {race_number}R: {e}")
 
 
-def _run_tanfuku(target_date, session_name, stadium_code, race_number, before_info) -> None:
+def _tanfuku_tier(card, before_info, win_1) -> str:
+    """2026-11-02 ご主人様「月90万で30万の利益」: リーサルウェポンA(単勝3倍以上)を3段に分ける。
+    確定オッズ17か月・前半/後半: S 146%/153%(1日7R) / B 108%/109%(8R) / C 94%/88%(6R)
+      S: 1号艇A級 or 全国勝率2位以内 or 当地勝率2位以内 or 単勝6倍以上
+      B: Sでなく、1号艇の展示タイム3位以内
+      C: それ以外"""
+    if win_1 is None or win_1 < 3:
+        return ""
+    racers = {r.get("lane"): r for r in (card or {}).get("racers", [])}
+    r1 = racers.get(1) or {}
+
+    def rank(key, src):
+        v = {l: (src.get(l) or {}).get(key) for l in range(1, 7)}
+        if v[1] is None or any(x is None for x in v.values()):
+            return 9
+        hi = key != "exhibition_time"
+        return 1 + sum(1 for x in v.values() if (x > v[1] if hi else x < v[1]))
+    cls = r1.get("racer_class") or ""
+    if cls.startswith("A") or win_1 >= 6 or rank("national_win_rate", racers) <= 2 or rank("local_win_rate", racers) <= 2:
+        return "S"
+    bi = {b.get("lane"): b for b in (before_info or [])}
+    return "B" if rank("exhibition_time", bi) <= 3 else "C"
+
+
+def _run_tanfuku(target_date, session_name, stadium_code, race_number, before_info, card=None) -> None:
     """1号艇の単勝・複勝 検証枠(2026-10-30 ご主人様「1コース1号艇の複勝はとことんやってみな」)。
     締切前の単勝・複勝オッズを plans/tanfuku/日付.csv に記録し、翌朝の答え合わせで採点する。
     確定オッズ(2026/4〜10・展示1コースの1号艇2.9万R)では毎月100%超え:
@@ -523,9 +547,10 @@ def _run_tanfuku(target_date, session_name, stadium_code, race_number, before_in
         new_file = not os.path.exists(path)
         with open(path, "a", encoding="utf-8") as f:
             if new_file:
-                f.write("session,stadium_code,race_number,course1,win_1,place_1,time\n")
+                f.write("session,stadium_code,race_number,course1,win_1,place_1,time,tier\n")
+            tier = _tanfuku_tier(card, before_info, w)
             f.write(f"{session_name},{stadium_code},{race_number},{course1 if course1 else ''},{w},{pl},"
-                    f"{datetime.now(JST):%H:%M}\n")
+                    f"{datetime.now(JST):%H:%M},{tier}\n")
         print(f"単複記録 {stadium_code} {race_number}R 1号艇 単{w} 複{pl} 進入{course1}")
     except Exception as e:
         print(f"単複記録の失敗 {race_number}R: {e}")
@@ -774,7 +799,7 @@ def run_final(target_date: date | None = None, model_path: str = "model.txt", db
         _run_manshu_verify(state, target_date, session_name, stadium_code, race_number, odds_map, card)
         _run_outer_verify(state, target_date, session_name, stadium_code, race_number, odds_map, card, before_info)
         _run_exp2(state, target_date, session_name, stadium_code, race_number, odds_map, card, before_info, weather)
-        _run_tanfuku(target_date, session_name, stadium_code, race_number, before_info)
+        _run_tanfuku(target_date, session_name, stadium_code, race_number, before_info, card)
         _run_likely(state, target_date, session_name, stadium_code, race_number, odds_map)
 
         # ===== 本番(2026-10-12 再構築): 会場×1号艇の級の条件ルール =====

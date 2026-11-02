@@ -19,6 +19,9 @@ from zoneinfo import ZoneInfo
 EVAL = "tanfuku_eval.csv"
 START = "2026-10-30"
 SLOTS = [("A", "1号艇 単勝3.0倍以上の単勝", "win", lambda r: r["win_1"] >= 3.0),
+         ("S", "  └ S級(A級・勝率/当地2位内・6倍以上) 過去150%", "win", lambda r: r.get("tier") == "S"),
+         ("Bt", "  └ B級(展示3位以内) 過去108%", "win", lambda r: r.get("tier") == "B"),
+         ("Ct", "  └ C級(それ以外) 過去91%", "win", lambda r: r.get("tier") == "C"),
          ("B", "1号艇 複勝1.4倍以上の複勝", "place", lambda r: r["place_1"] >= 1.4),
          ("all_win", "(参考)1号艇の単勝 全部", "win", lambda r: True),
          ("all_place", "(参考)1号艇の複勝 全部", "place", lambda r: True)]
@@ -52,7 +55,7 @@ def evaluate(d: date) -> list[dict]:
             seen.add(k)
             if k not in pay or not pay[k]["has"]:
                 continue  # 中止など
-            row = {"win_1": float(r["win_1"]), "place_1": float(r["place_1"])}
+            row = {"win_1": float(r["win_1"]), "place_1": float(r["place_1"]), "tier": r.get("tier") or ""}
             for slot, _t, kind, cond in SLOTS:
                 if cond(row):
                     out.append({"race_date": str(d), "slot": slot, "stadium_code": k[0], "race_number": k[1],
