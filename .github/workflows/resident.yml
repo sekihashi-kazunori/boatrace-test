@@ -37,7 +37,7 @@ jobs:
           START=$(date +%s)
           save() {
             git checkout -- boatrace.db 2>/dev/null || true
-            git add plans state.db logs 2>/dev/null || true
+            git add plans state.db logs rule_eval.csv asoka_eval.csv racer_hist.csv tanfuku_eval.csv 2>/dev/null || true
             git commit -q -m "chore: $1 $(TZ=Asia/Tokyo date +'%Y-%m-%d %H:%M')" || return 0
             for i in 1 2 3 4 5; do
               git pull -q --rebase --autostash && git push -q && return 0
@@ -65,6 +65,17 @@ jobs:
             tail -n 40 logs/last_final.txt
             save "all final"
             TODAY=$(TZ=Asia/Tokyo date +%F)
+            # 2026-11-02: 朝の答え合わせ(rule_check.yml)がGitHubの起動遅れで毎日3時間遅れ(11時台)ていたため、見張り側で7:30〜に1回だけ実行
+            YDAY=$(TZ=Asia/Tokyo date -d yesterday +%F)
+            if (( 10#$NOW >= 730 )) && [ ! -f "plans/${YDAY}_kotaeawase" ]; then
+              python -u -m src.tools.rule_check --date "$YDAY" || true
+              python -u -m src.tools.series_form --date "$YDAY" || true
+              python -u -m src.tools.asoka eval --date "$YDAY" || true
+              python -u -m src.reporting.tipsters --date "$YDAY" || true
+              python -u -m src.tools.tanfuku_check --date "$YDAY" || true
+              touch "plans/${YDAY}_kotaeawase"
+              save "morning kotaeawase"
+            fi
             # モーニング精算 15:00〜 / デイ精算 18:30〜(1日1回だけ。印のファイルで二重報告を防ぐ)
             if (( 10#$NOW >= 1500 )) && [ ! -f "plans/${TODAY}_settled_morning" ]; then
               python -u -m src.pipeline.settle_pipeline --session morning && touch "plans/${TODAY}_settled_morning"
