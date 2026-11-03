@@ -48,16 +48,14 @@ jobs:
             NOW=$(TZ=Asia/Tokyo date +%H%M)
             ELAPSED=$(( ($(date +%s) - START) / 60 ))
             # 夜中(0:00〜6:30)に遅れて起動した場合もすぐ終了する(10/16夜、3時間遅れの起動が朝まで空回りした)
-            # 2026-10-29: 22:40で切っていたため、21時台に交代が遅れると ナイター精算(22:00〜)が丸ごと飛んでいた(10/27・10/28)。
-            # 夜は23:30まで粘り、ナイター精算が済んだら終了。
-            if (( 10#$NOW >= 2330 || 10#$NOW < 630 )); then echo "終了 $NOW ${ELAPSED}分"; break; fi
-            if (( 10#$NOW >= 2200 )) && [ -f "plans/$(TZ=Asia/Tokyo date +%F)_settled_nighter" ]; then echo "ナイター精算済みで終了"; break; fi
-            # 制限時間が近づいたら、次の見張りを自分で起動してから終了(GitHubの毎時起動は1〜数時間遅れることがある)
+            # 2026-11-03: GitHubの定時起動が何時間も遅れる(11/3は朝7時の見張りが10時半になっても起動せず、モーニング・デイの予想も全滅)。
+            # 定時に頼らず、見張りが夜も眠ったまま居続け、5時間40分ごとに次の見張りを自分で起動してつなぐ。
             if [ "$ELAPSED" -ge 340 ]; then
               echo "交代 $NOW ${ELAPSED}分"
               GH_TOKEN="${{ github.token }}" gh workflow run resident.yml --ref main || true
               break
             fi
+            if (( 10#$NOW >= 2330 || 10#$NOW < 630 )); then sleep 600; continue; fi
             git checkout -- boatrace.db 2>/dev/null || true
             git pull -q --rebase --autostash || true
             mkdir -p logs
@@ -65,6 +63,14 @@ jobs:
             tail -n 40 logs/last_final.txt
             save "all final"
             TODAY=$(TZ=Asia/Tokyo date +%F)
+            # 2026-11-03: 厳選(予想の候補づくり)も見張りが自分で行う(定時の session_automation が遅れても間に合うように)
+            for SP in "morning 650" "day 1030" "nighter 1530"; do
+              set -- $SP
+              if (( 10#$NOW >= 10#$2 )) && [ ! -f "plans/${TODAY}_$1.json" ]; then
+                python -u -m src.pipeline.session_pipeline --session $1 || true
+                save "$1 predict"
+              fi
+            done
             # 2026-11-02: 朝の答え合わせ(rule_check.yml)がGitHubの起動遅れで毎日3時間遅れ(11時台)ていたため、見張り側で7:30〜に1回だけ実行
             YDAY=$(TZ=Asia/Tokyo date -d yesterday +%F)
             if (( 10#$NOW >= 730 )) && [ ! -f "plans/${YDAY}_kotaeawase" ]; then
