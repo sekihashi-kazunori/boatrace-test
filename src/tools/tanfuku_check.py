@@ -87,7 +87,7 @@ def _fun_rows(d_from: str, d_to: str) -> dict:
     c = sqlite3.connect("state.db")
     for d, st, py in c.execute(
             "select race_date, sum(amount), sum(coalesce(payout,0)) from bet_tickets "
-            "where bet_type in ('gen','v_123hi','v_456hi') and result is not null and race_date between ? and ? "
+            "where bet_type in ('gen','v_456hi') and result is not null and race_date between ? and ? "
             "group by race_date", (d_from, d_to)):
         out[d] = (st or 0, py or 0)
     return out
@@ -106,7 +106,7 @@ def portfolio(rows: list[dict], d: date) -> str:
         f = fun.get(dd)
         u = f[1] / f[0] if f and f[0] else None
         return t, u
-    lines = ["", "【組み合わせ(1日1万円で配ったら)】稼ぐ枠=1号艇単複A+B / 楽しむ枠=3連単本予想+当たりやすい123BOX・1-456-456"]
+    lines = ["", "【組み合わせ(1日1万円で配ったら)】稼ぐ枠=1号艇単複A+B / 楽しむ枠=3連単本予想+当たりやすい1-456-456"]
     for wt, wf in ((10, 0), (7, 3), (5, 5)):
         tot_in = tot_out = 0
         today = None

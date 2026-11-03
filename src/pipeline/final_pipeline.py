@@ -342,7 +342,7 @@ WIND_RULES = [("v_mikuni_wind", "10", 5, _perm([2, 3], [1], [2, 3, 4, 5, 6]), "�
 
 # 天気枠(2026-10-22 ご主人様判断で追加): 大村・曇りの日 123BOX。1〜10月469R 回収137%(248/107/120%)・上位3本抜き107%。
 # ただし大村の逃げ率は晴59%/曇60%/雨60%と天気で変わらず、偶然の可能性が高い(執事の見立て)。紙上で確かめる。
-WEATHER_RULES = [("v_omura_cloud", "24", "曇り", _perm([1, 2, 3], [1, 2, 3], [1, 2, 3]), "大村 曇り 123BOX")]
+WEATHER_RULES = []  # 2026-11-03 ご主人様判断で123BOXは全部停止(大村 曇り 123BOX も)
 
 
 def _run_wind_verify(state, target_date, session_name, stadium_code, race_number, odds_map, weather) -> None:
@@ -560,8 +560,8 @@ def _run_tanfuku(target_date, session_name, stadium_code, race_number, before_in
 # オッズから出した「その買い方が当たる確率」が高いレースだけ買う。確定オッズ16か月(7.6万R)での回収率:
 #   123BOX    当たる確率24%以上(上位約20%)  約80%(全レースだと64%)
 #   1-456-456 当たる確率12%以上(上位約20%)  約75〜80%(全レースだと58%)
-LIKELY_RULES = [("v_123hi", _perm([1, 2, 3], [1, 2, 3], [1, 2, 3]), 0.24, "当たりやすい 123BOX(確率24%以上)"),
-                ("v_456hi", _perm([1], [4, 5, 6], [4, 5, 6]), 0.12, "当たりやすい 1-456-456(確率12%以上)")]
+# 2026-11-03 ご主人様判断で 当たりやすい123BOX は停止
+LIKELY_RULES = [("v_456hi", _perm([1], [4, 5, 6], [4, 5, 6]), 0.12, "当たりやすい 1-456-456(確率12%以上)")]
 
 
 def _run_likely(state, target_date, session_name, stadium_code, race_number, odds_map) -> None:

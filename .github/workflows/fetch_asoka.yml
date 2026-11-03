@@ -5,8 +5,7 @@ name: asoka yosou hozon (あそかぶの予想を保存)
 # 採点は翌朝8:00の全国答え合わせ(rule_check.yml)の中で行う。
 on:
   workflow_dispatch:
-  schedule:
-    - cron: "10 22 * * *"   # 日本時間 7:10
+  # 2026-11-03 ご主人様判断で停止(あそかぶは今後不要)
 
 jobs:
   run:

@@ -37,12 +37,6 @@ jobs:
       - name: konsetsu (今節の調子用に前日の着順を保存)
         if: steps.done.outputs.skip != '1'
         run: python -u -m src.tools.series_form || true
-      - name: asoka saiten (あそかぶ予想の答え合わせ)
-        if: steps.done.outputs.skip != '1'
-        env:
-          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
-        run: |
-          if [ -n "${{ inputs.date }}" ]; then python -u -m src.tools.asoka eval --date "${{ inputs.date }}" || true; else python -u -m src.tools.asoka eval || true; fi
       - name: yosouya (予想屋さんの前日分を結果待ち込みで埋め直す・通知なし)
         if: steps.done.outputs.skip != '1'
         run: |

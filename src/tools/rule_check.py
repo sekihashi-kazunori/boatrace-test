@@ -105,7 +105,6 @@ import itertools
 # 2026-10-30 ご主人様指示: 全レースで 1-456-456・123BOX・456BOX を買っていたら、を毎朝出す
 PATTERNS = {
     "1-456-456": ONE456,
-    "123BOX": {"-".join(map(str, p)) for p in itertools.permutations((1, 2, 3))},
     "456BOX": {"-".join(map(str, p)) for p in itertools.permutations((4, 5, 6))},
 }
 LONGRUN = {"1-456-456": 66, "123BOX": 72, "456BOX": 52}  # 2024/6〜2026/10 の13.4万R・全レース
