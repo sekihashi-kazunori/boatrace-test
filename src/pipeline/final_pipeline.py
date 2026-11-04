@@ -598,6 +598,57 @@ def _run_likely(state, target_date, session_name, stadium_code, race_number, odd
             print(f"当たりやすい枠の保存失敗 {bt}: {e}")
 
 
+MAIN_BAD_STADIUMS = {"10", "14"}  # 2026-11-05〜 三国・鳴門は鉄板に見えても荒れやすい(集中度0.47以上の人気4点 65〜78%)
+MAIN_MIN_VALUE = 0.80             # 見落とし補正AIの割安度がこれ未満の本命は外す
+
+
+def _adj_values(odds_map, card, before_info, weather) -> dict:
+    """見落とし補正AIで {"1-2-3": 割安度(補正確率×オッズ)}。失敗したら {}。"""
+    try:
+        from src.models.adjust import boat_features, adjusted_probs
+        racers = {r.get("lane"): r for r in (card or {}).get("racers", [])}
+        bi = {b.get("lane"): b for b in (before_info or [])}
+        if len(racers) < 6 or not odds_map:
+            return {}
+        rows = []
+        for l in range(1, 7):
+            r, b = racers[l], bi.get(l) or {}
+            ex = b.get("exhibition_time")
+            rows.append({"wr": r.get("national_win_rate"), "top2": r.get("top2"), "local": r.get("local_win_rate"),
+                         "motor": r.get("motor_2rate"), "boat": r.get("boat_2rate"), "ex": ex if ex and ex > 0 else None,
+                         "avgst": r.get("avg_st"), "pvst": b.get("start_timing"), "tilt": b.get("tilt"),
+                         "age": r.get("age"), "weight": r.get("weight"), "cls": r.get("racer_class"),
+                         "F": r.get("flying"), "course": b.get("course")})
+        feats = boat_features(rows, wind=(weather or {}).get("wind"), wave=(weather or {}).get("wave"))
+        odds = {"-".join(map(str, k)): float(o) for k, o in odds_map.items() if o}
+        p = adjusted_probs(odds, feats)
+        return {k: p[k] * odds[k] for k in p}
+    except Exception as e:
+        print(f"割安度の計算失敗: {e}")
+        return {}
+
+
+def _filter_main_by_value(plans, values, label):
+    """本命のうち割高(割安度<MAIN_MIN_VALUE)を外し、残りで900円をノーガミ配分し直す。本命は最低2点残す。"""
+    if not values:
+        return plans
+    from src.betting.allocation import _no_gami_stakes, _inverse_stakes
+    main = [p for p in plans if p.category == "本命"]
+    other = [p for p in plans if p.category != "本命"]
+    keep = [p for p in main if values.get(p.combination, 1.0) >= MAIN_MIN_VALUE]
+    if len(keep) < 2:
+        keep = sorted(main, key=lambda p: -values.get(p.combination, 0))[:2]
+    if len(keep) == len(main):
+        return plans
+    dropped = [f"{p.combination}({values.get(p.combination, 0):.2f})" for p in main if p not in keep]
+    st = _no_gami_stakes([p.odds for p in keep], 900, target=1100) or _inverse_stakes([p.odds for p in keep], 900)
+    keep = keep[:len(st)]
+    for p, a in zip(keep, st):
+        p.stake = a
+    print(f"{label}: 割高な本命を外す {' '.join(dropped)}")
+    return keep + other
+
+
 def _verify_races(target_date: date) -> list:
     """2026-10-15〜: 全国の全レースを候補にする(本予想は全レースから集中度で選ぶため)。
     朝の厳選(plans)の作成が遅れると、その前のレースを丸ごと取りこぼしていた(10/15に17R)。
@@ -792,6 +843,13 @@ def run_final(target_date: date | None = None, model_path: str = "model.txt", db
         if pop_plans and skip:
             print(f"{label}: 本予想は見送り({skip})")
             pop_plans = []
+        if str(target_date) >= "2026-11-05" and pop_plans:
+            if stadium_code in MAIN_BAD_STADIUMS:
+                print(f"{label}: 本予想は見送り(三国・鳴門は除外)")
+                pop_plans = []
+            else:
+                pop_plans = _filter_main_by_value(pop_plans, _adj_values(
+                    odds_map, card, before_info, LAST_WEATHER.get((stadium_code, race_number, str(target_date)), {})), label)
         if str(target_date) < "2026-11-05" and pop_plans and done_n >= MAIN_MAX_PER_SESSION:
             print(f"{label}: 本予想は{session_ja}で既に{MAIN_MAX_PER_SESSION}R買ったので見送り")
             pop_plans = []

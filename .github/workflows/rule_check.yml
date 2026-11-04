@@ -37,10 +37,6 @@ jobs:
       - name: konsetsu (今節の調子用に前日の着順を保存)
         if: steps.done.outputs.skip != '1'
         run: python -u -m src.tools.series_form || true
-      - name: yosouya (予想屋さんの前日分を結果待ち込みで埋め直す・通知なし)
-        if: steps.done.outputs.skip != '1'
-        run: |
-          if [ -n "${{ inputs.date }}" ]; then python -u -m src.reporting.tipsters --date "${{ inputs.date }}" || true; else python -u -m src.reporting.tipsters || true; fi
       - name: tanfuku (1号艇の単勝・複勝 検証枠の答え合わせ)
         if: steps.done.outputs.skip != '1'
         env:
