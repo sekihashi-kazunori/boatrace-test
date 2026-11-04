@@ -228,6 +228,10 @@ MAIN_MIN_CONC = 0.45
 # 集中度0.45以上だけ・各セッション最大5R(1日5〜12R程度)
 MAIN_MAX_PER_SESSION = 5
 MAIN_TARGET_PER_SESSION = 0
+# 2026-11-05〜 ご主人様指示: モーニング/デイ/ナイターで分けず、1日を通して自信のあるレースだけ最大10R。
+# 締切前オッズの集中度(上位5点)0.47以上 ≒ 全レースの上位5%(1日7〜10R)。セッションごとの上限はなし。
+MAIN_MIN_CONC_NEW = 0.47
+MAIN_MAX_PER_DAY = 10
 # 締切前オッズの集中度(上位5点)の分布(10/11〜10/29の2,419R)。CONC_Q[i] より上のレースが全体の (i+1)*5%
 CONC_Q = [0.466, 0.429, 0.403, 0.383, 0.366, 0.35, 0.337, 0.325, 0.311, 0.297, 0.284, 0.273, 0.261, 0.248,
           0.235, 0.222, 0.21, 0.193, 0.172]
@@ -261,12 +265,19 @@ def _main_skip_reason(card, before_info) -> str | None:
     return None
 
 
-def _main_count(state, target_date, session_name) -> int:
-    """その日・そのセッションで本予想(gen)を買ったレース数。"""
+def _main_count_session(state, target_date, session_name) -> int:
     with OrmSession(state) as db:
         rows = db.execute(select(BetTicket.stadium_code, BetTicket.race_number).where(
             BetTicket.race_date == str(target_date), BetTicket.session == session_name,
             BetTicket.bet_type == "gen").distinct()).all()
+    return len(rows)
+
+
+def _main_count(state, target_date, session_name=None) -> int:
+    """その日に本予想(gen)を買ったレース数(2026-11-05〜 セッションは問わず1日の合計)。"""
+    with OrmSession(state) as db:
+        rows = db.execute(select(BetTicket.stadium_code, BetTicket.race_number).where(
+            BetTicket.race_date == str(target_date), BetTicket.bet_type == "gen").distinct()).all()
     return len(rows)
 
 
@@ -766,11 +777,13 @@ def run_final(target_date: date | None = None, model_path: str = "model.txt", db
             _run_experiment(state, target_date, session_name, stadium_code, race_number, label, indexed, odds_map)
         # ===== 本予想(2026-10-14〜): 人気上位5点に票が集中しているレースだけ =====
         # 対象は今処理している全レース(厳選候補・江戸川津・検証枠)。モデルの鉄板5点は使わない。
-        done_n = _main_count(state, target_date, session_name)
+        done_n = _main_count(state, target_date) if str(target_date) >= "2026-11-05" else _main_count_session(state, target_date, session_name)
         need = MAIN_TARGET_PER_SESSION - done_n
         remaining = sum(1 for sn, r in todo if sn == session_name
                         and (r.get("deadline") or "99:99") >= (race.get("deadline") or "99:99"))
         thr = _quota_threshold(need, remaining)
+        if str(target_date) >= "2026-11-05":
+            thr = MAIN_MIN_CONC_NEW
         pop_plans, conc = build_popular_plan(odds_map, min_concentration=min(thr, 1.0))
         print(f"{label}: 集中度{conc * 100:.1f}% (本予想{done_n}/{MAIN_TARGET_PER_SESSION}R・残り{remaining}R・下限{thr * 100:.0f}%)")
         skip = _main_skip_reason(card, before_info)
@@ -779,8 +792,11 @@ def run_final(target_date: date | None = None, model_path: str = "model.txt", db
         if pop_plans and skip:
             print(f"{label}: 本予想は見送り({skip})")
             pop_plans = []
-        if pop_plans and _main_count(state, target_date, session_name) >= MAIN_MAX_PER_SESSION:
+        if str(target_date) < "2026-11-05" and pop_plans and done_n >= MAIN_MAX_PER_SESSION:
             print(f"{label}: 本予想は{session_ja}で既に{MAIN_MAX_PER_SESSION}R買ったので見送り")
+            pop_plans = []
+        if str(target_date) >= "2026-11-05" and pop_plans and _main_count(state, target_date) >= MAIN_MAX_PER_DAY:
+            print(f"{label}: 本予想は今日すでに{MAIN_MAX_PER_DAY}R買ったので見送り")
             pop_plans = []
         if pop_plans:
             _run_general(state, target_date, session_name, stadium_code, race_number, label, pop_plans)
