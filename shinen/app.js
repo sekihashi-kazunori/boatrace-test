@@ -59,7 +59,7 @@ function header(active) {
       <p>予想はAIが締切の十数分前に、展示航走などの直前情報を反映して出したものです。公開した予想は後から変更しません(公開時刻を表示しています)。</p>
       <p>的中率・回収率は過去の結果で、今後の結果を保証するものではありません。舟券の購入は20歳以上の方が、ご自身の判断と責任で行ってください。</p>
       <p>選手・レースの情報は公開情報をもとにしています。</p>
-      <p class="footer-links"><a href="about.html">このサイトの考え方</a><a href="faq.html">よくある質問・用語</a><a href="performance.html">成績</a><a href="venues.html">会場データ</a><a href="legal.html">利用規約・プライバシー</a></p>
+      <p class="footer-links"><a href="yoso/index.html">日付別の予想一覧</a><a href="about.html">このサイトの考え方</a><a href="faq.html">よくある質問・用語</a><a href="performance.html">成績</a><a href="venues.html">会場データ</a><a href="legal.html">利用規約・プライバシー</a></p>
       <p>© ${new Date().getFullYear()} ${SITE_NAME}</p>
     </div></footer>`;
   document.title = document.title ? `${document.title} | ${SITE_NAME}` : SITE_NAME;
