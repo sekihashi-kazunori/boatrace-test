@@ -231,6 +231,7 @@ MAIN_TARGET_PER_SESSION = 0
 # 締切前オッズの集中度(上位5点)0.47以上 ≒ 全レースの上位5%(1日7〜10R)。セッションごとの上限はなし。
 MAIN_MIN_CONC_NEW = 0.47
 MAIN_MAX_PER_DAY = 10
+MAIN_STOP_DATE = "2026-11-06"  # この日から本予想(3連単)を廃止
 # 締切前オッズの集中度(上位5点)の分布(10/11〜10/29の2,419R)。CONC_Q[i] より上のレースが全体の (i+1)*5%
 CONC_Q = [0.466, 0.429, 0.403, 0.383, 0.366, 0.35, 0.337, 0.325, 0.311, 0.297, 0.284, 0.273, 0.261, 0.248,
           0.235, 0.222, 0.21, 0.193, 0.172]
@@ -900,6 +901,10 @@ def run_final(target_date: date | None = None, model_path: str = "model.txt", db
         if str(target_date) < "2026-11-05" and pop_plans and done_n >= MAIN_MAX_PER_SESSION:
             print(f"{label}: 本予想は{session_ja}で既に{MAIN_MAX_PER_SESSION}R買ったので見送り")
             pop_plans = []
+        # 2026-11-06 ご主人様決定: 本予想(3連単)は廃止。7.6万Rの検証で、どう絞っても回収率80%前後が限界だったため。
+        # メインはリーサルウェポン(1号艇単勝)、お楽しみは新456枠2つ。
+        if str(target_date) >= MAIN_STOP_DATE:
+            pop_plans = []
         if str(target_date) >= "2026-11-05" and pop_plans and _main_count(state, target_date) >= MAIN_MAX_PER_DAY:
             print(f"{label}: 本予想は今日すでに{MAIN_MAX_PER_DAY}R買ったので見送り")
             pop_plans = []
@@ -930,6 +935,8 @@ def run_final(target_date: date | None = None, model_path: str = "model.txt", db
 
         # ===== 本番(2026-10-12 再構築): 会場×1号艇の級の条件ルール =====
         rule_plans = _rule_plans(stadium_code, race_number, b1_class, odds_map, weather) if is_main else None
+        if str(target_date) >= MAIN_STOP_DATE:
+            rule_plans = None  # 江戸川鉄板などの3連単本番も廃止
         if is_main and not rule_plans:
             print(f"{label}: 条件外(1号艇{b1_class})のため見送り")
             _record(state, target_date, session_name, stadium_code, race_number, "rule_skip")
