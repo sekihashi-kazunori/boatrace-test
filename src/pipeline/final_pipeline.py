@@ -649,6 +649,31 @@ def _filter_main_by_value(plans, values, label):
     return keep + other
 
 
+# 2026-11-06 ご主人様OK: 456ボックスを1,270条件で掘り下げ、前後の期間で両方100%超えだった唯一の条件(偶然の可能性あり)。
+# 芦屋・宮島・戸田 × 1号艇B級 × 風3m以上 → 456BOX 6点。確定オッズ 25/6〜26/1 111% / 26/2〜10 103%(各約20本的中)。
+BOX456_RULES = [("v_456box", "芦屋宮島戸田×1号艇B級×風3m+ 456BOX")]
+
+
+def _run_456box(state, target_date, session_name, stadium_code, race_number, odds_map, card) -> None:
+    if stadium_code not in ("21", "17", "02"):
+        return
+    r1 = next((r for r in (card or {}).get("racers", []) if r.get("lane") == 1), {})
+    if not (r1.get("racer_class") or "").startswith("B"):
+        return
+    wind = LAST_WEATHER.get((stadium_code, race_number, str(target_date)), {}).get("wind")
+    if wind is None or wind < 3:
+        return
+    combos = _perm([4, 5, 6], [4, 5, 6], [4, 5, 6])
+    try:
+        save_bet_tickets(state, [BetTicket(race_date=str(target_date), session=session_name, stadium_code=stadium_code,
+                                           race_number=race_number, combination=c, amount=100, bet_type="v_456box",
+                                           odds=(odds_map or {}).get(tuple(map(int, c.split("-")))))
+                                 for c in combos])
+        print(f"456BOX検証枠: {race_number}R 風{wind}m")
+    except Exception as e:
+        print(f"456BOX検証枠の保存失敗: {e}")
+
+
 def _verify_races(target_date: date) -> list:
     """2026-10-15〜: 全国の全レースを候補にする(本予想は全レースから集中度で選ぶため)。
     朝の厳選(plans)の作成が遅れると、その前のレースを丸ごと取りこぼしていた(10/15に17R)。
@@ -879,6 +904,7 @@ def run_final(target_date: date | None = None, model_path: str = "model.txt", db
         _run_exp2(state, target_date, session_name, stadium_code, race_number, odds_map, card, before_info, weather)
         _run_tanfuku(target_date, session_name, stadium_code, race_number, before_info, card)
         _run_likely(state, target_date, session_name, stadium_code, race_number, odds_map)
+        _run_456box(state, target_date, session_name, stadium_code, race_number, odds_map, card)
 
         # ===== 本番(2026-10-12 再構築): 会場×1号艇の級の条件ルール =====
         rule_plans = _rule_plans(stadium_code, race_number, b1_class, odds_map, weather) if is_main else None
