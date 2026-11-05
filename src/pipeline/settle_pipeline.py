@@ -165,15 +165,15 @@ def verify_summary(engine, target_date: date) -> str:
         return (title, r, ok, today)
 
     items = [
-        item("江戸川 B級1〜4R 1-456-456", "edo", 4, "B"),
+        # 江戸川 B級1〜4R 1-456-456 は 2026-11-06 停止(新システムへ)
         # 津の2枠は 2026-10-17 停止(万舟頼みで実力なし)
     ]
     for bt, *_rest, title in VERIFY_RULES:
         items.append(item(title, bt))
     from src.pipeline.final_pipeline import WIND_RULES, WEATHER_RULES
     from src.pipeline.final_pipeline import MANSHU_RULES
-    from src.pipeline.final_pipeline import OUTER_RULES, LIKELY_RULES, BOX456_RULES
-    for bt, title in MANSHU_RULES + OUTER_RULES + [(b, t) for b, _c, _th, t in LIKELY_RULES] + BOX456_RULES:
+    from src.pipeline.final_pipeline import OUTER_RULES, LIKELY_RULES, BOX456_RULES, BOX1456_RULES
+    for bt, title in MANSHU_RULES + OUTER_RULES + [(b, t) for b, _c, _th, t in LIKELY_RULES] + BOX456_RULES + BOX1456_RULES:
         items.append(item(title, bt))
     for bt, _st, _w, _c, title in WIND_RULES + WEATHER_RULES:
         items.append(item(title, bt))

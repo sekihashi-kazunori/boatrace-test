@@ -144,10 +144,9 @@ def _rule_plans(stadium_code, race_number, b1_class, odds_map, weather=None):
         print(f"江戸川{race_number}R: 波高{wave}cmで荒れすぎのため見送り")
         return None
     if stadium_code == "03" and race_number <= 4:
+        # 2026-11-06: 1-456-456 の部分は停止(新システムの v_1456b で検証)
         return [BetPlan(c, "江戸川鉄板", 200, 0.0, _odds(odds_map, c), "1号艇が逃げて2・3号艇が続く形")
-                for c in ("1-2-3", "1-3-2")] + \
-               [BetPlan(c, "江戸川穴", 100, 0.0, _odds(odds_map, c), f"江戸川前半・1号艇{b1_class}は逃げにくく外が届く")
-                for c in EDOGAWA_COMBOS]
+                for c in ("1-2-3", "1-3-2")]
     # 2026-10-17 ご主人様と決定: 津は停止。1〜10月の127%は上位5本の万舟頼み(抜くと53%)、
     # 月別も40〜60%の月が大半で、10/14以降も28%だったため。
     if False and stadium_code == "09":
@@ -292,10 +291,10 @@ VERIFY_RULES = [
     ("v_heiwa", "04", "A1", 9, 12, ["1-2-3", "1-3-2"], "平和島 A1 9〜12R 1-23-23"),                   # 137% 上位3抜き99%
     ("v_fukuoka", "22", "A1", 5, 8, _perm([1], [2, 3, 4], [2, 3, 4]), "福岡 A1 5〜8R 1-234-234"),     # 131% 上位3抜き98%
     # 2026-10-23 ご主人様OK: 丸亀ナイター後半。1〜10月570R 的中率11.9% 回収127%(73/152/150%)・上位3本抜き98%
-    ("v_maru456", "15", "", 9, 12, _perm([1], [4, 5, 6], [4, 5, 6]), "丸亀 9〜12R 1-456-456"),
+    # v_maru456(丸亀 9〜12R 1-456-456) は 2026-11-06 停止(新システムへ)
     # 2026-10-20 ご主人様OK「宝探し枠」: 児島。的中が少なく偶然の可能性も高いので紙上で確かめる
     # 2026-10-23 13万R(2024/6〜)で3期とも175%超え・上位3本抜き122% → 主力に格上げ
-    ("v_kojima456", "16", "B", 9, 12, _perm([1], [4, 5, 6], [4, 5, 6]), "★児島 B級 9〜12R 1-456-456"),
+    # v_kojima456(児島 B級 9〜12R 1-456-456) は 2026-11-06 停止(新システム v_1456b に児島も含む)
     # 2026-10-23 ご主人様OK: 13万Rで2024後半・2025・2026の3期すべて100%超えの残り4つ
     ("v_sumi2", "12", "A1", 5, 8, _perm([2], [1, 2, 3, 4, 5, 6], [1, 2, 3, 4, 5, 6]), "住之江 A1 5〜8R 2-全-全"),      # 118%(102/110/141)
     ("v_kara2323", "23", "A2", 5, 8, _perm([2, 3], [2, 3], [1, 4, 5, 6]), "唐津 A2 5〜8R 23-23-全"),  # 154%(180/140/159)
@@ -384,7 +383,7 @@ def _run_wind_verify(state, target_date, session_name, stadium_code, race_number
 # 万舟の典型は「1号艇より実力が上の外の艇が1着」。8〜9月の全国7,706Rで、100〜200倍の中から
 #  A: 1号艇B級のとき、勝率1位の艇が頭の一番オッズが低い1点 → 2,794R 的中23本 回収96%(85/108%)
 #  B: 勝率1位かつ今節一番好調の艇が1号艇以外のとき、その艇が頭の1点 → 1,719R 的中19本 回収126%(59/198%)
-MANSHU_RULES = [("v_man_a", "万舟A 1号艇B級×勝率1位が頭"), ("v_man_b", "万舟B 勝率1位&今節好調1位が頭")]
+MANSHU_RULES = []  # 2026-11-06 廃止(旧: v_man_a 万舟A・v_man_b 万舟B)
 
 
 def _manshu_pick(odds_map, head: int) -> tuple[str, float] | None:
@@ -576,7 +575,8 @@ def _run_tanfuku(target_date, session_name, stadium_code, race_number, before_in
 #   123BOX    当たる確率24%以上(上位約20%)  約80%(全レースだと64%)
 #   1-456-456 当たる確率12%以上(上位約20%)  約75〜80%(全レースだと58%)
 # 2026-11-03 ご主人様判断で 当たりやすい123BOX は停止
-LIKELY_RULES = [("v_456hi", _perm([1], [4, 5, 6], [4, 5, 6]), 0.12, "当たりやすい 1-456-456(確率12%以上)")]
+# 2026-11-06 停止: v_456hi(当たりやすい 1-456-456)。新システム v_1456b へ
+LIKELY_RULES = []
 
 
 def _run_likely(state, target_date, session_name, stadium_code, race_number, odds_map) -> None:
@@ -672,6 +672,28 @@ def _run_456box(state, target_date, session_name, stadium_code, race_number, odd
         print(f"456BOX検証枠: {race_number}R 風{wind}m")
     except Exception as e:
         print(f"456BOX検証枠の保存失敗: {e}")
+
+
+# 2026-11-06 ご主人様OK: 1-456-456 の新システム。会場×級×R帯を掘り下げ、前後の期間で両方100%超え(128% / 124%)。
+# 江戸川・児島・津・尼崎・宮島・戸田 × 1号艇B級 × 9〜12R → 1-456-456 6点×100円。
+BOX1456_RULES = [("v_1456b", "江戸川児島津尼崎宮島戸田×1号艇B級×9〜12R 1-456-456")]
+
+
+def _run_1456b(state, target_date, session_name, stadium_code, race_number, odds_map, card) -> None:
+    if stadium_code not in ("03", "16", "09", "13", "17", "02") or not (9 <= race_number <= 12):
+        return
+    r1 = next((r for r in (card or {}).get("racers", []) if r.get("lane") == 1), {})
+    if not (r1.get("racer_class") or "").startswith("B"):
+        return
+    combos = _perm([1], [4, 5, 6], [4, 5, 6])
+    try:
+        save_bet_tickets(state, [BetTicket(race_date=str(target_date), session=session_name, stadium_code=stadium_code,
+                                           race_number=race_number, combination=c, amount=100, bet_type="v_1456b",
+                                           odds=(odds_map or {}).get(tuple(map(int, c.split("-")))))
+                                 for c in combos])
+        print(f"1-456-456新枠: {stadium_code} {race_number}R")
+    except Exception as e:
+        print(f"1-456-456新枠の保存失敗: {e}")
 
 
 def _verify_races(target_date: date) -> list:
@@ -895,16 +917,16 @@ def run_final(target_date: date | None = None, model_path: str = "model.txt", db
         weather = LAST_WEATHER.get((stadium_code, race_number, str(target_date)), {})
         # 全レースで1号艇の級と天候・風・波を記録(今後の条件づくりの材料)
         _save_meta(state, target_date, stadium_code, race_number, b1_class, weather)
-        if stadium_code == "03":
-            _run_edogawa(state, target_date, session_name, race_number, odds_map)
+        # 2026-11-06 ご主人様指示: 旧456系(江戸川全R 1-456-456・456BOX)は停止。新システムの2枠だけで検証
         _run_verify(state, target_date, session_name, stadium_code, race_number, b1_class, odds_map)
         _run_wind_verify(state, target_date, session_name, stadium_code, race_number, odds_map, weather)
-        _run_manshu_verify(state, target_date, session_name, stadium_code, race_number, odds_map, card)
+        # 万舟検証枠(v_man_a/b)は 2026-11-06 ご主人様指示で廃止(10/20〜 780R 回収率10%)
         _run_outer_verify(state, target_date, session_name, stadium_code, race_number, odds_map, card, before_info)
         _run_exp2(state, target_date, session_name, stadium_code, race_number, odds_map, card, before_info, weather)
         _run_tanfuku(target_date, session_name, stadium_code, race_number, before_info, card)
         _run_likely(state, target_date, session_name, stadium_code, race_number, odds_map)
         _run_456box(state, target_date, session_name, stadium_code, race_number, odds_map, card)
+        _run_1456b(state, target_date, session_name, stadium_code, race_number, odds_map, card)
 
         # ===== 本番(2026-10-12 再構築): 会場×1号艇の級の条件ルール =====
         rule_plans = _rule_plans(stadium_code, race_number, b1_class, odds_map, weather) if is_main else None

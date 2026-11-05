@@ -157,7 +157,8 @@ def main():
     health = f"【執事の自己点検 {d.month}/{d.day}】精算と報告: " + " / ".join(chk)
     if "❌" in health:
         health += "\n⚠️ 抜けがあります。執事に「昨日の精算をやり直して」と伝えてください"
-    msgs = [health, summary(all_df), patterns_summary(all_df)]
+    # 2026-11-06 ご主人様指示: 旧1-456-456(B級全R)・全レース3つの買い方の報告は停止。新システム2枠は夜の精算で報告
+    msgs = [health]
     for msg in msgs:
         if not msg:
             continue
