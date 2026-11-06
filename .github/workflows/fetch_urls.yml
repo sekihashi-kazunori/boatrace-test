@@ -1,0 +1,42 @@
+name: fetch urls (指定したURLをそのまま保存・研究用)
+
+# 2026-11-06: オートレース公式サイトの作りを調べるため。空白区切りのURLを1つずつ保存する(最大30個・1秒間隔)。
+on:
+  workflow_dispatch:
+    inputs:
+      urls:
+        required: true
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - run: pip install requests
+      - name: hozon
+        env:
+          URLS: ${{ inputs.urls }}
+        run: |
+          python - <<'PY'
+          import os, re, time, requests
+          from urllib.parse import urlparse
+          H = {"User-Agent": "Mozilla/5.0 (boatrace-test research)"}
+          for i, u in enumerate(os.environ["URLS"].split()[:30], 1):
+              try:
+                  r = requests.get(u, headers=H, timeout=30)
+              except Exception as e:
+                  print("NG", u, e); continue
+              print(r.status_code, len(r.content), r.headers.get("content-type", ""), u)
+              p = urlparse(u)
+              out = os.path.join("probe", "fetch", p.netloc); os.makedirs(out, exist_ok=True)
+              name = re.sub(r"[^A-Za-z0-9._-]+", "_", (p.path.strip("/") or "index") + ("_" + p.query if p.query else ""))[:120]
+              open(os.path.join(out, f"{i:02d}_{name}.txt"), "wb").write(r.content)
+              time.sleep(1)
+          PY
+          git config user.name "predictor-bot"
+          git config user.email "bot@example.com"
+          git add probe
+          git commit -q -m "chore: fetch urls" || exit 0
+          for i in 1 2 3 4 5; do git pull --rebase --autostash -q && git push -q && exit 0; sleep $((i*5)); done
+          exit 1
