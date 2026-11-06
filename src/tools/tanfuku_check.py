@@ -23,9 +23,10 @@ SLOTS = [("A", "1号艇 単勝3.0倍以上の単勝", "win", lambda r: r["win_1"
          ("Bt", "  └ B級(展示3位以内) 過去108%", "win", lambda r: r.get("tier") == "B"),
          ("Ct", "  └ C級(それ以外) 過去91%", "win", lambda r: r.get("tier") == "C"),
          ("B", "1号艇 複勝1.4倍以上の複勝", "place", lambda r: r["place_1"] >= 1.4),
+         ("P", "★売上に合わせて賭ける(S=売上3%・B=1%) 過去121%", "win", lambda r: int(r.get("stake") or 0) > 0),
          ("all_win", "(参考)1号艇の単勝 全部", "win", lambda r: True),
          ("all_place", "(参考)1号艇の複勝 全部", "place", lambda r: True)]
-FIELDS = ["race_date", "slot", "stadium_code", "race_number", "odds", "payout"]
+FIELDS = ["race_date", "slot", "stadium_code", "race_number", "odds", "payout", "stake"]
 
 
 def _payouts(d: date) -> dict:
@@ -39,6 +40,22 @@ def _payouts(d: date) -> dict:
                   for kind in ("win", "place")}
         out[k]["has"] = bool(p.get("win"))
     return out
+
+
+def _impact_pay(d: date, k: tuple, st: int, win_pay: int, pre_pool) -> int:
+    """売上比例枠の払戻。確定オッズから最終の売上を推定し、自分の賭けで下がったオッズで計算する。"""
+    if not win_pay:
+        return 0
+    from src.tools.tan_pool import estimate_pool, odds_after
+    pool = None
+    try:
+        from src.tools.collect_odds_other import _get, parse_tf
+        pool = estimate_pool(parse_tf(_get("oddstf", k[0], k[1], d)))
+    except Exception as e:
+        print(f"確定オッズ取得失敗 {k}: {e}")
+    if not pool:
+        pool = int(float(pre_pool)) if pre_pool else 20000
+    return int(st * odds_after(pool, win_pay / 100, st))
 
 
 def evaluate(d: date) -> list[dict]:
@@ -55,24 +72,30 @@ def evaluate(d: date) -> list[dict]:
             seen.add(k)
             if k not in pay or not pay[k]["has"]:
                 continue  # 中止など
-            row = {"win_1": float(r["win_1"]), "place_1": float(r["place_1"]), "tier": r.get("tier") or ""}
+            row = {"win_1": float(r["win_1"]), "place_1": float(r["place_1"]), "tier": r.get("tier") or "",
+                   "stake": r.get("stake") or ""}
             for slot, _t, kind, cond in SLOTS:
                 if cond(row):
+                    st, py = 100, pay[k][kind]
+                    if slot == "P":
+                        st = int(row["stake"])
+                        py = _impact_pay(d, k, st, pay[k]["win"], r.get("pool"))
                     out.append({"race_date": str(d), "slot": slot, "stadium_code": k[0], "race_number": k[1],
-                                "odds": row["win_1" if kind == "win" else "place_1"], "payout": pay[k][kind]})
+                                "odds": row["win_1" if kind == "win" else "place_1"], "payout": py, "stake": st})
     return out
 
 
 def summary(rows: list[dict], d: date) -> str:
     md = f"{d.month}/{d.day}"
-    lines = [f"【1号艇の単勝・複勝 検証枠 {md}】※紙上・1点100円・展示で1コースの1号艇だけ"]
+    lines = [f"【1号艇の単勝・複勝 検証枠 {md}】※紙上・1点100円(★枠だけ売上に合わせた額・自分の賭けでオッズが下がる分も計算)・展示で1コースの1号艇だけ"]
     for slot, title, _k, _c in SLOTS:
         t = [r for r in rows if r["slot"] == slot and r["race_date"] == str(d)]
         a = [r for r in rows if r["slot"] == slot]
 
         def one(x):
             n, h, py = len(x), sum(1 for r in x if int(r["payout"]) > 0), sum(int(r["payout"]) for r in x)
-            return f"{n}R 的中{h} │ {100 * n:,}→{py:,}円 │ {py - 100 * n:+,}円 ({py / (100 * n) * 100:.0f}%)" if n else "対象なし"
+            st = sum(int(r.get("stake") or 100) for r in x)
+            return f"{n}R 的中{h} │ {st:,}→{py:,}円 │ {py - st:+,}円 ({py / st * 100:.0f}%)" if n and st else "対象なし"
         lines += [f"**{title}**", f"　本日: {one(t)}", f"　累積: {one(a)}　※{START[5:7].lstrip('0')}/{START[8:]}〜"]
     lines.append("※確定オッズの過去7か月では A 116%・B 113%(毎月100%超え)。締切前オッズでも出るかを確かめ中")
     return "\n".join(lines)

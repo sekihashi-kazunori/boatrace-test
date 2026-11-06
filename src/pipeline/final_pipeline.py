@@ -559,14 +559,28 @@ def _run_tanfuku(target_date, session_name, stadium_code, race_number, before_in
             return
         os.makedirs(os.path.join("plans", "tanfuku"), exist_ok=True)
         path = os.path.join("plans", "tanfuku", f"{target_date}.csv")
+        head = "session,stadium_code,race_number,course1,win_1,place_1,time,tier,pool,stake\n"
+        if os.path.exists(path):
+            with open(path, encoding="utf-8") as f:
+                txt = f.read()
+            if not txt.startswith(head):  # 2026-11-06 列追加前のファイルは見出しだけ直す
+                body = txt.split("\n", 1)[1] if "\n" in txt else ""
+                with open(path, "w", encoding="utf-8") as f:
+                    f.write(head + body)
         new_file = not os.path.exists(path)
+        tier = _tanfuku_tier(card, before_info, w)
+        # 2026-11-06 ご主人様OK: 売上に合わせて賭ける(S 3%・B 1%)。締切前オッズから売上を推定して額を決める
+        pool = stake_amt = ""
+        if tier in ("S", "B"):
+            from src.tools.tan_pool import estimate_pool, stake
+            p = estimate_pool(od)
+            pool, stake_amt = (p or ""), stake(tier, p)
         with open(path, "a", encoding="utf-8") as f:
             if new_file:
-                f.write("session,stadium_code,race_number,course1,win_1,place_1,time,tier\n")
-            tier = _tanfuku_tier(card, before_info, w)
+                f.write(head)
             f.write(f"{session_name},{stadium_code},{race_number},{course1 if course1 else ''},{w},{pl},"
-                    f"{datetime.now(JST):%H:%M},{tier}\n")
-        print(f"単複記録 {stadium_code} {race_number}R 1号艇 単{w} 複{pl} 進入{course1}")
+                    f"{datetime.now(JST):%H:%M},{tier},{pool},{stake_amt}\n")
+        print(f"単複記録 {stadium_code} {race_number}R 1号艇 単{w} 複{pl} 進入{course1} {tier} 売上{pool} 賭け{stake_amt}")
     except Exception as e:
         print(f"単複記録の失敗 {race_number}R: {e}")
 
