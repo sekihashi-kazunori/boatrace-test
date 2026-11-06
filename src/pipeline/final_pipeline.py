@@ -751,6 +751,34 @@ def _run_edo15(state, target_date, session_name, stadium_code, race_number, odds
         print(f"江戸川1-5-全枠の保存失敗: {e}")
 
 
+# 2026-11-06 ご主人様OK「別会場でも何か潜んでないか」: 全24場・14万通りを 探す期間(〜2025)→答えを見ていない2026年 で試した残り。
+#   鳴門 風1m以下 × 1号艇の全国勝率2位以内 → 5-1-全: 探す248% / 2026年 154R 243%(的中8本)
+#   三国 風6m以上 → 3-1-全: 探す172% / 2026年 219R 102%(的中12本)
+VENUE_RULES = [("v_nar51", "鳴門×風1m以下×1号艇勝率2位内 5-1-全"), ("v_mik31", "三国×風6m以上 3-1-全")]
+
+
+def _run_venue(state, target_date, session_name, stadium_code, race_number, odds_map, card, weather) -> None:
+    wind = (weather or {}).get("wind")
+    if wind is None:
+        return
+    plans = []
+    if stadium_code == "14" and wind <= 1:
+        rates = {r.get("lane"): r.get("national_win_rate") for r in (card or {}).get("racers", [])}
+        if all(rates.get(l) is not None for l in range(1, 7)) and 1 + sum(1 for l in range(2, 7) if rates[l] > rates[1]) <= 2:
+            plans.append(("v_nar51", [f"5-1-{k}" for k in (2, 3, 4, 6)]))
+    if stadium_code == "10" and wind >= 6:
+        plans.append(("v_mik31", [f"3-1-{k}" for k in (2, 4, 5, 6)]))
+    for bt, combos in plans:
+        try:
+            save_bet_tickets(state, [BetTicket(race_date=str(target_date), session=session_name, stadium_code=stadium_code,
+                                               race_number=race_number, combination=c, amount=100, bet_type=bt,
+                                               odds=(odds_map or {}).get(tuple(map(int, c.split("-")))))
+                                     for c in combos])
+            print(f"会場別新枠 {bt}: {stadium_code} {race_number}R 風{wind}m")
+        except Exception as e:
+            print(f"会場別新枠の保存失敗 {bt}: {e}")
+
+
 def _verify_races(target_date: date) -> list:
     """2026-10-15〜: 全国の全レースを候補にする(本予想は全レースから集中度で選ぶため)。
     朝の厳選(plans)の作成が遅れると、その前のレースを丸ごと取りこぼしていた(10/15に17R)。
@@ -987,6 +1015,7 @@ def run_final(target_date: date | None = None, model_path: str = "model.txt", db
         _run_456box(state, target_date, session_name, stadium_code, race_number, odds_map, card)
         _run_1456b(state, target_date, session_name, stadium_code, race_number, odds_map, card)
         _run_edo15(state, target_date, session_name, stadium_code, race_number, odds_map, before_info)
+        _run_venue(state, target_date, session_name, stadium_code, race_number, odds_map, card, weather)
 
         # ===== 本番(2026-10-12 再構築): 会場×1号艇の級の条件ルール =====
         rule_plans = _rule_plans(stadium_code, race_number, b1_class, odds_map, weather) if is_main else None
