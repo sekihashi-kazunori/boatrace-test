@@ -1,0 +1,32 @@
+name: keiba collect (中央競馬の単勝オッズと着順を集める)
+
+# 2026-11-06 ご主人様OK: リーサルウェポンと同じ「割安な単勝」が中央競馬にもあるかを調べるための研究用。
+# netkeiba を1.2秒に1回のゆっくりした間隔で読む。止められたらそこで終わる。続きは再実行で再開。
+on:
+  workflow_dispatch:
+    inputs:
+      start:
+        default: "2024-11-01"
+      end:
+        default: "2026-10-31"
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 340
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install requests
+      - run: python -m src.tools.keiba_collect --start "${{ inputs.start }}" --end "${{ inputs.end }}" --max-minutes 300
+      - name: save
+        if: always()
+        run: |
+          git config user.name "predictor-bot"
+          git config user.email "bot@example.com"
+          git add keiba
+          git commit -q -m "chore: keiba data" || exit 0
+          for i in 1 2 3 4 5; do git pull --rebase --autostash -q && git push -q && exit 0; sleep $((i*5)); done
+          exit 1
