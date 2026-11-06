@@ -542,7 +542,7 @@ def _tanfuku_tier(card, before_info, win_1) -> str:
     return "B" if rank("exhibition_time", bi) <= 3 else "C"
 
 
-def _run_tanfuku(target_date, session_name, stadium_code, race_number, before_info, card=None) -> None:
+def _run_tanfuku(target_date, session_name, stadium_code, race_number, before_info, card=None, deadline=None) -> None:
     """1号艇の単勝・複勝 検証枠(2026-10-30 ご主人様「1コース1号艇の複勝はとことんやってみな」)。
     締切前の単勝・複勝オッズを plans/tanfuku/日付.csv に記録し、翌朝の答え合わせで採点する。
     確定オッズ(2026/4〜10・展示1コースの1号艇2.9万R)では毎月100%超え:
@@ -555,6 +555,20 @@ def _run_tanfuku(target_date, session_name, stadium_code, race_number, before_in
         from src.tools.collect_odds_other import _get, parse_tf
         od = parse_tf(_get("oddstf", stadium_code, race_number, target_date))
         w, pl = od.get("win_1"), od.get("place_1")
+        # 2026-11-06: 締切前の6艇の単勝オッズを全部残す(確定オッズで作ったAIを、締切前オッズで正しく試すため)
+        try:
+            path2 = os.path.join("plans", "tanodds", f"{target_date}.csv")
+            os.makedirs(os.path.dirname(path2), exist_ok=True)
+            new2 = not os.path.exists(path2)
+            with open(path2, "a", encoding="utf-8") as f:
+                if new2:
+                    f.write("stadium_code,race_number,time,deadline," + ",".join(f"win_{i}" for i in range(1, 7)) + ","
+                            + ",".join(f"place_{i}" for i in range(1, 7)) + "\n")
+                f.write(f"{stadium_code},{race_number},{datetime.now(JST):%H:%M},{deadline or ''},"
+                        + ",".join(str(od.get(f"win_{i}", "")) for i in range(1, 7)) + ","
+                        + ",".join(str(od.get(f"place_{i}", "")) for i in range(1, 7)) + "\n")
+        except Exception as e:
+            print(f"単勝6艇記録の失敗 {race_number}R: {e}")
         if w is None or pl is None:
             return
         os.makedirs(os.path.join("plans", "tanfuku"), exist_ok=True)
@@ -942,7 +956,7 @@ def run_final(target_date: date | None = None, model_path: str = "model.txt", db
         # 万舟検証枠(v_man_a/b)は 2026-11-06 ご主人様指示で廃止(10/20〜 780R 回収率10%)
         _run_outer_verify(state, target_date, session_name, stadium_code, race_number, odds_map, card, before_info)
         _run_exp2(state, target_date, session_name, stadium_code, race_number, odds_map, card, before_info, weather)
-        _run_tanfuku(target_date, session_name, stadium_code, race_number, before_info, card)
+        _run_tanfuku(target_date, session_name, stadium_code, race_number, before_info, card, race.get("deadline"))
         _run_likely(state, target_date, session_name, stadium_code, race_number, odds_map)
         _run_456box(state, target_date, session_name, stadium_code, race_number, odds_map, card)
         _run_1456b(state, target_date, session_name, stadium_code, race_number, odds_map, card)
