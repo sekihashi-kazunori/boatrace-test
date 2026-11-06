@@ -110,7 +110,7 @@ def _fun_rows(d_from: str, d_to: str) -> dict:
     c = sqlite3.connect("state.db")
     for d, st, py in c.execute(
             "select race_date, sum(amount), sum(coalesce(payout,0)) from bet_tickets "
-            "where bet_type in ('gen','v_1456b','v_456box') and result is not null and race_date between ? and ? "
+            "where bet_type in ('gen','v_1456b','v_456box','v_edo15') and result is not null and race_date between ? and ? "
             "group by race_date", (d_from, d_to)):
         out[d] = (st or 0, py or 0)
     return out

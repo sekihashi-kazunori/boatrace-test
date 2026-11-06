@@ -172,8 +172,8 @@ def verify_summary(engine, target_date: date) -> str:
         items.append(item(title, bt))
     from src.pipeline.final_pipeline import WIND_RULES, WEATHER_RULES
     from src.pipeline.final_pipeline import MANSHU_RULES
-    from src.pipeline.final_pipeline import OUTER_RULES, LIKELY_RULES, BOX456_RULES, BOX1456_RULES
-    for bt, title in MANSHU_RULES + OUTER_RULES + [(b, t) for b, _c, _th, t in LIKELY_RULES] + BOX456_RULES + BOX1456_RULES:
+    from src.pipeline.final_pipeline import OUTER_RULES, LIKELY_RULES, BOX456_RULES, BOX1456_RULES, EDO15_RULES
+    for bt, title in MANSHU_RULES + OUTER_RULES + [(b, t) for b, _c, _th, t in LIKELY_RULES] + BOX456_RULES + BOX1456_RULES + EDO15_RULES:
         items.append(item(title, bt))
     for bt, _st, _w, _c, title in WIND_RULES + WEATHER_RULES:
         items.append(item(title, bt))

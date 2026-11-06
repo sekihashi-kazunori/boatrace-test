@@ -725,6 +725,32 @@ def _run_1456b(state, target_date, session_name, stadium_code, race_number, odds
         print(f"1-456-456新枠の保存失敗: {e}")
 
 
+# 2026-11-06 ご主人様OK: 江戸川 × 1号艇の展示ST4位以下 × 1-5-全(4点)。
+# 生データ29か月で 探す期間(〜2025) 118% / 答えを見ていない2026年 134%(上位3本抜き101%)。展示ST1〜3位だと50〜74%。
+EDO15_RULES = [("v_edo15", "江戸川×1号艇の展示ST4位以下 1-5-全")]
+
+
+def _run_edo15(state, target_date, session_name, stadium_code, race_number, odds_map, before_info) -> None:
+    if stadium_code != "03":
+        return
+    bi = {b.get("lane"): b for b in (before_info or [])}
+    st = {l: (bi.get(l) or {}).get("start_timing") for l in range(1, 7)}
+    if any(v is None for v in st.values()) or (bi.get(1) or {}).get("course") not in (1, None):
+        return
+    rank1 = 1 + sum(1 for l in range(2, 7) if st[l] < st[1])
+    if rank1 < 4:
+        return
+    combos = [f"1-5-{k}" for k in (2, 3, 4, 6)]
+    try:
+        save_bet_tickets(state, [BetTicket(race_date=str(target_date), session=session_name, stadium_code=stadium_code,
+                                           race_number=race_number, combination=c, amount=100, bet_type="v_edo15",
+                                           odds=(odds_map or {}).get(tuple(map(int, c.split("-")))))
+                                 for c in combos])
+        print(f"江戸川1-5-全枠: {race_number}R 1号艇展示ST{rank1}位")
+    except Exception as e:
+        print(f"江戸川1-5-全枠の保存失敗: {e}")
+
+
 def _verify_races(target_date: date) -> list:
     """2026-10-15〜: 全国の全レースを候補にする(本予想は全レースから集中度で選ぶため)。
     朝の厳選(plans)の作成が遅れると、その前のレースを丸ごと取りこぼしていた(10/15に17R)。
@@ -960,6 +986,7 @@ def run_final(target_date: date | None = None, model_path: str = "model.txt", db
         _run_likely(state, target_date, session_name, stadium_code, race_number, odds_map)
         _run_456box(state, target_date, session_name, stadium_code, race_number, odds_map, card)
         _run_1456b(state, target_date, session_name, stadium_code, race_number, odds_map, card)
+        _run_edo15(state, target_date, session_name, stadium_code, race_number, odds_map, before_info)
 
         # ===== 本番(2026-10-12 再構築): 会場×1号艇の級の条件ルール =====
         rule_plans = _rule_plans(stadium_code, race_number, b1_class, odds_map, weather) if is_main else None
