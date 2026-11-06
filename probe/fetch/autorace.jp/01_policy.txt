@@ -1,0 +1,529 @@
+
+
+
+
+
+
+  
+<!DOCTYPE html>
+<html lang="ja">
+<head prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb#  article: http://ogp.me/ns/article#">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta charset="UTF-8">
+<!-- ▼title要素ここから▼ -->
+<title>利用規約｜AUTORACE.JP</title>
+<!-- ▲title要素ここまで▲ -->
+<!-- ▼meta要素 descriptionここから▼ -->
+<meta name="description" content="オートレースオフィシャルサイトです。約定ついて紹介。" />
+<!-- ▲meta要素 descriptionここまで▲ -->
+<!-- ▼meta要素 keywordsここから▼ -->
+<meta name="keywords" content="オートレース,オート,バイク,電話投票,電投,inet投票,レース,映像,ネット投票,ネットライブ" />
+<!-- ▲meta要素 keywordsここまで▲ -->
+<!-- ▼meta要素 OGPここから▼ -->
+<meta property="og:locale" content="ja_JP" />
+<meta property="og:type" content="article" />
+<meta property="article:author" content="autorace.official">
+<meta property="og:site_name" content="AUTORACE.JP"/>
+<meta property="fb:app_id" content="176204165813115"/>
+<meta name="twitter:site" content="@auto_official">
+<meta name="twitter:card" content="summary_large_image"/>
+<meta property="og:title" content="利用規約" />
+<meta property="og:url" content="https://autorace.jp/policy/" />
+<meta property="og:image" content="https://autorace.jp/common/rn/images/default.png" />
+<meta property="og:description" content="オートレースオフィシャルサイトです。約定ついて紹介。" />
+<meta name="twitter:description" content="オートレースオフィシャルサイトです。約定ついて紹介。">
+<meta name="twitter:image" content="https://autorace.jp/common/rn/images/default.png">
+<!-- ▲meta要素 OGPここまで▲ -->
+<meta name="viewport" content="width=device-width, maximum-scale=2, user-scalable=1">
+<link rel="stylesheet" href="/content/assets/css/app.css" type="text/css" media="all">
+<link rel="stylesheet" href="/content/assets/css/style.css?=20260811" type="text/css" media="all">
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-WT2DMXS');</script>
+<!-- End Google Tag Manager -->
+<style>
+ul.pattern{margin:1em 0;}
+ul.pattern1{text-indent: -2.5em;}
+ul.pattern1 li{margin-left: 2.5em;}
+ul.pattern2{text-indent: -1em;}
+ul.pattern2 li{margin-left: 1em;}
+</style>
+</head>
+<body>
+<header>
+<div class="h-header bgcolor-black">
+<div class="h-headerInner">
+<nav class="navbar navbar-dark sticky-top bgcolor-black flex-lg-nowrap p-0 px-3">
+
+<div class="d-lg-none order-lg-1 col-4"> <a class="navbar-toggler" data-toggle="collapse" href="#sidebarMenu" role="button" aria-expanded="false" aria-controls="サイドバーメニュー"> <span class="navbar-toggler-icon"></span> </a> </div>
+<a class="navbar-brand mr-0 px-sm-3 px-0 order-lg-2 col-lg-3 col-4 text-lg-left text-center" href="/">
+<img src="/content/assets/images/logotype-white.svg" style="height: 24px;" alt="AUTORACE"></a>
+</a>
+<ul class="navbar-nav px-sm-3 px-2 navbar-expand order-lg-4 col-lg-3 col-4 justify-content-end">
+<li class="h-headerJoin nav-item text-nowrap mx-sm-3 mx-2 d-none" id="after-login-votesite-btn"> <a href="https://vote.autorace.jp/?from=Header" class="c-btn bgcolor-red">投票<span class="d-none d-lg-inline-block">する</span></a></li>
+<li class="h-headerJoin nav-item text-nowrap mx-sm-3 mx-2 d-none" id="before-login-votesite-btn"> <a href="https://vote.autorace.jp/login?from=Header" class="c-btn bgcolor-blue"><span class="d-none d-xl-inline-block">新規登録・</span>ログイン</a></li>
+<li class="h-headerJoin nav-item text-nowrap mx-2 d-md-block d-none"><a href="https://fc.autorace.jp" class="c-btn bgcolor-white d-flex align-items-center justify-content-center p-0" style="min-width:100px;height:36px;"><img src="/content/assets/images/fc-logo.svg" class="fcLogo"></a></li>
+<li class="h-headerJoin nav-item text-nowrap mx-2 d-lg-block d-none" style=""><a href="/autorace_guide/" title="初心者ガイド" style="line-height: 32px;"><img src="/content/assets/images/beginner.svg" style="height: 30px;"></a></li>
+<li class="h-headerJoin nav-item text-nowrap ml-4 d-lg-block d-none p-select-language"><a class="p-0" href="/internationalguide/"><img src="/internationalguide/common/img/icon_language.png"></a></li>
+</ul>
+<div class="col-lg-6 d-none d-lg-block text-white order-lg-3 p-2 sub-nav-box">
+<ul class="navbar-nav px-sm-3 px-2 navbar-expand justify-content-lg-start justify-content-around">
+<li class="nav-item mr-0 mr-sm-3 mr-xl-5"><a class="nav-link text-white" href="/kawaguchi/">川口オート</a></li>
+<li class="nav-item mr-0 mr-sm-3 mr-xl-5"><a class="nav-link text-white" href="/isesaki">伊勢崎オート</a></li>
+<li class="nav-item mr-0 mr-sm-3 mr-xl-5"><a class="nav-link text-white" href="/hamamatsu/">浜松オート</a></li>
+<li class="nav-item mr-0 mr-sm-3 mr-xl-5"><a class="nav-link text-white" href="/iizuka/">飯塚オート</a></li>
+<li class="nav-item mr-0 "><a class="nav-link text-white" href="/sanyou/">山陽オート</a></li>
+</ul>
+</div>
+</nav>
+</div>
+</div>
+</header><div class="wrap">
+<div class="container">
+<div class="row">
+<nav id="sidebarMenu" class="col-lg-3 d-lg-block collapse px-0"> 
+<div class="sidebar custom-scrollbar-css">
+<div class="sidebar-sticky">
+
+<ul class="sidebarGlobalMenu">
+<li class="border-bottom">
+<div class="py-3">
+  <div class="container d-flex justify-content-around align-items-center">
+    <a href="https://www.youtube.com/channel/UCJAPqcMNYk3HMknRuPMNvKA" class="sns-icon sns-youtube"><img src="/content/assets/images/sns/youtube.svg" alt="YouTube"></a>
+    <a href="https://twitter.com/auto_official" class="sns-icon sns-x"><img src="/content/assets/images/sns/x.svg" alt="X"></a>
+  <a href="https://autorace.jp/line/" class="sns-icon sns-line"><img src="/content/assets/images/sns/line.svg" alt="LINE"></a>
+    <a href="https://www.facebook.com/autorace.official" class="sns-icon sns-facebook"><img src="/content/assets/images/sns/facebook.svg" alt="Facebook"></a>
+    <a href="https://www.instagram.com/autorace_fanclub/" class="sns-icon sns-instagram"><img src="/content/assets/images/sns/instagram.svg" alt="Instagram"></a>
+    <a href="https://www.tiktok.com/@autorace_official" class="sns-icon sns-tiktok"><img src="/content/assets/images/sns/tiktok.svg" alt="TikTok"></a>
+  </div>
+</div>
+</li>
+<li class="sidebarGlobalMenu__item"> <a class="d-block py-4" href="/race_info/">
+<div class="d-flex flex-row align-items-center">
+<div class="pr-3"> <i class="fas fa-chart-pie h3 mb-0"></i> </div>
+<div>レース情報</div>
+</div>
+</a> </li>
+<li class="sidebarGlobalMenu__item"> <a class="d-block py-4" href="/calendar/">
+<div class="d-flex flex-row align-items-center">
+<div class="pr-3"> <i class="fas fa-calendar-alt h3 mb-0"></i> </div>
+<div>開催日程･TV中継</div>
+</div>
+</a> </li>
+<li class="sidebarGlobalMenu__item"> <a class="d-block py-4" href="/race_info/SearchPlayer/Name">
+<div class="d-flex flex-row align-items-center">
+<div class="pr-3"> <i class="fas fa-address-card h3 mb-0"></i> </div>
+<div>選手検索</div>
+</div>
+</a> </li>
+<li class="sidebarGlobalMenu__item"> <a class="d-block py-4" href="/race_info/SearchRace">
+<div class="d-flex flex-row align-items-center">
+<div class="pr-3"> <i class="fas fa-list-ol h3 mb-0"></i> </div>
+<div>レース結果検索</div>
+</div>
+</a> </li>
+<li class="sidebarGlobalMenu__item"> <a class="d-block py-4" href="/race_info/SearchMovie">
+<div class="d-flex flex-row align-items-center">
+<div class="pr-3"> <i class="fas fa-play-circle h3 mb-0"></i> </div>
+<div>レース動画検索</div>
+</div>
+</a> </li>
+<li class="sidebarGlobalMenu__item"> <a class="d-block py-4" href="/race_info/Ranking">
+<div class="d-flex flex-row align-items-center">
+<div class="pr-3"> <i class="fas fa-star h3 mb-0"></i> </div>
+<div>ランキング</div>
+</div>
+</a> </li>
+
+
+
+
+
+<li class="sidebarGlobalMenu__item d-xl-none"> <a class="d-block py-4" href="https://fc.autorace.jp">
+<div class="d-flex flex-row align-items-center">
+<div class="pr-3"> <i class="fas fa-check-circle h3 mb-0"></i> </div>
+<div>公式ファンクラブ</div>
+</div>
+</a> </li>
+<li class="sidebarGlobalMenu__item"> <a class="d-block py-4" href="/netvote_guide/member/">
+<div class="d-flex flex-row align-items-center">
+<div class="pr-3"><i class="fas fa-info-circle h3 mb-0"></i></div>
+<div>AUTORACE.JP投票とは</div>
+</div>
+</a> </li>
+<li class="sidebarGlobalMenu__item"> <a class="d-block py-4" href="/support/">
+<div class="d-flex flex-row align-items-center">
+<div class="pr-3"><i class="fas fa-question-circle h3 mb-0"></i></div>
+<div>よくある質問</div>
+</div>
+</a> </li>
+<li class="sidebarGlobalMenu__item d-lg-none"> <a class="d-block py-4" href="/internationalguide/">
+<div class="d-flex flex-row align-items-center">
+<div class="pr-3"> <i class="fas fa-globe h3 mb-0"></i> </div>
+<div>Language</div>
+</div>
+</a> </li>
+<li class="sidebarGlobalMenu__item"> 
+<script async src="https://cse.google.com/cse.js?cx=016897531515516248067:0waw29pfmrc"></script>
+<div class="gcse-searchbox-only"></div>
+</li>
+</ul>
+</div>
+<div class="slideContentItem__image mb-4"><a href="https://fc.autorace.jp/recommend/view?tid=character"><img src="/2024/11/02/img/otomocci.jpg"></a></div>
+<div class="slideContentItem__image mb-4 d-none"><a href="/news/campaign/2024/referral-09/"><img src="/assets_c/2024/08/jp-thum-thumb-640x480-71067.jpg"></a></div>
+<div class="slideContentItem__image mb-4 d-none"><a href="/cho-bakusoku/"><img src="/cho-bakusoku/assets/img/640-480.jpg"></a></div>
+
+
+<div id="sidebarMenu__fcmile" class="px-4 py-3 border rounded bg-white"></div>
+
+<div class="sidebarBox my-4 sidebarBox-vote">
+<ul>
+<li class="sidebarBtn sidebarBtn__login"><a class="c-btn bgcolor-red text-white" href="https://vote.autorace.jp/?from=SideNav">投票する</a></li>
+<li class="sidebarBtn sidebarBtn__signup mb-0"><a href="https://vote.autorace.jp/signup?from=SideNav" class="c-btn bgcolor-green text-white">新規登録</a></li>
+</ul>
+</div>
+<ul class="sidebarGlobalMenu">
+<li class="sidebarGlobalMenu__item"> <a class="d-block py-4" href="/race_map/">
+<div class="d-flex flex-row align-items-center">
+<div class="pr-3"> <i class="fas fa-map-marker-alt h3 mb-0"></i> </div>
+<div>全国発売所</div>
+</div>
+</a> </li>
+<li class="sidebarGlobalMenu__item d-lg-none"> <a class="d-block py-4" href="/kawaguchi/">
+<div class="d-flex flex-row align-items-center">
+<div class="pr-3"> <i class="fas fa-map-marker-alt h3 mb-0"></i> </div>
+<div>川口オート</div>
+</div>
+</a> </li>
+<li class="sidebarGlobalMenu__item d-lg-none"> <a class="d-block py-4" href="/isesaki/">
+<div class="d-flex flex-row align-items-center">
+<div class="pr-3"> <i class="fas fa-map-marker-alt h3 mb-0"></i> </div>
+<div>伊勢崎オート</div>
+</div>
+</a> </li>
+<li class="sidebarGlobalMenu__item d-lg-none"> <a class="d-block py-4" href="/hamamatsu/">
+<div class="d-flex flex-row align-items-center">
+<div class="pr-3"> <i class="fas fa-map-marker-alt h3 mb-0"></i> </div>
+<div>浜松オート</div>
+</div>
+</a> </li>
+<li class="sidebarGlobalMenu__item d-lg-none"> <a class="d-block py-4" href="/iizuka/">
+<div class="d-flex flex-row align-items-center">
+<div class="pr-3"> <i class="fas fa-map-marker-alt h3 mb-0"></i> </div>
+<div>飯塚オート</div>
+</div>
+</a> </li>
+<li class="sidebarGlobalMenu__item d-lg-none"> <a class="d-block py-4" href="/sanyou/">
+<div class="d-flex flex-row align-items-center">
+<div class="pr-3"> <i class="fas fa-map-marker-alt h3 mb-0"></i> </div>
+<div>山陽オート</div>
+</div>
+</a> </li>
+<li class="sidebarGlobalMenu__item d-lg-none"> <a class="d-block py-4" href="/autorace_guide/">
+<div class="d-flex flex-row align-items-center">
+<div class="pr-3"><i class="fas fa-info-circle h3 mb-0"></i></div>
+<div>はじめての方へ</div>
+</div>
+</a> </li>
+<li class="sidebarGlobalMenu__item"> <a class="d-block py-4" href="/bestofyears/view/">
+<div class="d-flex flex-row align-items-center">
+<div class="pr-3"><i class="fas fa-play-circle h3 mb-0"></i></div>
+<div>ベストマッチオブザイヤー</div>
+</div>
+</a> </li>
+
+</ul>
+
+<div class="bgcolor-black sidebarBox mb-4">
+
+<div class="fontSizeWrap">
+<p class="sidebarTxt">文字サイズ</p>
+<ul class="d-flex fontSize justify-content-around">
+<li class="fontSize__item fontSize__item--small bgcolor-white"> <button class="resize-s resize-button">小</button> </li>
+<li class="fontSize__item fontSize__item--medium bgcolor-white"> <button class="resize-m resize-button">中</button> </li>
+<li class="fontSize__item fontSize__item--large bgcolor-white"> <button class="resize-l resize-button">大</button> </li>
+</ul>
+</div>
+<a href="/inquiry/" class="sidebar-contact c-btn bgcolor-white text-black">お問合せ・取材申込</a> </div>
+</div>
+</nav>
+
+<!-- FCマイル表示用テンプレート 未連携 -->
+<script id="template_sidebar_fc_no_connect" type="text/template">
+    <div class="d-flex justify-content-between row align-items-center">
+        <div class="col-6 pr-0"><img src="/content/assets/images/fc-logo.svg" class="fcLogo"></div>
+        <div class="col-6 pl-0 small text-right"><a class="btn btn-danger"></a></div>
+    </div>
+</script>
+
+<!-- FCマイル表示用テンプレート 連携済み -->
+<script id="template_sidebar_fc_connect" type="text/template">
+    <div class="d-flex justify-content-between row align-items-center">
+        <div class="col-6 pr-0"><img src="/content/assets/images/fc-logo.svg" class="fcLogo"></div>
+        <div class="col-6 pl-0 small text-right">
+            <a class="btn btn-danger mileBtn collapsed" data-toggle="collapse" href="#collapseFc" role="button" aria-expanded="false" aria-controls="collapseFc">マイル表示</a>
+        </div>
+        <div class="collapse row mx-0" id="collapseFc">
+            <div class="col-12"><hr /></div>
+            <div class="col-6 col-md-4 small pr-0"><span>有効マイル</span></div>
+            <div class="col-6 col-md-8 text-right pl-0"><a href="https://fc.autorace.jp/mile/"></a></div>
+            <div class="col-6 col-md-4 small pr-0"><span>有効チケット</span></div>
+            <div class="col-6 col-md-8 text-right pl-0"><a href="https://fc.autorace.jp/ticket/"></a></div>
+            <div class="col-12"><hr /></div>
+            <div class="col-6 small text-left"></div>
+            <div class="col-6 small text-right"><a id="fcmile_cancel_connect_btn" class="btn btn-secondary">連携解除</a></div>
+        </div>
+    </div>
+</script><div class="col-lg-9 ml-lg-auto p-0">
+<main role="main" class="ml-0 bgcolor-white">
+<div class="c-inner">
+<ul class="breadCrumb d-flex mb-3">
+<li class="breadCrumb__item"><a href="/">AUTORACE.JP</a></li>
+<li class="breadCrumb__item"><span>利用規約</span></li>
+</ul>
+</div>
+<div class="mainInner">
+<h1 class="text-md-center py-3 my-5 mx-3 mx-md-5 h2 font-weight-bold">
+利用規約
+</h1>
+<div class="c-inner">
+<div id="netvote" class="anchor">
+<h4 class="backNumHeadline bgcolor-red text-white">利用規約</h4>
+<h5 class="backNumHeadline backNumHeadline--center backNumHeadline--border">当サイトについて</h5>
+<div class="px-70"> 当サイト（autorace.jp）は、一般財団法人オートレース振興協会（以下「当協会」といいます）が運営するオートレースの公式ウェブサイトです。本規約は、当サイトをご利用頂くにあたってのガイドラインです。当サイトご利用のお客様は、本項で記載した各事項についてご同意いただいた上で、当サイトをご利用頂くものとします。利用規約は予告なく変更する場合がありますので、あらかじめご了承ください。 </div>
+<h5 class="backNumHeadline backNumHeadline--center backNumHeadline--border">著作権</h5>
+<div class="px-70"> 当サイトで掲載されている記事・写真・映像等のコンテンツは、当協会、公益財団法人JKA及び第三者の著作権によって保護されています。事前の許可なく転載、複製、出版、頒布、送信、公開、その他利用する行為を禁じます。 </div>
+<h5 class="backNumHeadline backNumHeadline--center backNumHeadline--border">利用環境</h5>
+<div class="px-70">
+<h6 class="backNumHeadline backNumHeadline--mb25" style="background-color:#F4F4F4;">PCサイト</h6>
+<table class="table">
+<tr>
+<th class="w-25">OS：</th>
+<td>Windows10 以上</td>
+</tr>
+<tr>
+<th>ブラウザ：</th>
+<td>Google Chrome 最新バージョン<br>
+Mozilla Firefox 最新バージョン<br>
+Microsoft Edge 最新バージョン</td>
+</tr>
+<tr>
+<th class="w-25">OS：</th>
+<td>Mac OS X 以上</td>
+</tr>
+<tr>
+<th>ブラウザ：</th>
+<td>Safari 最新バージョン<br>
+Google Chrome 最新バージョン<br>
+</td>
+</tr>
+</table>
+<h6 class="backNumHeadline backNumHeadline--mb25" style="background-color:#F4F4F4;">スマートフォンサイト</h6>
+<table class="table">
+<tr>
+<th class="w-25">iOS：</th>
+<td>iOS 12.x以降 </td>
+</tr>
+<tr>
+<th>ブラウザ：</th>
+<td>Safari</td>
+</tr>
+</table>
+<table class="table">
+<tr>
+<th class="w-25">Android：</th>
+<td>Android 10.x以降</td>
+</tr>
+<tr>
+<th>ブラウザ：</th>
+<td>Google Chrome</td>
+</tr>
+</table>
+※上記のOSでも、OSバージョンの不具合で正常に閲覧できない場合もあります。 </div>
+<h5 class="backNumHeadline backNumHeadline--center backNumHeadline--border">免責事項</h5>
+<div class="px-70"> 当サイトで提供する情報は、内部確認の上掲載しておりますが、正確性や安全性等についていかなる保証もいたしません。また、当サイト上で掲載される情報は予告なしに変更及び削除する場合があります。予めご了承をお願いします。 </div>
+<h5 class="backNumHeadline backNumHeadline--center backNumHeadline--border">禁止事項</h5>
+<div class="px-70"> 当サイトで提供される情報の利用にあたり、以下の事項を禁止いたします。
+<ul class="pattern pattern2">
+<li>・私的利用の範囲を超えて、当サイト情報の商業利用を行う事</li>
+<li>・犯罪行為または犯罪行為に結びつく利用を行う事</li>
+<li>・公序良俗に反する行為、第三者の誹謗中傷や知的所有権やプライバシーを侵害する事</li>
+<li>・大量アクセスを含む不正アクセス、当サイト運営に支障を与える事</li>
+<li>・その他法令に違反する行為、または違反する恐れのある行為を行う事</li>
+<li>・当協会が不適切と判断する行為を行う事</li>
+</ul>
+</div>
+<h5 class="backNumHeadline backNumHeadline--center backNumHeadline--border">個人情報保護</h5>
+<div class="px-70"> 個人情報保護については、別途プライバシーポリシー（<a href="/privacypolicy/">https://autorace.jp/privacypolicy</a>）で定めるものとします。 </div>
+<h5 class="backNumHeadline backNumHeadline--center backNumHeadline--border">外部サービスアカウント連携</h5>
+<div class="px-70"> 当サイトとオートレース公式LINEアカウント（以下本アカウントという）は、当サイトからの各種サービス情報の提供に伴い、お客様から取得した会員情報他各種データを利用し、各種マーケティング目的におけるLINE配信において利用させていただきます。
+<ul class="pattern pattern2">
+<li>・当サイトへのアクセス情報</li>
+<li>・公式ネット投票会員にご登録の会員情報</li>
+<li>・各種投票履歴に基づく購買情報</li>
+<li>・個人情報を特定できないLINEユーザID</li>
+</ul>
+お客様は、サイト内に設置したLINE連携解除リンクを行う事により、本連携を解除する事ができ、LINEアカウントのブロックによってLINE通知を停止する事ができます。 </div>
+<h5 class="backNumHeadline backNumHeadline--center backNumHeadline--border">アクセスログについて</h5>
+<div class="px-70"> 当サイトでは、お客様の利用動向の把握や広告効果測定を行う事を目的に、Google Inc.により提供されるGoogle Analyticsを利用します。<br>
+Google Inc.による上記情報の取得を明示的に回避したい場合は、以下のGoogle Inc. のサイトよりオプトアウトしてください。
+<ul class="pattern">
+<li><a href="https://tools.google.com/dlpage/gaoptout?hl=ja">Google アナリティクス オプトアウト アドオン</a></li>
+</ul>
+</div>
+<h5 class="backNumHeadline backNumHeadline--center backNumHeadline--border">Cookie IPアドレス情報</h5>
+<div class="px-70"> 当サイトでは、お客様の利便性の向上・本サービスの品質向上・トラフィック調査把握等を目的として、クッキーを利用しております。<br>
+お客様がご利用になったページ、利用環境などの情報や行動履歴等をお客様のブラウザやアプリから自動的に受け取り分析しています。 また広告配信事業者が提供するプログラムを利用し、特定のサイトにおいて行動ターゲティング広告（サイト閲覧情報などをもとにお客様の興味・関心にあわせて広告を配信する広告手法）を行うために、クッキーを使用しています。広告配信事業者は、当該クッキーを使用して広告を配信しています。これらの行動ターゲティングや広告の無効化を希望される方は下記広告配信事業者のページからクッキーの使用を無効にすることができます。
+<ul class="pattern">
+<li><a href="https://btoptout.yahoo.co.jp/optout/index.html">Yahoo オプトアウトページ</a></li>
+<li><a href="https://adssettings.google.com/authenticated?hl=ja">Google オプトアウトページ</a></li>
+</ul>
+</div>
+<h5 class="backNumHeadline backNumHeadline--center backNumHeadline--border">データ取得</h5>
+<div class="px-70"> 当サイトでは、以下サービスを活用して情報を収集し、サイトの改善やお客様の利便性の向上・本サービスの品質向上に役立てます。ユーザーの情報については、利用目的に関連する範囲内でのみ使用し、第三者への開示は行いません。<br>
+利用目的：ユーザー体験の向上
+<ul class="pattern">
+<li>株式会社データX（b→dash）｜<a href="https://data-x.co.jp/privacy/">個人情報保護方針</a></li>
+</ul>
+</div>
+<h5 class="backNumHeadline backNumHeadline--center backNumHeadline--border">JavaScript</h5>
+<div class="px-70"> 一部にJavascriptを利用したコンテンツを用意しています。<br>
+通常お客様がお使いのブラウザは、デフォルト(初期設定)でJavascriptが使用できるようになっています。全てのコンテンツをご利用頂くには、Javascriptが使用できるブラウザ設定をお奨めします。 </div>
+<h5 class="backNumHeadline backNumHeadline--center backNumHeadline--border">投票サイト</h5>
+<div class="px-70">一般財団法人オートレース振興協会が実施する「AutoRace.JP投票」会員向けに定める規約は、約定ページ（<a href="https://autorace.jp/netvote_guide/support/agreement.php">https://autorace.jp/netvote_guide/support/agreement.php</a>）にてご確認をお願い致します。 </div>
+<h5 class="backNumHeadline backNumHeadline--center backNumHeadline--border">投票サイトの発売時間</h5>
+<div class="px-70"> 当日の全開催終了後、翌日の番組発表後より公式ネット投票は前日の前売発売を開始します。前日の前売発売開始時刻は、前日の開催形態により異なります。発売開始時刻は、翌日番組発表の時間帯により変動しますが、時間の目安は以下となります。
+<ul class="pattern pattern2">
+<li>・非開催の場合：番組発表18：00　前売発売開始19：00</li>
+<li>・デイ開催までの場合：番組発表18：00　前売発売開始19：00</li>
+<li>・ナイター開催までの場合：番組発表22：00　前売発売開始23：00</li>
+<li>・ミッドナイト開催までの場合：番組発表24：30　前売発売開始25：30</li>
+</ul>
+</div>
+<h5 class="backNumHeadline backNumHeadline--center backNumHeadline--border">商標について</h5>
+<div class="px-70">
+当サイトに掲載されている商品またはサービスの名称等は、各社の商標または登録商標です。
+<ul class="pattern pattern2">
+<li>・QRコードは、(株)デンソーウェーブの登録商標です。</li>
+<li>・Apple、Safari、Mac、iPhone、iPadは、Apple Inc.の商標です。iPhoneの商標は、アイホン株式会社のライセンスにもとづき使用されています。</li>
+<li>・Google Chrome、YouTube、YouTube ロゴ、Android、Android ロゴは、Google LLC の商標または登録商標です。</li>
+<li>・Windows、Internet Explorer、Microsoft Edgeは、Microsoft Corporationの商標または登録商標です。</li>
+<li>・Twitterは、Twitter,Inc.の商標または登録商標です。</li>
+<li>・Facebook、Facebook ロゴ、Instagram、InstagramロゴはFacebook,Inc.の商標または登録商標です。</li>
+</ul>
+※その他会社名、各製品名は、一般に各社の商標または登録商標です。
+</div>
+<h5 class="backNumHeadline backNumHeadline--center backNumHeadline--border">ロゴマーク</h5>
+<div class="px-70"> ロゴマークデザイン、コピー等の権利は公益財団法人JKAに帰属します。ロゴマークのダウンロードは、以下ページよりお願い致します。<br>
+<a href="/about/">https://autorace.jp/about/</a><br>
+<br>
+関係者様向けのロゴ使用申請は、以下よりお願いします。<br>
+<a href="/about/#about03">https://autorace.jp/about/#about03</a> </div>
+<h5 class="backNumHeadline backNumHeadline--center backNumHeadline--border">お問合せ</h5>
+<div class="px-70"> 当サイトに関するご質問、ご意見は以下で受け付けております。<br>
+<a href="/inquiry/">お問合せフォーム(https://autorace.jp/inquiry/)</a><br>
+</div>
+</div>
+</div>
+</div>
+</main>
+<footer class="f-footer col-12 col-lg-9 ml-lg-auto">
+<nav class="f-footerNav">
+<div class="f-footerMenuWrap d-lg-flex">
+<h3 class="f-footerMenuTtl">Menu<i class="f-footerMenuWrap__chevron fas fa-chevron-right"></i></h3>
+<ul class="f-footerMenu d-lg-flex flex-wrap">
+<li class="f-footerMenu__item"><a href="/">トップページ</a></li>
+<li class="f-footerMenu__item"><a href="/calendar/">開催レース日程</a></li>
+<li class="f-footerMenu__item"><a href="/autorace_guide/">オートレースとは？</a></li>
+<li class="f-footerMenu__item"><a href="/news/campaign/view/">ニュース-キャンペーン情報</a></li>
+<li class="f-footerMenu__item"><a href="/news/event/view/">ニュース-イベント情報</a></li>
+<li class="f-footerMenu__item"><a href="/news/raceinfo/view/">ニュース-レース情報</a></li>
+<li class="f-footerMenu__item"><a href="/news/update/view/">ニュース-アップデート情報</a></li>
+<li class="f-footerMenu__item"><a href="/netvote_guide/member/">AUTORACE.JP投票とは？登録方法</a></li>
+<li class="f-footerMenu__item"><a href="https://vote.autorace.jp" target="_blank">AUTORACE.JP投票</a></li>
+<li class="f-footerMenu__item"><a href="/race_info/">レース情報</a></li>
+</ul>
+</div>
+<div class="f-footerMenuWrap d-lg-flex">
+<h3 class="f-footerMenuTtl">Contents<i class="f-footerMenuWrap__chevron fas fa-chevron-right"></i></h3>
+<ul class="f-footerMenu d-lg-flex flex-wrap">
+<li class="f-footerMenu__item"><a href="/autotv/grademovie/">Gレースムービー集</a></li>
+<li class="f-footerMenu__item"><a href="/bestofyears/view/">ベストマッチオブザイヤー</a></li>
+<li class="f-footerMenu__item"><a href="/sgrace/">SGレース特設</a></li>
+<li class="f-footerMenu__item"><a href="/premium/">プレミアムカップ特設</a></li>
+<li class="f-footerMenu__item"><a href="/g1/">GIレース特設</a></li>
+<li class="f-footerMenu__item"><a href="/g2/">GIIレース特設</a></li>
+<li class="f-footerMenu__item"><a href="/midnight/">ミッドナイト特設</a></li>
+<li class="f-footerMenu__item"><a href="/bigrace/view/">ビックレース回顧</a></li>
+<li class="f-footerMenu__item"><a href="/history/2020.php">オートレース70年の歴史</a></li>
+<li class="f-footerMenu__item"><a href="/documents/">オートレースの記録</a> </li>
+<li class="f-footerMenu__item"><a href="/news/2026/10/01/038770/">普通開催の勝ち上がり</a> </li>
+<li class="f-footerMenu__item"><a href="/news/2017/04/01/026194/">レース場出走表ダウンロードサービス</a> </li>
+<li class="f-footerMenu__item"><a href="/race_map/">場外車券売場 一覧</a> </li>
+<li class="f-footerMenu__item"><a href="/news/raceinfo/2017/04/01/026193/">外部投票サイトについて</a> </li>
+<li class="f-footerMenu__item"><a href="/youtube/">YouTubeチャンネル</a></li>
+<li class="f-footerMenu__item"><a href="/news/2026/10/01/038769/">1日2回出走</a></li>
+</ul>
+</div>
+<div class="f-footerMenuWrap d-lg-flex">
+<h3 class="f-footerMenuTtl">About<i class="f-footerMenuWrap__chevron fas fa-chevron-right"></i></h3>
+<ul class="f-footerMenu d-lg-flex flex-wrap">
+<li class="f-footerMenu__item"><a target="_blank" href="https://recruit.keirin-autorace.or.jp/">採用情報</a> </li>
+<li class="f-footerMenu__item"><a href="/news/2017/04/01/026195/">オートレースの被災地支援について</a> </li>
+<li class="f-footerMenu__item"><a href="/news/2017/04/01/026212/">オートレース場施設の安全対策への取り組みについて</a> </li>
+<li class="f-footerMenu__item"><a href="/news/2019/01/16/027508/">オートレースの払戻金の支払を受けた方へ【お願い】</a> </li>
+
+<li class="f-footerMenu__item"><a href="https://autorace-jia.jp/">オートレース選手養成所HP</a> </li>
+<li class="f-footerMenu__item"><a href="/about/">オートレースロゴ使用について</a> </li>
+<li class="f-footerMenu__item"><a href="/siteinfo/">このサイトについて</a> </li>
+<li class="f-footerMenu__item"><a href="/policy/">利用規約</a> </li>
+<li class="f-footerMenu__item"><a href="/netvote_guide/support/agreement.php">約定</a> </li>
+<li class="f-footerMenu__item"><a href="/customer-harassment/">カスタマーハラスメントに対する基本方針</a> </li>
+<li class="f-footerMenu__item"><a href="/privacypolicy/">個人情報保護方針</a> </li>
+<li class="f-footerMenu__item"><a href="/support/">よくある質問</a> </li>
+<li class="f-footerMenu__item"><a href="/inquiry/">お客様各種お問合せ・取材申込</a> </li>
+<li class="f-footerMenu__item"><a href="/news/2018/09/27/025987/">長期欠場選手情報</a> </li>
+<li class="f-footerMenu__item"><a target="_blank" href="http://www.maroon.dti.ne.jp/east-japan/">競走会スタッフ募集</a> </li>
+<li class="f-footerMenu__item"><a href="/2020/04/01/015068/">専門紙連絡先</a> </li>
+<li class="f-footerMenu__item"><a href="/siteinfo/mobile/">モバイルサイト</a> </li>
+<li class="f-footerMenu__item"><a href="/sitemap.php">サイトマップ</a> </li>
+<li class="f-footerMenu__item"><a href="/internationalguide/">English</a> </li>
+</ul>
+</div>
+</nav>
+<div id="matchCnt"></div>
+<div class="f-footerBottom bgcolor-black">
+<p class="f-footerBottom__copyright mb-3">© 公益財団法人JKA</p>
+<p class="f-footerBottom__note mb-0">オートレースは適度に楽しみましょう。<br class="u-hidden--pc">
+車券の購入は20歳になってから。<br>
+競輪とオートレースの売上の一部は、<br class="u-hidden--pc">
+機械工業の振興や社会福祉等に役立てられています。</p>
+</div>
+<div class="f-footerBottom bg-black border-top border-footer">
+<p class="f-footerBottom__copyright">システム運営者：<a href="https://ar-a.or.jp/">一般財団法人オートレース振興協会</a></p>
+</div>
+</footer>
+</div>
+</div>
+</div>
+</div>
+<script src="/content/assets/js/app.js"></script>
+<script src="/content/assets/js/script.js"></script><!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-WT2DMXS"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
