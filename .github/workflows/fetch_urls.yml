@@ -24,7 +24,13 @@ jobs:
           H = {"User-Agent": "Mozilla/5.0 (boatrace-test research)"}
           for i, u in enumerate(os.environ["URLS"].split()[:30], 1):
               try:
-                  r = requests.get(u, headers=H, timeout=30)
+                  if u.startswith("POST|"):
+                      _, u, body = u.split("|", 2)
+                      import json as _j
+                      r = requests.post(u, headers=H, data=_j.loads(body), timeout=30)
+                      u = u + "?" + "&".join(f"{k}={v}" for k, v in _j.loads(body).items())
+                  else:
+                      r = requests.get(u, headers=H, timeout=30)
               except Exception as e:
                   print("NG", u, e); continue
               print(r.status_code, len(r.content), r.headers.get("content-type", ""), u)
