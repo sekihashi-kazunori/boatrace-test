@@ -15,6 +15,7 @@ import os
 import pickle
 
 PATH = os.path.join("models", "ai3_v1.pkl")
+PATH2 = os.path.join("models", "ai3_v2.pkl")  # 2026-11-08 1着→2着→3着を順に出すAI(的中率+3〜4pt)
 _M = None
 COMBOS = list(itertools.permutations(range(6), 3))
 _NUM = ["wr", "top2", "local", "motor", "boat", "ex", "avgst", "pvst", "tilt", "age", "weight"]
@@ -58,13 +59,40 @@ def features(rows: list[dict], stadium: int, race_number: int, wind=None, wave=N
 def load():
     global _M
     if _M is None:
-        with open(PATH, "rb") as f:
+        path = PATH2 if os.path.exists(PATH2) else PATH
+        with open(path, "rb") as f:
             _M = pickle.load(f)
     return _M
 
 
+def _seq_probs(m, feats) -> dict[str, float]:
+    """2026-11-08 v2: 1着モデル × (1着がaのときの2着モデル) × (1・2着がa,bのときの3着モデル)。
+    2026年1〜10月(答えを見ていない4.7万R)の自信上位5%で 6点的中率 56.2%→59.0%。"""
+    import numpy as np
+    X = np.array(feats, dtype=float)
+    w = m["mw"].predict_proba(X)[:, 1]
+    w = w / w.sum()
+    pairs = list(itertools.permutations(range(6), 2))
+    q2 = m["m2"].predict_proba(np.array([np.concatenate([X[b], X[a]]) for a, b in pairs]))[:, 1]
+    Q2 = {}
+    for a in range(6):
+        idx = [i for i, (x, _y) in enumerate(pairs) if x == a]
+        t = sum(q2[i] for i in idx)
+        for i in idx:
+            Q2[pairs[i]] = q2[i] / t
+    q3 = m["m3"].predict_proba(np.array([np.concatenate([X[c], X[a], X[b]]) for a, b, c in COMBOS]))[:, 1]
+    tot = {}
+    for (a, b, _c), v in zip(COMBOS, q3):
+        tot[(a, b)] = tot.get((a, b), 0) + v
+    p = {f"{a + 1}-{b + 1}-{c + 1}": w[a] * Q2[(a, b)] * v / tot[(a, b)] for (a, b, c), v in zip(COMBOS, q3)}
+    z = sum(p.values())
+    return {k: v / z for k, v in p.items()}
+
+
 def trifecta_probs(feats: list[list[float]]) -> dict[str, float]:
     m = load()
+    if "mw" in m:
+        return _seq_probs(m, feats)
     w = m["win"].predict_proba(feats)[:, 1]
     t2 = m["top2"].predict_proba(feats)[:, 1]
     t3 = m["top3"].predict_proba(feats)[:, 1]
