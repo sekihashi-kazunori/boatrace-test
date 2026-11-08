@@ -779,6 +779,46 @@ def _run_venue(state, target_date, session_name, stadium_code, race_number, odds
             print(f"会場別新枠の保存失敗 {bt}: {e}")
 
 
+# 2026-11-08 ご主人様指示「1からやり直し・的中率を上げろ」: オッズを使わないAIの3連単1点(紙上)。
+# 2026年1〜10月(答えを見ていない4.7万R)で 自信上位5% 的中率17.6%・回収87% / 上位2% 19.6%・89%。
+AI3_RULES = [("ai3", "AI本予想(オッズ不使用・自信上位5%) 3連単1点")]
+
+
+def _run_ai3(state, target_date, session_name, stadium_code, race_number, odds_map, card, before_info, weather,
+             stadium_name="") -> None:
+    try:
+        from src.models import ai3
+        racers = {r.get("lane"): r for r in (card or {}).get("racers", [])}
+        bi = {b.get("lane"): b for b in (before_info or [])}
+        if len(racers) < 6:
+            return
+        rows = []
+        for l in range(1, 7):
+            r, b = racers.get(l) or {}, bi.get(l) or {}
+            rows.append({"wr": r.get("national_win_rate"), "top2": r.get("top2"), "local": r.get("local_win_rate"),
+                         "motor": r.get("motor_2rate"), "boat": r.get("boat_2rate"), "ex": b.get("exhibition_time"),
+                         "avgst": r.get("avg_st"), "pvst": b.get("start_timing"), "tilt": b.get("tilt"),
+                         "age": r.get("age"), "weight": r.get("weight"), "cls": r.get("racer_class"),
+                         "F": r.get("flying"), "course": b.get("course")})
+        res = ai3.pick(rows, int(stadium_code), int(race_number), (weather or {}).get("wind"), (weather or {}).get("wave"))
+        if not res or not res[2]:
+            return
+        combo, p, tier = res
+        o = (odds_map or {}).get(tuple(map(int, combo.split("-"))))
+        save_bet_tickets(state, [BetTicket(race_date=str(target_date), session=session_name, stadium_code=stadium_code,
+                                           race_number=race_number, combination=combo, amount=100, bet_type="ai3", odds=o)])
+        msg = (f"🤖 **AI本予想** {stadium_name}{race_number}R  **{combo}**  自信{'S' if tier == 'S' else 'A'}"
+               f"(確率{p * 100:.0f}%" + (f"・{o}倍" if o else "") + ")  ※紙上・1点100円")
+        print(msg)
+        try:
+            notify_discord(msg)
+            time.sleep(1.2)
+        except Exception as e:
+            print(f"AI本予想の通知失敗: {e}")
+    except Exception as e:
+        print(f"AI本予想の失敗 {race_number}R: {e}")
+
+
 def _verify_races(target_date: date) -> list:
     """2026-10-15〜: 全国の全レースを候補にする(本予想は全レースから集中度で選ぶため)。
     朝の厳選(plans)の作成が遅れると、その前のレースを丸ごと取りこぼしていた(10/15に17R)。
@@ -1016,6 +1056,8 @@ def run_final(target_date: date | None = None, model_path: str = "model.txt", db
         _run_1456b(state, target_date, session_name, stadium_code, race_number, odds_map, card)
         _run_edo15(state, target_date, session_name, stadium_code, race_number, odds_map, before_info)
         _run_venue(state, target_date, session_name, stadium_code, race_number, odds_map, card, weather)
+        _run_ai3(state, target_date, session_name, stadium_code, race_number, odds_map, card, before_info, weather,
+                 stadium_name)
 
         # ===== 本番(2026-10-12 再構築): 会場×1号艇の級の条件ルール =====
         rule_plans = _rule_plans(stadium_code, race_number, b1_class, odds_map, weather) if is_main else None
