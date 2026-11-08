@@ -125,3 +125,38 @@ def pick(rows, stadium, race_number, wind=None, wave=None, n=6, odds=None):
         ana = next(((c, q) for c, q in allp[n:] if 50 <= (odds.get(c) or 0) < 100), None)
         return top, tier, ana
     return top, tier
+
+
+def reasons(rows: list[dict], picks: list[str], wind=None) -> list[str]:
+    """買い目に出てくる艇(1着候補・2着候補)の、レース前データでの強みを短く並べる(ご主人様指示: 中身を見て根拠のある予想)。"""
+    def rank(k, low=False):
+        v = {i: rows[i].get(k) for i in range(6)
+             if rows[i].get(k) is not None and (k not in ("ex", "pvst") or rows[i].get(k) >= (0 if k == "pvst" else 0.01))}
+        return {i: 1 + sum(1 for x in v.values() if (x < v[i] if low else x > v[i])) for i in v}
+    R = {"勝率": rank("wr"), "当地": rank("local"), "モーター": rank("motor"), "展示": rank("ex", True),
+         "展示ST": rank("pvst", True)}
+    w1, w2 = {}, {}
+    for c in picks:
+        a, b = int(c[0]) - 1, int(c[2]) - 1
+        w1[a] = w1.get(a, 0) + 1
+        w2[b] = w2.get(b, 0) + 1
+    boats = sorted(w1, key=lambda i: -w1[i])[:2]
+    boats += [i for i in sorted(w2, key=lambda i: -w2[i]) if i not in boats][:2]
+    out = []
+    for i in boats:
+        r = rows[i]
+        good = [f"{k}{R[k][i]}位" for k in R if R[k].get(i, 9) <= 2]
+        if R["展示ST"].get(i, 9) <= 2 and r.get("pvst") is not None:
+            good[-1] = good[-1] + f"(.{int(round(abs(float(r['pvst'])) * 100)):02d})" if good[-1].startswith("展示ST") else good[-1]
+        if r.get("pvst") is not None and float(r["pvst"]) < 0:
+            good.append(f"展示でF(.{int(round(abs(float(r['pvst'])) * 100)):02d})")
+        c = r.get("course")
+        if c and int(c) != i + 1:
+            good.append(f"進入{int(c)}コース")
+        cls = r.get("cls")
+        cls = {1: "A1", 2: "A2", 3: "B1", 4: "B2"}.get(cls, cls)
+        role = "頭" if i in boats[:2] and w1.get(i, 0) >= 2 else "相手"
+        out.append(f"{i + 1}号艇({cls or '-'}・{role}): " + ("・".join(good) if good else "目立つ数字なし"))
+    if wind is not None:
+        out.append(f"風{wind}m")
+    return out

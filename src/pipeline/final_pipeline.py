@@ -781,7 +781,7 @@ def _run_venue(state, target_date, session_name, stadium_code, race_number, odds
 
 # 2026-11-08 ご主人様指示「1からやり直し・的中率を上げろ」: オッズを使わないAIの3連単1点(紙上)。
 # 2026年1〜10月(答えを見ていない4.7万R)で 自信上位5% 的中率17.6%・回収87% / 上位2% 19.6%・89%。
-AI3_RULES = [("ai3", "AI本予想(オッズ不使用・自信上位5%) 3連単 鉄板6点+穴1点・1R約1,500円")]
+AI3_RULES = [("ai3", "執事の本予想(レースの中身から・自信上位5%) 3連単 鉄板6点+穴1点・1R約1,500円")]
 
 
 def _run_ai3(state, target_date, session_name, stadium_code, race_number, odds_map, card, before_info, weather,
@@ -817,16 +817,18 @@ def _run_ai3(state, target_date, session_name, stadium_code, race_number, odds_m
                                      race_number=race_number, combination=combo, amount=a, bet_type="ai3", odds=o))
             lines.append(f"{combo} {a}円" + (f"({o}倍)" if o else ""))
         save_bet_tickets(state, tickets)
-        msg = (f"🤖 **AI本予想** {stadium_name}{race_number}R  自信{'S' if tier == 'S' else 'A'}  計{sum(amt):,}円 ※紙上\n"
-               + " / ".join(lines))
+        # 2026-11-08 ご主人様指示: 「AI」と呼ばない。執事が責任を持って出す予想として、根拠(レースの中身)も添える
+        why = ai3.reasons(rows, [c for c, _p in top6], (weather or {}).get("wind"))
+        msg = (f"🎩 **執事の本予想** {stadium_name}{race_number}R  自信{'S' if tier == 'S' else 'A'}  計{sum(amt):,}円 ※紙上\n"
+               + "【根拠】" + " / ".join(why) + "\n【買い目】" + " / ".join(lines))
         print(msg)
         try:
             notify_discord(msg)
             time.sleep(1.2)
         except Exception as e:
-            print(f"AI本予想の通知失敗: {e}")
+            print(f"執事の本予想の通知失敗: {e}")
     except Exception as e:
-        print(f"AI本予想の失敗 {race_number}R: {e}")
+        print(f"執事の本予想の失敗 {race_number}R: {e}")
 
 
 def _verify_races(target_date: date) -> list:
