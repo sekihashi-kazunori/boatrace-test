@@ -37,7 +37,7 @@ jobs:
           START=$(date +%s)
           save() {
             git checkout -- boatrace.db 2>/dev/null || true
-            git add plans state.db logs rule_eval.csv asoka_eval.csv racer_hist.csv tanfuku_eval.csv 2>/dev/null || true
+            git add plans state.db logs rule_eval.csv asoka_eval.csv racer_hist.csv tanfuku_eval.csv tipster 2>/dev/null || true
             git commit -q -m "chore: $1 $(TZ=Asia/Tokyo date +'%Y-%m-%d %H:%M')" || return 0
             for i in 1 2 3 4 5; do
               git pull -q --rebase --autostash && git push -q && return 0
@@ -60,6 +60,11 @@ jobs:
             git pull -q --rebase --autostash || true
             mkdir -p logs
             python -u -m src.pipeline.final_pipeline > logs/last_final.txt 2>&1 || echo "final失敗" >> logs/last_final.txt
+            # 2026-11-08 ご主人様指示: 予想家アンダーグラウンド盛田さんの無料予想を30分おきに記録(最初に見た本文を残す)
+            if [ $(( $(date +%s) - ${MORITA_T:-0} )) -ge 1800 ]; then
+              python -u -m src.tools.morita collect || true
+              MORITA_T=$(date +%s)
+            fi
             tail -n 40 logs/last_final.txt
             save "all final"
             TODAY=$(TZ=Asia/Tokyo date +%F)
@@ -77,6 +82,7 @@ jobs:
               python -u -m src.tools.rule_check --date "$YDAY" || true
               python -u -m src.tools.series_form --date "$YDAY" || true
               python -u -m src.tools.tanfuku_check --date "$YDAY" || true
+              python -u -m src.tools.morita score --date "$YDAY" || true
               touch "plans/${YDAY}_kotaeawase"
               save "morning kotaeawase"
             fi
