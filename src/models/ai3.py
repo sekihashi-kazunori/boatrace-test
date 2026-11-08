@@ -81,14 +81,19 @@ def trifecta_probs(feats: list[list[float]]) -> dict[str, float]:
     return {k: v / z for k, v in p.items()}
 
 
-def pick(rows, stadium, race_number, wind=None, wave=None, n=5):
-    """([(買い目, 確率)…上位n点], 級) を返す。級: "S"=自信 上位2% / "A"=上位5% / None=買わない。"""
+def pick(rows, stadium, race_number, wind=None, wave=None, n=6, odds=None):
+    """([(買い目, 確率)…上位n点], 級[, 穴(買い目, 確率) or None]) を返す。odds={"1-2-3":倍率}を渡すと穴も選ぶ。級: "S"=自信 上位2% / "A"=上位5% / None=買わない。"""
     f = features(rows, stadium, race_number, wind, wave)
     if f is None:
         return None
     p = trifecta_probs(f)
-    top = sorted(p.items(), key=lambda x: -x[1])[:n]
+    allp = sorted(p.items(), key=lambda x: -x[1])
+    top = allp[:n]
     v = top[0][1]
     m = load()
     tier = "S" if v >= m["q98"] else ("A" if v >= m["q95"] else None)
+    if odds is not None:
+        # 2026-11-08 ご主人様「鉄板6穴1の7点」: 鉄板の外から、オッズ50〜100倍で一番来そうな1点を穴として足す
+        ana = next(((c, q) for c, q in allp[n:] if 50 <= (odds.get(c) or 0) < 100), None)
+        return top, tier, ana
     return top, tier

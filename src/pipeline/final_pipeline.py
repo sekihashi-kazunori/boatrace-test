@@ -781,7 +781,7 @@ def _run_venue(state, target_date, session_name, stadium_code, race_number, odds
 
 # 2026-11-08 ご主人様指示「1からやり直し・的中率を上げろ」: オッズを使わないAIの3連単1点(紙上)。
 # 2026年1〜10月(答えを見ていない4.7万R)で 自信上位5% 的中率17.6%・回収87% / 上位2% 19.6%・89%。
-AI3_RULES = [("ai3", "AI本予想(オッズ不使用・自信上位5%) 3連単 上位5点・1R1,500円")]
+AI3_RULES = [("ai3", "AI本予想(オッズ不使用・自信上位5%) 3連単 鉄板6点+穴1点・1R約1,500円")]
 
 
 def _run_ai3(state, target_date, session_name, stadium_code, race_number, odds_map, card, before_info, weather,
@@ -800,15 +800,18 @@ def _run_ai3(state, target_date, session_name, stadium_code, race_number, odds_m
                          "avgst": r.get("avg_st"), "pvst": b.get("start_timing"), "tilt": b.get("tilt"),
                          "age": r.get("age"), "weight": r.get("weight"), "cls": r.get("racer_class"),
                          "F": r.get("flying"), "course": b.get("course")})
-        res = ai3.pick(rows, int(stadium_code), int(race_number), (weather or {}).get("wind"), (weather or {}).get("wave"))
+        odds_s = {"-".join(map(str, k)): float(o) for k, o in (odds_map or {}).items() if o}
+        res = ai3.pick(rows, int(stadium_code), int(race_number), (weather or {}).get("wind"), (weather or {}).get("wave"),
+                       n=6, odds=odds_s)
         if not res or not res[1]:
             return
-        top5, tier = res
-        # 2026-11-08 ご主人様「1レース1500円くらいで買い目を増やす」: AIの上位5点に、確率に合わせて1,500円を配る
-        tot = sum(p for _c, p in top5)
-        amt = [max(100, int(1500 * p / tot / 100 + 0.5) * 100) for _c, p in top5]
+        top6, tier, ana = res
+        # 2026-11-08 ご主人様「1レース1500円くらい・鉄板6穴1の7点」: 鉄板6点に確率に合わせて1,400円、穴1点に100円
+        tot = sum(p for _c, p in top6)
+        picks = list(top6) + ([ana] if ana else [])
+        amt = [max(100, int(1400 * p / tot / 100 + 0.5) * 100) for _c, p in top6] + ([100] if ana else [])
         tickets, lines = [], []
-        for (combo, p), a in zip(top5, amt):
+        for (combo, p), a in zip(picks, amt):
             o = (odds_map or {}).get(tuple(map(int, combo.split("-"))))
             tickets.append(BetTicket(race_date=str(target_date), session=session_name, stadium_code=stadium_code,
                                      race_number=race_number, combination=combo, amount=a, bet_type="ai3", odds=o))
