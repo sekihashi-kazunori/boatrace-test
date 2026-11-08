@@ -81,13 +81,14 @@ def trifecta_probs(feats: list[list[float]]) -> dict[str, float]:
     return {k: v / z for k, v in p.items()}
 
 
-def pick(rows, stadium, race_number, wind=None, wave=None):
-    """(買い目, 確率, 級) を返す。級: "S"=自信 上位2% / "A"=上位5% / None=買わない。"""
+def pick(rows, stadium, race_number, wind=None, wave=None, n=5):
+    """([(買い目, 確率)…上位n点], 級) を返す。級: "S"=自信 上位2% / "A"=上位5% / None=買わない。"""
     f = features(rows, stadium, race_number, wind, wave)
     if f is None:
         return None
     p = trifecta_probs(f)
-    k, v = max(p.items(), key=lambda x: x[1])
+    top = sorted(p.items(), key=lambda x: -x[1])[:n]
+    v = top[0][1]
     m = load()
     tier = "S" if v >= m["q98"] else ("A" if v >= m["q95"] else None)
-    return k, v, tier
+    return top, tier

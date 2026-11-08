@@ -781,7 +781,7 @@ def _run_venue(state, target_date, session_name, stadium_code, race_number, odds
 
 # 2026-11-08 ご主人様指示「1からやり直し・的中率を上げろ」: オッズを使わないAIの3連単1点(紙上)。
 # 2026年1〜10月(答えを見ていない4.7万R)で 自信上位5% 的中率17.6%・回収87% / 上位2% 19.6%・89%。
-AI3_RULES = [("ai3", "AI本予想(オッズ不使用・自信上位5%) 3連単1点")]
+AI3_RULES = [("ai3", "AI本予想(オッズ不使用・自信上位5%) 3連単 上位5点・1R1,500円")]
 
 
 def _run_ai3(state, target_date, session_name, stadium_code, race_number, odds_map, card, before_info, weather,
@@ -801,14 +801,21 @@ def _run_ai3(state, target_date, session_name, stadium_code, race_number, odds_m
                          "age": r.get("age"), "weight": r.get("weight"), "cls": r.get("racer_class"),
                          "F": r.get("flying"), "course": b.get("course")})
         res = ai3.pick(rows, int(stadium_code), int(race_number), (weather or {}).get("wind"), (weather or {}).get("wave"))
-        if not res or not res[2]:
+        if not res or not res[1]:
             return
-        combo, p, tier = res
-        o = (odds_map or {}).get(tuple(map(int, combo.split("-"))))
-        save_bet_tickets(state, [BetTicket(race_date=str(target_date), session=session_name, stadium_code=stadium_code,
-                                           race_number=race_number, combination=combo, amount=100, bet_type="ai3", odds=o)])
-        msg = (f"🤖 **AI本予想** {stadium_name}{race_number}R  **{combo}**  自信{'S' if tier == 'S' else 'A'}"
-               f"(確率{p * 100:.0f}%" + (f"・{o}倍" if o else "") + ")  ※紙上・1点100円")
+        top5, tier = res
+        # 2026-11-08 ご主人様「1レース1500円くらいで買い目を増やす」: AIの上位5点に、確率に合わせて1,500円を配る
+        tot = sum(p for _c, p in top5)
+        amt = [max(100, int(1500 * p / tot / 100 + 0.5) * 100) for _c, p in top5]
+        tickets, lines = [], []
+        for (combo, p), a in zip(top5, amt):
+            o = (odds_map or {}).get(tuple(map(int, combo.split("-"))))
+            tickets.append(BetTicket(race_date=str(target_date), session=session_name, stadium_code=stadium_code,
+                                     race_number=race_number, combination=combo, amount=a, bet_type="ai3", odds=o))
+            lines.append(f"{combo} {a}円" + (f"({o}倍)" if o else ""))
+        save_bet_tickets(state, tickets)
+        msg = (f"🤖 **AI本予想** {stadium_name}{race_number}R  自信{'S' if tier == 'S' else 'A'}  計{sum(amt):,}円 ※紙上\n"
+               + " / ".join(lines))
         print(msg)
         try:
             notify_discord(msg)
@@ -1030,6 +1037,9 @@ def run_final(target_date: date | None = None, model_path: str = "model.txt", db
         if str(target_date) >= "2026-11-05" and pop_plans and _main_count(state, target_date) >= MAIN_MAX_PER_DAY:
             print(f"{label}: 本予想は今日すでに{MAIN_MAX_PER_DAY}R買ったので見送り")
             pop_plans = []
+        # 2026-11-08 ご主人様指摘「大穴万舟を入れたら難しい」: 10/1〜の万舟(100倍以上)の点は230点で的中0・回収0%。外す
+        if pop_plans:
+            pop_plans = [p for p in pop_plans if not (p.odds and p.odds >= 100)]
         if pop_plans:
             _run_general(state, target_date, session_name, stadium_code, race_number, label, pop_plans)
             ref = build_message(session_ja, stadium_name, race_number, pop_plans, deadline_time=race.get("deadline"))
