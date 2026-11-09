@@ -203,6 +203,10 @@ def allocate(picks: list[tuple[str, float]], odds: dict, total: int = 1500, ana:
     amt = {c: (100 if c == ana else max(100, int((total - (100 if ana else 0)) * p / tot / 100 + 0.5) * 100))
            for c, p in picks}
     prob = dict(picks)
+    # 基本はちょうど total(1,500円)。100円単位の丸めのずれは、一番来そうな鉄板で調整する
+    top = max((c for c in amt if c != ana), key=lambda x: prob.get(x, 0), default=None)
+    if top:
+        amt[top] = max(100, amt[top] + total - sum(amt.values()))
     while True:
         inv = sum(amt.values())
         short = [c for c in amt if odds.get(c) and amt[c] * odds[c] < ratio * inv]
