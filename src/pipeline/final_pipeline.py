@@ -230,7 +230,8 @@ MAIN_TARGET_PER_SESSION = 0
 # 2026-11-05〜 ご主人様指示: モーニング/デイ/ナイターで分けず、1日を通して自信のあるレースだけ最大10R。
 # 締切前オッズの集中度(上位5点)0.47以上 ≒ 全レースの上位5%(1日7〜10R)。セッションごとの上限はなし。
 MAIN_MIN_CONC_NEW = 0.47
-MAIN_MAX_PER_DAY = 20  # 2026-11-09 本予想=執事の本予想(自信S/Aも含む)にしたので広げる
+MAIN_MAX_PER_DAY = 10  # 2026-11-10 ご主人様「基本1日10R。それ以上は自信のあるレースだけプラス5Rまで」
+MAIN_EXTRA_MAX = 15  # 10Rを超えたら自信S/Aだけ、15Rまで
 MAIN_STOP_DATE = "2099-01-01"  # 2026-11-08 ご主人様指示で本予想(3連単)を復活(11/6〜11/7は停止していた)
 # 締切前オッズの集中度(上位5点)の分布(10/11〜10/29の2,419R)。CONC_Q[i] より上のレースが全体の (i+1)*5%
 CONC_Q = [0.466, 0.429, 0.403, 0.383, 0.366, 0.35, 0.337, 0.325, 0.311, 0.297, 0.284, 0.273, 0.261, 0.248,
@@ -809,8 +810,9 @@ def _run_ai3(state, target_date, session_name, stadium_code, race_number, odds_m
         print(f"執事の本予想 {stadium_name}{race_number}R: 一番の買い目{top6[0][0]} 確率{top6[0][1] * 100:.1f}% 級{tier} 本予想レース{force}")
         if not tier and not force:
             return
-        if not force and _main_count(state, target_date) >= MAIN_MAX_PER_DAY:
-            print(f"執事の本予想: 今日はすでに{MAIN_MAX_PER_DAY}R出したので見送り")
+        n_done = _main_count(state, target_date)
+        if n_done >= MAIN_EXTRA_MAX or (n_done >= MAIN_MAX_PER_DAY and tier not in ("S", "A")):
+            print(f"執事の本予想: 今日はすでに{n_done}R出したので見送り(10Rを超えたら自信S/Aだけ15Rまで)")
             return
         # 2026-11-08 ご主人様「1レース1500円くらい・鉄板6穴1の7点」: 鉄板6点に確率に合わせて1,400円、穴1点に100円
         picks = list(top6) + ([ana] if ana else [])
