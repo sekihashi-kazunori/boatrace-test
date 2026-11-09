@@ -810,9 +810,12 @@ def _run_ai3(state, target_date, session_name, stadium_code, race_number, odds_m
         if not tier and not force:
             return
         # 2026-11-08 ご主人様「1レース1500円くらい・鉄板6穴1の7点」: 鉄板6点に確率に合わせて1,400円、穴1点に100円
-        tot = sum(p for _c, p in top6)
         picks = list(top6) + ([ana] if ana else [])
-        amt = [max(100, int(1400 * p / tot / 100 + 0.5) * 100) for _c, p in top6] + ([100] if ana else [])
+        # 2026-11-10〜 ご主人様指示「ガミを改善」: どれが当たっても投資を上回る配分(ガミる安い鉄板は外す)
+        alloc = ai3.allocate(picks, odds_s, total=1300, ana=ana[0] if ana else None)  # 切り上げで1,500〜1,700円になる
+        pmap = dict(picks)
+        picks = [(c, pmap[c]) for c, _a in alloc]
+        amt = [a for _c, a in alloc]
         tickets, lines = [], []
         for (combo, p), a in zip(picks, amt):
             o = (odds_map or {}).get(tuple(map(int, combo.split("-"))))
@@ -823,7 +826,7 @@ def _run_ai3(state, target_date, session_name, stadium_code, race_number, odds_m
         # 2026-11-08 ご主人様指示: 「AI」と呼ばない。執事が責任を持って出す予想として、根拠(レースの中身)も添える
         why = ai3.reasons(rows, [c for c, _p in top6], (weather or {}).get("wind"))
         lab = {"S": "自信S", "A": "自信A"}.get(tier, "本命レース")
-        lines = [("・穴 " if ana and i == len(lines) - 1 else "・鉄板 ") + x for i, x in enumerate(lines)]
+        lines = [("・穴 " if ana and c == ana[0] else "・鉄板 ") + x for (c, _p), x in zip(picks, lines)]
         msg = (f"🎩 **執事の本予想** {stadium_name}{race_number}R" + (f"(締切{deadline})" if deadline else "")
                + f"  {lab}\n" + "\n".join(lines) + f"\n投資：{sum(amt):,}円／{len(amt)}点 ※紙上\n"
                + "【根拠】" + " / ".join(why))
