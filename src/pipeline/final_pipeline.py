@@ -230,7 +230,7 @@ MAIN_TARGET_PER_SESSION = 0
 # 2026-11-05〜 ご主人様指示: モーニング/デイ/ナイターで分けず、1日を通して自信のあるレースだけ最大10R。
 # 締切前オッズの集中度(上位5点)0.47以上 ≒ 全レースの上位5%(1日7〜10R)。セッションごとの上限はなし。
 MAIN_MIN_CONC_NEW = 0.47
-MAIN_MAX_PER_DAY = 10
+MAIN_MAX_PER_DAY = 20  # 2026-11-09 本予想=執事の本予想(自信S/Aも含む)にしたので広げる
 MAIN_STOP_DATE = "2099-01-01"  # 2026-11-08 ご主人様指示で本予想(3連単)を復活(11/6〜11/7は停止していた)
 # 締切前オッズの集中度(上位5点)の分布(10/11〜10/29の2,419R)。CONC_Q[i] より上のレースが全体の (i+1)*5%
 CONC_Q = [0.466, 0.429, 0.403, 0.383, 0.366, 0.35, 0.337, 0.325, 0.311, 0.297, 0.284, 0.273, 0.261, 0.248,
@@ -785,7 +785,7 @@ AI3_RULES = [("ai3", "執事の本予想(レースの中身から・自信上位
 
 
 def _run_ai3(state, target_date, session_name, stadium_code, race_number, odds_map, card, before_info, weather,
-             stadium_name="") -> None:
+             stadium_name="", force=False, deadline=None) -> None:
     try:
         from src.models import ai3
         racers = {r.get("lane"): r for r in (card or {}).get("racers", [])}
@@ -803,9 +803,12 @@ def _run_ai3(state, target_date, session_name, stadium_code, race_number, odds_m
         odds_s = {"-".join(map(str, k)): float(o) for k, o in (odds_map or {}).items() if o}
         res = ai3.pick(rows, int(stadium_code), int(race_number), (weather or {}).get("wind"), (weather or {}).get("wave"),
                        n=6, odds=odds_s)
-        if not res or not res[1]:
+        if not res:
             return
         top6, tier, ana = res
+        print(f"執事の本予想 {stadium_name}{race_number}R: 一番の買い目{top6[0][0]} 確率{top6[0][1] * 100:.1f}% 級{tier} 本予想レース{force}")
+        if not tier and not force:
+            return
         # 2026-11-08 ご主人様「1レース1500円くらい・鉄板6穴1の7点」: 鉄板6点に確率に合わせて1,400円、穴1点に100円
         tot = sum(p for _c, p in top6)
         picks = list(top6) + ([ana] if ana else [])
@@ -814,13 +817,16 @@ def _run_ai3(state, target_date, session_name, stadium_code, race_number, odds_m
         for (combo, p), a in zip(picks, amt):
             o = (odds_map or {}).get(tuple(map(int, combo.split("-"))))
             tickets.append(BetTicket(race_date=str(target_date), session=session_name, stadium_code=stadium_code,
-                                     race_number=race_number, combination=combo, amount=a, bet_type="ai3", odds=o))
+                                     race_number=race_number, combination=combo, amount=a, bet_type="gen", odds=o))
             lines.append(f"{combo} {a}円" + (f"({o}倍)" if o else ""))
         save_bet_tickets(state, tickets)
         # 2026-11-08 ご主人様指示: 「AI」と呼ばない。執事が責任を持って出す予想として、根拠(レースの中身)も添える
         why = ai3.reasons(rows, [c for c, _p in top6], (weather or {}).get("wind"))
-        msg = (f"🎩 **執事の本予想** {stadium_name}{race_number}R  自信{'S' if tier == 'S' else 'A'}  計{sum(amt):,}円 ※紙上\n"
-               + "【根拠】" + " / ".join(why) + "\n【買い目】" + " / ".join(lines))
+        lab = {"S": "自信S", "A": "自信A"}.get(tier, "本命レース")
+        lines = [("・穴 " if ana and i == len(lines) - 1 else "・鉄板 ") + x for i, x in enumerate(lines)]
+        msg = (f"🎩 **執事の本予想** {stadium_name}{race_number}R" + (f"(締切{deadline})" if deadline else "")
+               + f"  {lab}\n" + "\n".join(lines) + f"\n投資：{sum(amt):,}円／{len(amt)}点 ※紙上\n"
+               + "【根拠】" + " / ".join(why))
         print(msg)
         try:
             notify_discord(msg)
@@ -1045,16 +1051,9 @@ def run_final(target_date: date | None = None, model_path: str = "model.txt", db
         # 2026-11-08 ご主人様指摘「大穴万舟を入れたら難しい」: 10/1〜の万舟(100倍以上)の点は230点で的中0・回収0%。外す
         if pop_plans:
             pop_plans = [p for p in pop_plans if not (p.odds and p.odds >= 100)]
-        if pop_plans:
-            _run_general(state, target_date, session_name, stadium_code, race_number, label, pop_plans)
-            ref = build_message(session_ja, stadium_name, race_number, pop_plans, deadline_time=race.get("deadline"))
-            ref = ref.replace("予想生成】", "本予想】", 1)
-            try:
-                notify_console(ref)
-                notify_discord(ref)
-                time.sleep(1.2)
-            except Exception as e:
-                print(f"通知失敗 {label}: {e}")
+        # 2026-11-09 ご主人様指示「本予想は鉄板6穴1」: 人気順の旧本予想(3〜4点)は出さず、
+        # 本予想に選ばれたレースは執事の本予想(鉄板6点+穴1点)で買う(_run_ai3 の force)
+        main_race = bool(pop_plans)
         b1_class = next((r.get("racer_class") for r in card.get("racers", []) if r.get("lane") == 1), None)
         weather = LAST_WEATHER.get((stadium_code, race_number, str(target_date)), {})
         # 全レースで1号艇の級と天候・風・波を記録(今後の条件づくりの材料)
@@ -1072,7 +1071,7 @@ def run_final(target_date: date | None = None, model_path: str = "model.txt", db
         _run_edo15(state, target_date, session_name, stadium_code, race_number, odds_map, before_info)
         _run_venue(state, target_date, session_name, stadium_code, race_number, odds_map, card, weather)
         _run_ai3(state, target_date, session_name, stadium_code, race_number, odds_map, card, before_info, weather,
-                 stadium_name)
+                 stadium_name, force=main_race, deadline=race.get("deadline"))
 
         # ===== 本番(2026-10-12 再構築): 会場×1号艇の級の条件ルール =====
         rule_plans = _rule_plans(stadium_code, race_number, b1_class, odds_map, weather) if is_main else None
