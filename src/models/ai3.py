@@ -207,6 +207,9 @@ def allocate(picks: list[tuple[str, float]], odds: dict, total: int = 1500, ana:
     top = max((c for c in amt if c != ana), key=lambda x: prob.get(x, 0), default=None)
     if top:
         amt[top] = max(100, amt[top] + total - sum(amt.values()))
+    # 「ガミりそうなレース」= 一番来そうな鉄板が当たっても投資の ratio 倍に届かないレース。それ以外は1,500円のまま
+    if not top or not odds.get(top) or amt[top] * odds[top] >= ratio * sum(amt.values()):
+        return [(c, amt[c]) for c, _p in picks]
     while True:
         inv = sum(amt.values())
         short = [c for c in amt if odds.get(c) and amt[c] * odds[c] < ratio * inv]
