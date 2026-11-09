@@ -15,6 +15,7 @@ import os
 import pickle
 
 PATH = os.path.join("models", "ai3_v1.pkl")
+PATH3 = os.path.join("models", "ai3_v3.pkl")  # 2026-11-09 場のクセ(直近1年)入り
 PATH2 = os.path.join("models", "ai3_v2.pkl")  # 2026-11-08 1着→2着→3着を順に出すAI(的中率+3〜4pt)
 _M = None
 COMBOS = list(itertools.permutations(range(6), 3))
@@ -81,7 +82,7 @@ def _venue_cache(table):
 def load():
     global _M
     if _M is None:
-        path = PATH2 if os.path.exists(PATH2) else PATH
+        path = next(p for p in (PATH3, PATH2, PATH) if os.path.exists(p))
         with open(path, "rb") as f:
             _M = pickle.load(f)
     return _M
