@@ -193,29 +193,35 @@ def reasons(rows: list[dict], picks: list[str], wind=None) -> list[str]:
 
 
 def allocate(picks: list[tuple[str, float]], odds: dict, total: int = 1500, ana: str | None = None,
-             max_cover: float = 0.75) -> list[tuple[str, int]]:
+             max_cover: float = 0.75, cap: int = 3000) -> list[tuple[str, int]]:
     """2026-11-09 ご主人様指示「ガミを改善」: どれが当たっても投資額を上回るように配る。
     1) 締切前オッズで「全部に同じだけ戻る」配分(1/オッズに比例)にする
-    2) 1/オッズの合計が max_cover(0.75) を超える(=締切後のオッズ下落でガミりやすい)ときは、確率×オッズが一番低い鉄板から外す(最低3点は残す)
-    3) 各点は 当たったら total 以上戻る額に100円単位で切り上げ。オッズの無い点は確率に合わせて配る"""
+    2) 買い目は外さない(ご主人様指示)。足りない分は賭け金を増やす。安い買い目ばかりでどうしてもガミる時は、ガミが最小になる配分
+    3) どれが当たっても投資の1.2倍以上(締切前オッズ)戻るまで100円単位で足す。オッズの無い点は確率に合わせて配る"""
     sel = [(c, p) for c, p in picks if odds.get(c)]
     if len(sel) < 3:
         tot = sum(p for _c, p in picks) or 1
         return [(c, max(100, int(total * p / tot / 100 + 0.5) * 100)) for c, p in picks]
-    while sum(1 / odds[c] for c, _p in sel) > max_cover and len([x for x in sel if x[0] != ana]) > 3:
-        worst = min((x for x in sel if x[0] != ana), key=lambda x: x[1] * odds[x[0]])
-        sel.remove(worst)
+    # 2026-11-09 ご主人様「安いのを外すと的中率が下がる。賭け金を増やしてよい」: 買い目は外さない。
+    # オッズの無い点は確率に合わせて100円〜で足す
+    extra = [(c, p) for c, p in picks if not odds.get(c)]
     cover = sum(1 / odds[c] for c, _p in sel)
+    # 戻りの倍率の目標: 余裕があれば1.2倍、無ければ(1/オッズの合計が大きい=安い買い目ばかり)ガミが最小になる倍率
+    ratio = 1.2 if cover * 1.2 <= 0.97 else max(0.5, 0.97 / cover)
     # どれが当たっても戻ってくる額(締切前オッズで)。1/オッズの合計を0.75以下にしておくので、
     # 締切後にオッズが25%下がってもガミらない(11/9多摩川8R: 締切前2.4倍→確定2.1倍)
     target = total / cover
     amt = {c: max(100, int(-(-target / odds[c] // 100) * 100)) for c, _p in sel}  # 切り上げ
     # 切り上げで投資が増えた分も含めて、どれが当たっても(締切前オッズで)投資の1.2倍以上戻るまで足す
-    for _ in range(20):
-        inv = sum(amt.values())
-        need = {c: int(-(-1.2 * inv / odds[c] // 100) * 100) for c in amt}
+    ex = {c: 100 for c, _p in extra}
+    for _ in range(30):
+        inv = sum(amt.values()) + sum(ex.values())
+        need = {c: int(-(-ratio * inv / odds[c] // 100) * 100) for c in amt}
         if all(amt[c] >= need[c] for c in amt):
             break
-        for c in amt:
-            amt[c] = max(amt[c], need[c])
-    return [(c, amt[c]) for c, _p in sel]
+        new = {c: max(amt[c], need[c]) for c in amt}
+        if sum(new.values()) + sum(ex.values()) > cap:
+            break  # 1レースの上限(3,000円)を超えるなら、そこで止める
+        amt = new
+    amt.update(ex)
+    return [(c, amt[c]) for c, _p in picks]
