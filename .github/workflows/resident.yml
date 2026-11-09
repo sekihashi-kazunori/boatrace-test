@@ -71,9 +71,11 @@ jobs:
             # 2026-11-03: 厳選(予想の候補づくり)も見張りが自分で行う(定時の session_automation が遅れても間に合うように)
             for SP in "morning 650" "day 1030" "nighter 1530"; do
               set -- $SP
-              if (( 10#$NOW >= 10#$2 )) && [ ! -f "plans/${TODAY}_$1.json" ]; then
-                python -u -m src.pipeline.session_pipeline --session $1 || true
-                save "$1 predict"
+              # 2026-11-09: 厳選は30分前後かかり、その間3分おきの最終予想が止まって毎日10:30〜11:05のレースを取りこぼしていた
+              # (11/9 唐津6Rなど8R)。裏で走らせて、見張りは止めない(結果のファイルは次の保存で一緒に上げる)
+              if (( 10#$NOW >= 10#$2 )) && [ ! -f "plans/${TODAY}_$1.json" ] && [ ! -f "/tmp/sess_${TODAY}_$1" ]; then
+                touch "/tmp/sess_${TODAY}_$1"
+                ( python -u -m src.pipeline.session_pipeline --session $1 > "logs/session_$1.txt" 2>&1 || true ) &
               fi
             done
             # 2026-11-02: 朝の答え合わせ(rule_check.yml)がGitHubの起動遅れで毎日3時間遅れ(11時台)ていたため、見張り側で7:30〜に1回だけ実行
