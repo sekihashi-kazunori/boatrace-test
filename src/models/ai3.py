@@ -149,7 +149,8 @@ def pick(rows, stadium, race_number, wind=None, wave=None, n=6, odds=None, venue
     top = allp[:n]
     v = top[0][1]
     m = load()
-    tier = "S" if v >= m["q98"] else ("A" if v >= m["q95"] else None)
+    # 2026-11-10 ご主人様「1日必ず10Rは出す」: 自信 上位10%(B・1日約14R・6点的中率57%)まで広げる
+    tier = "S" if v >= m["q98"] else ("A" if v >= m["q95"] else ("B" if v >= m.get("q90", 0.1247) else None))
     if odds is not None:
         # 2026-11-08 ご主人様「鉄板6穴1の7点」: 鉄板の外から、オッズ50〜100倍で一番来そうな1点を穴として足す
         ana = next(((c, q) for c, q in allp[n:] if 50 <= (odds.get(c) or 0) < 100), None)

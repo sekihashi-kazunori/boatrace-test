@@ -809,6 +809,9 @@ def _run_ai3(state, target_date, session_name, stadium_code, race_number, odds_m
         print(f"執事の本予想 {stadium_name}{race_number}R: 一番の買い目{top6[0][0]} 確率{top6[0][1] * 100:.1f}% 級{tier} 本予想レース{force}")
         if not tier and not force:
             return
+        if not force and _main_count(state, target_date) >= MAIN_MAX_PER_DAY:
+            print(f"執事の本予想: 今日はすでに{MAIN_MAX_PER_DAY}R出したので見送り")
+            return
         # 2026-11-08 ご主人様「1レース1500円くらい・鉄板6穴1の7点」: 鉄板6点に確率に合わせて1,400円、穴1点に100円
         picks = list(top6) + ([ana] if ana else [])
         # 2026-11-10〜 ご主人様指示「ガミを改善」: どれが当たっても投資を上回る配分(ガミる安い鉄板は外す)
@@ -825,7 +828,7 @@ def _run_ai3(state, target_date, session_name, stadium_code, race_number, odds_m
         save_bet_tickets(state, tickets)
         # 2026-11-08 ご主人様指示: 「AI」と呼ばない。執事が責任を持って出す予想として、根拠(レースの中身)も添える
         why = ai3.reasons(rows, [c for c, _p in top6], (weather or {}).get("wind"))
-        lab = {"S": "自信S", "A": "自信A"}.get(tier, "本命レース")
+        lab = {"S": "自信S", "A": "自信A", "B": "自信B"}.get(tier, "本命レース")
         lines = [("・穴 " if ana and c == ana[0] else "・鉄板 ") + x for (c, _p), x in zip(picks, lines)]
         msg = (f"🎩 **執事の本予想** {stadium_name}{race_number}R" + (f"(締切{deadline})" if deadline else "")
                + f"  {lab}\n" + "\n".join(lines) + f"\n投資：{sum(amt):,}円／{len(amt)}点 ※紙上\n"
