@@ -23,7 +23,8 @@ _RANK = {"wr": False, "top2": False, "local": False, "motor": False, "boat": Fal
 CLS = {"A1": 1, "A2": 2, "B1": 3, "B2": 4}
 
 
-def features(rows: list[dict], stadium: int, race_number: int, wind=None, wave=None) -> list[list[float]] | None:
+def features(rows: list[dict], stadium: int, race_number: int, wind=None, wave=None,
+             venue: dict | None = None) -> list[list[float]] | None:
     """rows: 1〜6号艇の順の dict(wr, top2, local, motor, boat, ex, avgst, pvst, tilt, age, weight,
     cls=1〜4 または "A1"など, F=フライング数, course=展示の進入コース)。無い値は None。"""
     if len(rows) != 6:
@@ -53,7 +54,28 @@ def features(rows: list[dict], stadium: int, race_number: int, wind=None, wave=N
         out[i] += [float(i + 1), float(course) if course is not None else nan, float(stadium), float(race_number),
                    float(wind) if wind is not None else nan, float(wave) if wave is not None else nan,
                    float(c) if c is not None else nan, float(r.get("F") or 0)]
+    if venue is not None:
+        # 2026-11-09 ご主人様「直近データが1番大切」: その場・そのコースの直近365日の 1着率・2連率・3連率
+        sc = f"{int(stadium):02d}"
+        in1 = venue.get((sc, 1), (nan, nan, nan))[0]
+        for i, r in enumerate(rows):
+            cs = r.get("course") or (i + 1)
+            v = venue.get((sc, int(cs)), (nan, nan, nan))
+            out[i] += [v[0], v[1], v[2], in1]
     return out
+
+
+_V = {}
+
+
+def _venue_cache(table):
+    from datetime import datetime
+    from zoneinfo import ZoneInfo
+    d = str(datetime.now(ZoneInfo("Asia/Tokyo")).date())
+    if d not in _V:
+        _V.clear()
+        _V[d] = table(d)
+    return _V[d]
 
 
 def load():
@@ -109,9 +131,16 @@ def trifecta_probs(feats: list[list[float]]) -> dict[str, float]:
     return {k: v / z for k, v in p.items()}
 
 
-def pick(rows, stadium, race_number, wind=None, wave=None, n=6, odds=None):
+def pick(rows, stadium, race_number, wind=None, wave=None, n=6, odds=None, venue=None):
     """([(買い目, 確率)…上位n点], 級[, 穴(買い目, 確率) or None]) を返す。odds={"1-2-3":倍率}を渡すと穴も選ぶ。級: "S"=自信 上位2% / "A"=上位5% / None=買わない。"""
-    f = features(rows, stadium, race_number, wind, wave)
+    m0 = load()
+    if m0.get("venue"):
+        if venue is None:
+            from src.tools.venue_stats import table
+            venue = _venue_cache(table)
+        f = features(rows, stadium, race_number, wind, wave, venue)
+    else:
+        f = features(rows, stadium, race_number, wind, wave)
     if f is None:
         return None
     p = trifecta_probs(f)
