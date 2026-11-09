@@ -37,7 +37,7 @@ jobs:
           START=$(date +%s)
           save() {
             git checkout -- boatrace.db 2>/dev/null || true
-            git add plans state.db logs rule_eval.csv asoka_eval.csv racer_hist.csv tanfuku_eval.csv tipster 2>/dev/null || true
+            git add plans state.db logs rule_eval.csv asoka_eval.csv racer_hist.csv tanfuku_eval.csv tipster venue_daily.csv 2>/dev/null || true
             git commit -q -m "chore: $1 $(TZ=Asia/Tokyo date +'%Y-%m-%d %H:%M')" || return 0
             for i in 1 2 3 4 5; do
               git pull -q --rebase --autostash && git push -q && return 0
@@ -83,6 +83,7 @@ jobs:
               python -u -m src.tools.series_form --date "$YDAY" || true
               python -u -m src.tools.tanfuku_check --date "$YDAY" || true
               python -u -m src.tools.morita score --date "$YDAY" || true
+              python -u -m src.tools.venue_stats update --date "$YDAY" || true  # 場のクセ(直近1年)を毎朝更新
               touch "plans/${YDAY}_kotaeawase"
               save "morning kotaeawase"
             fi
