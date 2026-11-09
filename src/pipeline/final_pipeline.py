@@ -812,7 +812,7 @@ def _run_ai3(state, target_date, session_name, stadium_code, race_number, odds_m
         # 2026-11-08 ご主人様「1レース1500円くらい・鉄板6穴1の7点」: 鉄板6点に確率に合わせて1,400円、穴1点に100円
         picks = list(top6) + ([ana] if ana else [])
         # 2026-11-10〜 ご主人様指示「ガミを改善」: どれが当たっても投資を上回る配分(ガミる安い鉄板は外す)
-        alloc = ai3.allocate(picks, odds_s, total=1300, ana=ana[0] if ana else None)  # 切り上げで1,500〜1,700円になる
+        alloc = ai3.allocate(picks, odds_s, total=1500, ana=ana[0] if ana else None)  # ガミりそうなレースだけ2,000円まで
         pmap = dict(picks)
         picks = [(c, pmap[c]) for c, _a in alloc]
         amt = [a for _c, a in alloc]

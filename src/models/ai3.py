@@ -192,36 +192,23 @@ def reasons(rows: list[dict], picks: list[str], wind=None) -> list[str]:
     return out
 
 
+
 def allocate(picks: list[tuple[str, float]], odds: dict, total: int = 1500, ana: str | None = None,
-             max_cover: float = 0.75, cap: int = 2000) -> list[tuple[str, int]]:
-    """2026-11-09 ご主人様指示「ガミを改善」: どれが当たっても投資額を上回るように配る。
-    1) 締切前オッズで「全部に同じだけ戻る」配分(1/オッズに比例)にする
-    2) 買い目は外さない(ご主人様指示)。足りない分は賭け金を増やす。安い買い目ばかりでどうしてもガミる時は、ガミが最小になる配分
-    3) どれが当たっても投資の1.2倍以上(締切前オッズ)戻るまで100円単位で足す。オッズの無い点は確率に合わせて配る"""
-    sel = [(c, p) for c, p in picks if odds.get(c)]
-    if len(sel) < 3:
-        tot = sum(p for _c, p in picks) or 1
-        return [(c, max(100, int(total * p / tot / 100 + 0.5) * 100)) for c, p in picks]
-    # 2026-11-09 ご主人様「安いのを外すと的中率が下がる。賭け金を増やしてよい」: 買い目は外さない。
-    # オッズの無い点は確率に合わせて100円〜で足す
-    extra = [(c, p) for c, p in picks if not odds.get(c)]
-    cover = sum(1 / odds[c] for c, _p in sel)
-    # 戻りの倍率の目標: 余裕があれば1.2倍、無ければ(1/オッズの合計が大きい=安い買い目ばかり)ガミが最小になる倍率
-    ratio = 1.2 if cover * 1.2 <= 0.97 else max(0.5, 0.97 / cover)
-    # どれが当たっても戻ってくる額(締切前オッズで)。1/オッズの合計を0.75以下にしておくので、
-    # 締切後にオッズが25%下がってもガミらない(11/9多摩川8R: 締切前2.4倍→確定2.1倍)
-    target = total / cover
-    amt = {c: max(100, int(-(-target / odds[c] // 100) * 100)) for c, _p in sel}  # 切り上げ
-    # 切り上げで投資が増えた分も含めて、どれが当たっても(締切前オッズで)投資の1.2倍以上戻るまで足す
-    ex = {c: 100 for c, _p in extra}
-    for _ in range(30):
-        inv = sum(amt.values()) + sum(ex.values())
-        need = {c: int(-(-ratio * inv / odds[c] // 100) * 100) for c in amt}
-        if all(amt[c] >= need[c] for c in amt):
+             cap: int = 2000, ratio: float = 1.1) -> list[tuple[str, int]]:
+    """2026-11-09 ご主人様指示「ガミを改善。安い買い目は外さない。ガミりそうなレースだけ2,000円まで」。
+    1) まずは今まで通り、確率に合わせて total(1,500円)を配る(穴は100円)
+    2) 当たっても投資の ratio(1.1)倍に届かない(=ガミりそうな)買い目があるレースだけ、
+       その買い目に100円ずつ足していく。1レース cap(2,000円)まで"""
+    tot = sum(p for c, p in picks if c != ana) or 1
+    amt = {c: (100 if c == ana else max(100, int((total - (100 if ana else 0)) * p / tot / 100 + 0.5) * 100))
+           for c, p in picks}
+    prob = dict(picks)
+    while True:
+        inv = sum(amt.values())
+        short = [c for c in amt if odds.get(c) and amt[c] * odds[c] < ratio * inv]
+        if not short or inv + 100 > cap:
             break
-        new = {c: max(amt[c], need[c]) for c in amt}
-        if sum(new.values()) + sum(ex.values()) > cap:
-            break  # 1レースの上限(2,000円・ご主人様指示)を超えるなら、そこで止める
-        amt = new
-    amt.update(ex)
+        # 一番足りない(戻り÷投資が低い)買い目に100円足す
+        c = min(short, key=lambda x: amt[x] * odds[x] / inv - prob.get(x, 0) * 1e-6)
+        amt[c] += 100
     return [(c, amt[c]) for c, _p in picks]
