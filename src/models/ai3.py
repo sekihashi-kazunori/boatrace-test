@@ -193,7 +193,7 @@ def reasons(rows: list[dict], picks: list[str], wind=None) -> list[str]:
 
 
 def allocate(picks: list[tuple[str, float]], odds: dict, total: int = 1500, ana: str | None = None,
-             max_cover: float = 0.75, cap: int = 3000) -> list[tuple[str, int]]:
+             max_cover: float = 0.75, cap: int = 2000) -> list[tuple[str, int]]:
     """2026-11-09 ご主人様指示「ガミを改善」: どれが当たっても投資額を上回るように配る。
     1) 締切前オッズで「全部に同じだけ戻る」配分(1/オッズに比例)にする
     2) 買い目は外さない(ご主人様指示)。足りない分は賭け金を増やす。安い買い目ばかりでどうしてもガミる時は、ガミが最小になる配分
@@ -221,7 +221,7 @@ def allocate(picks: list[tuple[str, float]], odds: dict, total: int = 1500, ana:
             break
         new = {c: max(amt[c], need[c]) for c in amt}
         if sum(new.values()) + sum(ex.values()) > cap:
-            break  # 1レースの上限(3,000円)を超えるなら、そこで止める
+            break  # 1レースの上限(2,000円・ご主人様指示)を超えるなら、そこで止める
         amt = new
     amt.update(ex)
     return [(c, amt[c]) for c, _p in picks]
