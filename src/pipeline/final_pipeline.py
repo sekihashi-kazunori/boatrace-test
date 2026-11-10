@@ -810,6 +810,11 @@ def _run_ai3(state, target_date, session_name, stadium_code, race_number, odds_m
         print(f"執事の本予想 {stadium_name}{race_number}R: 一番の買い目{top6[0][0]} 確率{top6[0][1] * 100:.1f}% 級{tier} 本予想レース{force}")
         if not tier and not force:
             return
+        # 2026-11-10 掘り下げ: 自信S/Aでも風5m以上は 6点的中率 57%→53%・回収77%以下に落ちる(2026年3,251R)。見送る
+        wind = (weather or {}).get("wind")
+        if wind is not None and float(wind) >= 5:
+            print(f"執事の本予想 {stadium_name}{race_number}R: 風{wind}mで見送り(風5m以上は1号艇が崩れやすい)")
+            return
         n_done = _main_count(state, target_date)
         if n_done >= MAIN_MAX_PER_DAY:
             print(f"執事の本予想: 今日はすでに{n_done}R出したので見送り(1日10Rまで・自信S/Aだけ)")
