@@ -802,6 +802,8 @@ def _run_ai3(state, target_date, session_name, stadium_code, race_number, odds_m
                          "age": r.get("age"), "weight": r.get("weight"), "cls": r.get("racer_class"),
                          "F": r.get("flying"), "course": b.get("course")})
         odds_s = {"-".join(map(str, k)): float(o) for k, o in (odds_map or {}).items() if o}
+        _run_are(state, target_date, session_name, stadium_code, race_number, odds_map, rows, weather, stadium_name,
+                 deadline)
         res = ai3.pick(rows, int(stadium_code), int(race_number), (weather or {}).get("wind"), (weather or {}).get("wave"),
                        n=6, odds=odds_s)
         if not res:
@@ -848,6 +850,46 @@ def _run_ai3(state, target_date, session_name, stadium_code, race_number, odds_m
             print(f"執事の本予想の通知失敗: {e}")
     except Exception as e:
         print(f"執事の本予想の失敗 {race_number}R: {e}")
+
+
+# 2026-11-10 ご主人様「風が強い日は万舟の法則を使えるのでは」: 荒天万舟枠(紙上・お楽しみ)。
+# 風5m以上 × 1号艇がB級 × 執事の荒れ度(1号艇が負ける確率)60%以上 × 4〜6号艇にA級 → 外のA級を頭、1号艇を2着、3着は全部(1点100円)。
+# 2026年(答えを見ていない1,268R・1日約1.4R)で 的中6.9%・回収82%(上位3本を除くと62%)。万舟頼みなので紙上で確かめる。
+ARE_RULES = [("v_are", "荒天万舟枠(風5m以上×1号艇B級×荒れ度60%以上・外A級頭-1-全)")]
+
+
+def _run_are(state, target_date, session_name, stadium_code, race_number, odds_map, rows, weather, stadium_name="",
+             deadline=None) -> None:
+    try:
+        from src.models import ai3
+        wind = (weather or {}).get("wind")
+        if wind is None or float(wind) < 5:
+            return
+        cls = [({"A1": 1, "A2": 2, "B1": 3, "B2": 4}.get(r.get("cls"), r.get("cls"))) for r in rows]
+        if cls[0] not in (3, 4):
+            return
+        heads = [b for b in (4, 5, 6) if cls[b - 1] in (1, 2)]
+        if not heads:
+            return
+        are = ai3.boat1_lose(rows, int(stadium_code), int(race_number), wind, (weather or {}).get("wave"))
+        if are is None or are < 0.6:
+            return
+        combos = [f"{h}-1-{x}" for h in heads for x in range(2, 7) if x != h]
+        tickets = []
+        for c in combos:
+            o = (odds_map or {}).get(tuple(map(int, c.split("-"))))
+            tickets.append(BetTicket(race_date=str(target_date), session=session_name, stadium_code=stadium_code,
+                                     race_number=race_number, combination=c, amount=100, bet_type="v_are", odds=o))
+        save_bet_tickets(state, tickets)
+        msg = (f"🌪️ **荒天万舟枠** {stadium_name}{race_number}R" + (f"(締切{deadline})" if deadline else "")
+               + f"  風{wind}m・荒れ度{are * 100:.0f}%\n" + " / ".join(combos)
+               + f"\n投資：{len(combos) * 100:,}円／{len(combos)}点 ※紙上・お楽しみ\n【根拠】1号艇{rows[0].get('cls')}・外のA級"
+               + "・".join(f"{h}号艇" for h in heads) + "を頭に、1号艇は2着に残す形")
+        print(msg)
+        notify_discord(msg)
+        time.sleep(1.2)
+    except Exception as e:
+        print(f"荒天万舟枠の失敗 {race_number}R: {e}")
 
 
 def _verify_races(target_date: date) -> list:

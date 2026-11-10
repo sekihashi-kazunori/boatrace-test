@@ -221,3 +221,20 @@ def allocate(picks: list[tuple[str, float]], odds: dict, total: int = 1500, ana:
         c = min(short, key=lambda x: amt[x] * odds[x] / inv - prob.get(x, 0) * 1e-6)
         amt[c] += 100
     return [(c, amt[c]) for c, _p in picks]
+
+
+def boat1_lose(rows, stadium, race_number, wind=None, wave=None) -> float | None:
+    """執事の読みでの「1号艇が負ける確率」(荒れ度)。"""
+    m = load()
+    if "mw" not in m:
+        return None
+    venue = None
+    if m.get("venue"):
+        from src.tools.venue_stats import table
+        venue = _venue_cache(table)
+    f = features(rows, stadium, race_number, wind, wave, venue) if venue is not None else features(rows, stadium, race_number, wind, wave)
+    if f is None:
+        return None
+    import numpy as np
+    w = m["mw"].predict_proba(np.array(f, dtype=float))[:, 1]
+    return float(1 - w[0] / w.sum())
