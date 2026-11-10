@@ -812,6 +812,10 @@ def _run_ai3(state, target_date, session_name, stadium_code, race_number, odds_m
         print(f"執事の本予想 {stadium_name}{race_number}R: 一番の買い目{top6[0][0]} 確率{top6[0][1] * 100:.1f}% 級{tier} 本予想レース{force}")
         if not tier and not force:
             return
+        # 2026-11-10 場の掘り下げ: 自信S・Aの6点的中率が戸田50%・鳴門53%と低い(全場61%)。この2場は自信Sだけにする
+        if stadium_code in ("02", "14") and tier != "S":
+            print(f"執事の本予想 {stadium_name}{race_number}R: 戸田・鳴門は自信Sだけ(今は自信{tier})")
+            return
         # 2026-11-10 掘り下げ(反省): その日その場で前のレースの1号艇が4R以上走って75%以上負けている水面は、
         # 執事の読みより1号艇が4.5pt弱い(風4m以上なら5.2pt)。11/10の宮島・福岡がこれ。本予想は見送る
         try:
