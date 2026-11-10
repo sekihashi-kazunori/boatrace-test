@@ -132,7 +132,7 @@ def trifecta_probs(feats: list[list[float]]) -> dict[str, float]:
     return {k: v / z for k, v in p.items()}
 
 
-def pick(rows, stadium, race_number, wind=None, wave=None, n=6, odds=None, venue=None):
+def pick(rows, stadium, race_number, wind=None, wave=None, n=6, odds=None, venue=None, ladies=False):
     """([(買い目, 確率)…上位n点], 級[, 穴(買い目, 確率) or None]) を返す。odds={"1-2-3":倍率}を渡すと穴も選ぶ。級: "S"=自信 上位2% / "A"=上位5% / None=買わない。"""
     m0 = load()
     if m0.get("venue"):
@@ -155,6 +155,10 @@ def pick(rows, stadium, race_number, wind=None, wave=None, n=6, odds=None, venue
     # 湊さんの227Rを執事が読むと6点的中67%(=選んだレースが当てやすい)。2026年で試すと 上位7%(1日約11R)の6点的中 57.5%→61.3%
     s6 = sum(q for _c, q in allp[:6])
     tier = "S" if s6 >= 0.5239 else ("A" if s6 >= 0.4819 else None)
+    # 2026-11-10 ご主人様「レディースは的中しやすい。本予想に組み込め」: レディース戦は上位10%(0.468)まで自信Aにする
+    # (レディース戦の上位10%の的中62.3% = その他の自信S・A 61.1%と同じくらい)
+    if tier is None and ladies and s6 >= 0.468:
+        tier = "A"
     if odds is not None:
         # 2026-11-08 ご主人様「鉄板6穴1の7点」: 鉄板の外から、オッズ50〜100倍で一番来そうな1点を穴として足す
         ana = None

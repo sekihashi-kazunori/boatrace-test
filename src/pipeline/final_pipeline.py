@@ -802,10 +802,16 @@ def _run_ai3(state, target_date, session_name, stadium_code, race_number, odds_m
                          "age": r.get("age"), "weight": r.get("weight"), "cls": r.get("racer_class"),
                          "F": r.get("flying"), "course": b.get("course")})
         odds_s = {"-".join(map(str, k)): float(o) for k, o in (odds_map or {}).items() if o}
+        try:
+            from src.tools.female_racers import is_ladies
+            ladies = is_ladies([racers.get(l, {}).get("number") for l in range(1, 7)])
+        except Exception as e:
+            print(f"レディース判定の失敗: {e}")
+            ladies = False
         _run_are(state, target_date, session_name, stadium_code, race_number, odds_map, rows, weather, stadium_name,
                  deadline)
         res = ai3.pick(rows, int(stadium_code), int(race_number), (weather or {}).get("wind"), (weather or {}).get("wave"),
-                       n=6, odds=odds_s)
+                       n=6, odds=odds_s, ladies=ladies)
         if not res:
             return
         top6, tier, ana = res
@@ -851,7 +857,7 @@ def _run_ai3(state, target_date, session_name, stadium_code, race_number, odds_m
         save_bet_tickets(state, tickets)
         # 2026-11-08 ご主人様指示: 「AI」と呼ばない。執事が責任を持って出す予想として、根拠(レースの中身)も添える
         why = ai3.reasons(rows, [c for c, _p in top6], (weather or {}).get("wind"))
-        lab = {"S": "自信S", "A": "自信A", "B": "自信B"}.get(tier, "本命レース")
+        lab = {"S": "自信S", "A": "自信A", "B": "自信B"}.get(tier, "本命レース") + ("・👩レディース" if ladies else "")
         lines = [("・穴 " if ana and c == ana[0] else "・鉄板 ") + x for (c, _p), x in zip(picks, lines)]
         msg = (f"🎩 **執事の本予想** {stadium_name}{race_number}R" + (f"(締切{deadline})" if deadline else "")
                + f"  {lab}\n" + "\n".join(lines) + f"\n投資：{sum(amt):,}円／{len(amt)}点 ※紙上\n"
