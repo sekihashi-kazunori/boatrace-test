@@ -858,8 +858,54 @@ def _run_ai3(state, target_date, session_name, stadium_code, race_number, odds_m
             time.sleep(1.2)
         except Exception as e:
             print(f"執事の本予想の通知失敗: {e}")
+        if tier == "S":
+            _run_koro(state, target_date, session_name, stadium_code, race_number, picks, odds_s, stadium_name,
+                      ana[0] if ana else None, deadline)
     except Exception as e:
         print(f"執事の本予想の失敗 {race_number}R: {e}")
+
+
+# 2026-11-10 ご主人様「Sレースで2連チャンの練習してみるか」: コロガシ練習(紙上・集計外)。中身は src/tools/korogashi.py
+KORO_RULES = [("v_koro", "コロガシ練習(自信Sで2連チャン・集計外)")]
+
+
+def _run_koro(state, target_date, session_name, stadium_code, race_number, picks, odds_s, stadium_name, ana,
+              deadline=None) -> None:
+    try:
+        from src.models import ai3
+        from src.tools import korogashi as K
+        st = K.load(target_date)
+        ok, rep = K.resolve(target_date, st)
+        if rep:
+            print(rep)
+            notify_discord(rep)
+            time.sleep(1.2)
+        if not ok:
+            K.save(target_date, st)
+            print(f"コロガシ(練習): 前のレースの結果待ちなので {stadium_name}{race_number}R は見送り")
+            return
+        bank = int(st["bank"])
+        alloc = ai3.allocate(picks, odds_s, total=bank, ana=ana, cap=int(bank * 4 / 3))
+        tickets, lines = [], []
+        for c, a in alloc:
+            o = odds_s.get(c)
+            tickets.append(BetTicket(race_date=str(target_date), session=session_name, stadium_code=stadium_code,
+                                     race_number=race_number, combination=c, amount=a, bet_type="v_koro", odds=o))
+            lines.append(f"{c} {a:,}円" + (f"({o}倍)" if o else ""))
+        save_bet_tickets(state, tickets)
+        stake = sum(a for _c, a in alloc)
+        st["pending"] = {"stadium_code": stadium_code, "race_number": int(race_number), "name": stadium_name,
+                         "alloc": alloc, "stake": stake, "chain_races": st.get("chain_races", [])}
+        K.save(target_date, st)
+        n = st["chain"] + 1
+        msg = (f"🎲 **コロガシ(練習・{n}戦目)** {stadium_name}{race_number}R" + (f"(締切{deadline})" if deadline else "")
+               + f"  元手{stake:,}円\n" + " / ".join(lines)
+               + ("\n※1戦目。当たったら払戻を全部、次の自信Sのレースへ" if n == 1 else "\n※2戦目。当たれば2連チャン成功！"))
+        print(msg)
+        notify_discord(msg)
+        time.sleep(1.2)
+    except Exception as e:
+        print(f"コロガシ練習の失敗 {race_number}R: {e}")
 
 
 # 2026-11-10 ご主人様「風が強い日は万舟の法則」→ 同日「頭の5・6は良いがレースが違う」を受けて作り直し。

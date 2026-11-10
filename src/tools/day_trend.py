@@ -22,13 +22,19 @@ URL = "https://www.boatrace.jp/owpc/pc/race/raceresult?rno={rn}&jcd={jcd}&hd={hd
 H = {"User-Agent": "Mozilla/5.0 (boatrace-test research)"}
 
 
+PAY = {}  # (日付, 場, R) -> 3連単の払戻(100円あたり)
+
+
 def _load(d: date) -> dict:
     p = os.path.join(DIR, f"{d}.csv")
     out = {}
     if os.path.exists(p):
         with open(p, encoding="utf-8") as f:
             for r in csv.DictReader(f):
-                out[(r["stadium_code"], int(r["race_number"]))] = r["trifecta"]
+                k = (r["stadium_code"], int(r["race_number"]))
+                out[k] = r["trifecta"]
+                if r.get("payout"):
+                    PAY[(str(d),) + k] = int(r["payout"])
     return out
 
 
@@ -39,8 +45,8 @@ def _save(d: date, k: tuple, tri: str) -> None:
     with open(p, "a", newline="", encoding="utf-8") as f:
         w = csv.writer(f)
         if new:
-            w.writerow(["stadium_code", "race_number", "trifecta"])
-        w.writerow([k[0], k[1], tri])
+            w.writerow(["stadium_code", "race_number", "trifecta", "payout"])
+        w.writerow([k[0], k[1], tri, PAY.get((str(d),) + k, "")])
 
 
 def _fetch(stadium_code: str, rn: int, d: date) -> str | None:
@@ -48,11 +54,28 @@ def _fetch(stadium_code: str, rn: int, d: date) -> str | None:
         from bs4 import BeautifulSoup
         r = requests.get(URL.format(rn=rn, jcd=stadium_code, hd=f"{d:%Y%m%d}"), headers=H, timeout=15)
         t = BeautifulSoup(r.text, "html.parser").get_text(" ", strip=True)
-        m = re.search(r"3連単\s*([1-6])\s*-?\s*([1-6])\s*-?\s*([1-6])", t)
-        return f"{m[1]}-{m[2]}-{m[3]}" if m else None
+        m = re.search(r"3連単\s*([1-6])\s*-?\s*([1-6])\s*-?\s*([1-6])\s*¥?\s*([\d,]+)?", t)
+        if not m:
+            return None
+        if m[4]:
+            PAY[(str(d), stadium_code, rn)] = int(m[4].replace(",", ""))
+        return f"{m[1]}-{m[2]}-{m[3]}"
     except Exception as e:
         print(f"結果の取得失敗 {stadium_code} {rn}R: {e}")
         return None
+
+
+def result(stadium_code: str, rn: int, d: date) -> tuple[str, int] | None:
+    """(3連単の組, 100円あたりの払戻)。まだ出ていなければ None。"""
+    have = _load(d)
+    k = (stadium_code, rn)
+    tri = have.get(k)
+    if tri is None or (str(d),) + k not in PAY:
+        tri = _fetch(stadium_code, rn, d)
+        if tri and k not in have:
+            _save(d, k, tri)
+    pay = PAY.get((str(d),) + k)
+    return (tri, pay) if tri and pay else None
 
 
 def boat1_lose_rate(stadium_code: str, race_number: int, d: date) -> tuple[int, float | None]:
