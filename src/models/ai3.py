@@ -241,3 +241,14 @@ def boat1_lose(rows, stadium, race_number, wind=None, wave=None) -> float | None
     import numpy as np
     w = m["mw"].predict_proba(np.array(f, dtype=float))[:, 1]
     return float(1 - w[0] / w.sum())
+
+
+def probs(rows, stadium, race_number, wind=None, wave=None) -> dict | None:
+    """3連単120通りの確率(執事の読み)。"""
+    m = load()
+    venue = None
+    if m.get("venue"):
+        from src.tools.venue_stats import table
+        venue = _venue_cache(table)
+    f = features(rows, stadium, race_number, wind, wave, venue) if venue is not None else features(rows, stadium, race_number, wind, wave)
+    return trifecta_probs(f) if f is not None else None
