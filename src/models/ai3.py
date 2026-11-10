@@ -151,7 +151,10 @@ def pick(rows, stadium, race_number, wind=None, wave=None, n=6, odds=None, venue
     m = load()
     # 2026-11-10 ご主人様「1日必ず10Rは出す」: 自信 上位10%(B・1日約14R・6点的中率57%)まで広げる
     # 2026-11-10 ご主人様「Bは無理にやらない。S・Aで10R」: 自信B(上位10%)をやめ、自信Aを上位7%(1日約10R・6点的中率57.5%)に
-    tier = "S" if v >= m["q98"] else ("A" if v >= m.get("q93", 0.1318) else None)
+    # 2026-11-10 湊さんから学んだ「レースの選び方」: 一番の買い目の確率ではなく、上位6点の確率の合計で選ぶ。
+    # 湊さんの227Rを執事が読むと6点的中67%(=選んだレースが当てやすい)。2026年で試すと 上位7%(1日約11R)の6点的中 57.5%→61.3%
+    s6 = sum(q for _c, q in allp[:6])
+    tier = "S" if s6 >= 0.5239 else ("A" if s6 >= 0.4819 else None)
     if odds is not None:
         # 2026-11-08 ご主人様「鉄板6穴1の7点」: 鉄板の外から、オッズ50〜100倍で一番来そうな1点を穴として足す
         ana = next(((c, q) for c, q in allp[n:] if 50 <= (odds.get(c) or 0) < 100), None)
