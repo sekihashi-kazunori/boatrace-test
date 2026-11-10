@@ -812,6 +812,16 @@ def _run_ai3(state, target_date, session_name, stadium_code, race_number, odds_m
         print(f"執事の本予想 {stadium_name}{race_number}R: 一番の買い目{top6[0][0]} 確率{top6[0][1] * 100:.1f}% 級{tier} 本予想レース{force}")
         if not tier and not force:
             return
+        # 2026-11-10 掘り下げ(反省): その日その場で前のレースの1号艇が4R以上走って75%以上負けている水面は、
+        # 執事の読みより1号艇が4.5pt弱い(風4m以上なら5.2pt)。11/10の宮島・福岡がこれ。本予想は見送る
+        try:
+            from src.tools.day_trend import boat1_lose_rate
+            n_prev, lose = boat1_lose_rate(stadium_code, int(race_number), target_date)
+            if n_prev >= 4 and lose is not None and lose >= 0.75:
+                print(f"執事の本予想 {stadium_name}{race_number}R: 今日のこの場は1号艇が{n_prev}R中{lose * 100:.0f}%負けている荒れ水面なので見送り")
+                return
+        except Exception as e:
+            print(f"その日の流れの計算失敗: {e}")
         # 2026-11-10 掘り下げ: 自信S/Aでも風5m以上は 6点的中率 57%→53%・回収77%以下に落ちる(2026年3,251R)。見送る
         wind = (weather or {}).get("wind")
         if wind is not None and float(wind) >= 5:
@@ -873,6 +883,17 @@ def _run_are(state, target_date, session_name, stadium_code, race_number, odds_m
         if wind is None or float(wind) < w_min:
             return
         are = ai3.boat1_lose(rows, int(stadium_code), int(race_number), wind, (weather or {}).get("wave"))
+        # その日その場の流れ: 前のレースで1号艇が75%以上負けていれば、荒れ度に5pt足す(実際の1号艇は読みより約5pt弱い)
+        trend = ""
+        try:
+            from src.tools.day_trend import boat1_lose_rate
+            n_prev, lose = boat1_lose_rate(stadium_code, int(race_number), target_date)
+            if are is not None and n_prev >= 4 and lose is not None:
+                trend = f"・今日この場の1号艇は{n_prev}R中{round(lose * n_prev)}回負け"
+                if lose >= 0.75:
+                    are += 0.05
+        except Exception as e:
+            print(f"その日の流れの計算失敗: {e}")
         if are is None or are < a_min:
             return
         p = ai3.probs(rows, int(stadium_code), int(race_number), wind, (weather or {}).get("wave")) or {}
@@ -894,7 +915,7 @@ def _run_are(state, target_date, session_name, stadium_code, race_number, odds_m
         heads = sorted({c[0] for c in combos}, key=lambda h: -sum(p[c] for c in combos if c[0] == h))
         why = ai3.reasons(rows, combos, wind)
         msg = (f"🌪️ **荒天万舟枠{'(練習・集計外)' if practice else ''}** {stadium_name}{race_number}R" + (f"(締切{deadline})" if deadline else "")
-               + f"  風{wind}m・荒れ度{are * 100:.0f}%\n" + " / ".join(lines)
+               + f"  風{wind}m・荒れ度{are * 100:.0f}%{trend}\n" + " / ".join(lines)
                + f"\n投資：{len(combos) * 100:,}円／{len(combos)}点 ※紙上・お楽しみ\n"
                + f"【根拠】頭の本線は{'・'.join(h + '号艇' for h in heads[:2])} / " + " / ".join(why))
         print(msg)
