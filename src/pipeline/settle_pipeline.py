@@ -92,6 +92,14 @@ def run_settle(session_name: str, target_date: date | None = None, is_last_sessi
 
     session_name_ja = {"morning": "モーニング", "day": "デイ", "nighter": "ナイター"}.get(session_name, session_name)
 
+    # 2026-11-10 ご主人様「今日の万舟は練習。データに入れない」: 11/10の荒天万舟枠は練習扱い(集計外)に付け替える
+    try:
+        from sqlalchemy import text
+        with engine.begin() as con:
+            con.execute(text("update bet_tickets set bet_type='v_are_p' where bet_type='v_are' and race_date='2026-11-10'"))
+    except Exception as e:
+        print(f"練習扱いへの付け替え失敗: {e}")
+
     with OrmSession(engine) as db:
         # セッションに関係なく、その日の未確定の買い目をすべて精算する
         # (展示後予想にしたことで、セッションの精算時刻より後に締切の

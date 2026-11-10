@@ -857,7 +857,8 @@ def _run_ai3(state, target_date, session_name, stadium_code, race_number, odds_m
 #   執事の読みで「1号艇以外が頭」の上位8点を100円ずつ。
 # 2026年の風5m以上(答えを見ていない1,628R・1日約5.6R)で 的中28.9%・回収79%
 # (前のルール「外A級頭-1-全」は的中6.9%。11/10は宮島・福岡で1号艇が2着にも残らず全滅)
-ARE_RULES = [("v_are", "荒天万舟枠(風5m以上×荒れ度60%以上・1号艇以外が頭の上位8点)")]
+ARE_RULES = [("v_are", "荒天万舟枠(風5m以上×荒れ度60%以上・1号艇以外が頭の上位8点)"),
+             ("v_are_p", "荒天万舟 練習(11/10だけ・集計外)")]
 
 
 def _run_are(state, target_date, session_name, stadium_code, race_number, odds_map, rows, weather, stadium_name="",
@@ -865,25 +866,34 @@ def _run_are(state, target_date, session_name, stadium_code, race_number, odds_m
     try:
         from src.models import ai3
         wind = (weather or {}).get("wind")
-        if wind is None or float(wind) < 5:
+        # 2026-11-10 ご主人様「今日の万舟は練習。データに入れない。思い切って仕掛けてみろ」:
+        # 11/10だけ 風4m以上・荒れ度50%以上に広げ、上位8点に「100倍以上で一番来そうな2点」を足す。記録は v_are_p(集計外)
+        practice = str(target_date) == "2026-11-10"
+        w_min, a_min = (4, 0.5) if practice else (5, 0.6)
+        if wind is None or float(wind) < w_min:
             return
         are = ai3.boat1_lose(rows, int(stadium_code), int(race_number), wind, (weather or {}).get("wave"))
-        if are is None or are < 0.6:
+        if are is None or are < a_min:
             return
         p = ai3.probs(rows, int(stadium_code), int(race_number), wind, (weather or {}).get("wave")) or {}
-        combos = [c for c, _q in sorted(p.items(), key=lambda x: -x[1]) if not c.startswith("1-")][:8]
+        ranked = [c for c, _q in sorted(p.items(), key=lambda x: -x[1]) if not c.startswith("1-")]
+        combos = ranked[:8]
+        if practice:
+            oo = {"-".join(map(str, k)): v for k, v in (odds_map or {}).items() if v}
+            combos += [c for c in ranked[8:] if (oo.get(c) or 0) >= 100][:2]
         if not combos:
             return
         tickets, lines = [], []
         for c in combos:
             o = (odds_map or {}).get(tuple(map(int, c.split("-"))))
             tickets.append(BetTicket(race_date=str(target_date), session=session_name, stadium_code=stadium_code,
-                                     race_number=race_number, combination=c, amount=100, bet_type="v_are", odds=o))
+                                     race_number=race_number, combination=c, amount=100,
+                                     bet_type="v_are_p" if practice else "v_are", odds=o))
             lines.append(c + (f"({o}倍)" if o else ""))
         save_bet_tickets(state, tickets)
         heads = sorted({c[0] for c in combos}, key=lambda h: -sum(p[c] for c in combos if c[0] == h))
         why = ai3.reasons(rows, combos, wind)
-        msg = (f"🌪️ **荒天万舟枠** {stadium_name}{race_number}R" + (f"(締切{deadline})" if deadline else "")
+        msg = (f"🌪️ **荒天万舟枠{'(練習・集計外)' if practice else ''}** {stadium_name}{race_number}R" + (f"(締切{deadline})" if deadline else "")
                + f"  風{wind}m・荒れ度{are * 100:.0f}%\n" + " / ".join(lines)
                + f"\n投資：{len(combos) * 100:,}円／{len(combos)}点 ※紙上・お楽しみ\n"
                + f"【根拠】頭の本線は{'・'.join(h + '号艇' for h in heads[:2])} / " + " / ".join(why))
