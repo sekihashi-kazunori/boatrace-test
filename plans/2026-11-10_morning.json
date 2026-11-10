@@ -1,0 +1,182 @@
+[
+ {
+  "stadium_code": "21",
+  "race_number": 3,
+  "stadium_name": "芦屋",
+  "deadline": "09:27",
+  "score": 0.2964,
+  "main": false,
+  "gen": true
+ },
+ {
+  "stadium_code": "10",
+  "race_number": 2,
+  "stadium_name": "三国",
+  "deadline": "09:13",
+  "score": 0.2919,
+  "main": false,
+  "gen": true
+ },
+ {
+  "stadium_code": "21",
+  "race_number": 1,
+  "stadium_name": "芦屋",
+  "deadline": "08:35",
+  "score": 0.2908,
+  "main": false,
+  "gen": true
+ },
+ {
+  "stadium_code": "21",
+  "race_number": 2,
+  "stadium_name": "芦屋",
+  "deadline": "09:01",
+  "score": 0.2859,
+  "main": false,
+  "gen": true
+ },
+ {
+  "stadium_code": "21",
+  "race_number": 5,
+  "stadium_name": "芦屋",
+  "deadline": "10:23",
+  "score": 0.2623,
+  "main": false,
+  "gen": true
+ },
+ {
+  "stadium_code": "21",
+  "race_number": 10,
+  "stadium_name": "芦屋",
+  "deadline": "12:56",
+  "score": 0.2596,
+  "main": false,
+  "gen": true
+ },
+ {
+  "stadium_code": "10",
+  "race_number": 6,
+  "stadium_name": "三国",
+  "deadline": "11:04",
+  "score": 0.2593,
+  "main": false,
+  "gen": true
+ },
+ {
+  "stadium_code": "10",
+  "race_number": 3,
+  "stadium_name": "三国",
+  "deadline": "09:39",
+  "score": 0.2534,
+  "main": false,
+  "gen": false
+ },
+ {
+  "stadium_code": "21",
+  "race_number": 4,
+  "stadium_name": "芦屋",
+  "deadline": "09:53",
+  "score": 0.247,
+  "main": false,
+  "gen": false
+ },
+ {
+  "stadium_code": "21",
+  "race_number": 9,
+  "stadium_name": "芦屋",
+  "deadline": "12:21",
+  "score": 0.2449,
+  "main": false,
+  "gen": false
+ },
+ {
+  "stadium_code": "10",
+  "race_number": 1,
+  "stadium_name": "三国",
+  "deadline": "08:47",
+  "score": 0.2394,
+  "main": false,
+  "gen": false
+ },
+ {
+  "stadium_code": "21",
+  "race_number": 7,
+  "stadium_name": "芦屋",
+  "deadline": "11:24",
+  "score": 0.2334,
+  "main": false,
+  "gen": false
+ },
+ {
+  "stadium_code": "10",
+  "race_number": 10,
+  "stadium_name": "三国",
+  "deadline": "13:11",
+  "score": 0.2323,
+  "main": false,
+  "gen": false
+ },
+ {
+  "stadium_code": "21",
+  "race_number": 8,
+  "stadium_name": "芦屋",
+  "deadline": "11:53",
+  "score": 0.2191,
+  "main": false,
+  "gen": false
+ },
+ {
+  "stadium_code": "10",
+  "race_number": 4,
+  "stadium_name": "三国",
+  "deadline": "10:05",
+  "score": 0.2181,
+  "main": false,
+  "gen": false
+ },
+ {
+  "stadium_code": "21",
+  "race_number": 6,
+  "stadium_name": "芦屋",
+  "deadline": "10:53",
+  "score": 0.1933,
+  "main": false,
+  "gen": false
+ },
+ {
+  "stadium_code": "10",
+  "race_number": 5,
+  "stadium_name": "三国",
+  "deadline": "10:35",
+  "score": 0.1698,
+  "main": false,
+  "gen": false
+ },
+ {
+  "stadium_code": "10",
+  "race_number": 9,
+  "stadium_name": "三国",
+  "deadline": "12:36",
+  "score": 0.155,
+  "main": false,
+  "gen": false
+ },
+ {
+  "stadium_code": "10",
+  "race_number": 7,
+  "stadium_name": "三国",
+  "deadline": "11:36",
+  "score": 0.1389,
+  "main": false,
+  "gen": false
+ },
+ {
+  "stadium_code": "10",
+  "race_number": 8,
+  "stadium_name": "三国",
+  "deadline": "12:07",
+  "score": 0.0545,
+  "main": false,
+  "gen": false
+ }
+]
