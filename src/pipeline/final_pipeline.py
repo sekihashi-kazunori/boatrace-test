@@ -230,7 +230,7 @@ MAIN_TARGET_PER_SESSION = 0
 # 2026-11-05〜 ご主人様指示: モーニング/デイ/ナイターで分けず、1日を通して自信のあるレースだけ最大10R。
 # 締切前オッズの集中度(上位5点)0.47以上 ≒ 全レースの上位5%(1日7〜10R)。セッションごとの上限はなし。
 MAIN_MIN_CONC_NEW = 0.47
-MAIN_MAX_PER_DAY = 10  # 2026-11-10 ご主人様「基本1日10R。それ以上は自信のあるレースだけプラス5Rまで」
+MAIN_MAX_PER_DAY = 10  # 2026-11-10 ご主人様「S・Aで1日10R」
 MAIN_EXTRA_MAX = 15  # 10Rを超えたら自信S/Aだけ、15Rまで
 MAIN_STOP_DATE = "2099-01-01"  # 2026-11-08 ご主人様指示で本予想(3連単)を復活(11/6〜11/7は停止していた)
 # 締切前オッズの集中度(上位5点)の分布(10/11〜10/29の2,419R)。CONC_Q[i] より上のレースが全体の (i+1)*5%
@@ -811,8 +811,8 @@ def _run_ai3(state, target_date, session_name, stadium_code, race_number, odds_m
         if not tier and not force:
             return
         n_done = _main_count(state, target_date)
-        if n_done >= MAIN_EXTRA_MAX or (n_done >= MAIN_MAX_PER_DAY and tier not in ("S", "A")):
-            print(f"執事の本予想: 今日はすでに{n_done}R出したので見送り(10Rを超えたら自信S/Aだけ15Rまで)")
+        if n_done >= MAIN_MAX_PER_DAY:
+            print(f"執事の本予想: 今日はすでに{n_done}R出したので見送り(1日10Rまで・自信S/Aだけ)")
             return
         # 2026-11-08 ご主人様「1レース1500円くらい・鉄板6穴1の7点」: 鉄板6点に確率に合わせて1,400円、穴1点に100円
         picks = list(top6) + ([ana] if ana else [])
@@ -1059,9 +1059,8 @@ def run_final(target_date: date | None = None, model_path: str = "model.txt", db
         # 2026-11-08 ご主人様指摘「大穴万舟を入れたら難しい」: 10/1〜の万舟(100倍以上)の点は230点で的中0・回収0%。外す
         if pop_plans:
             pop_plans = [p for p in pop_plans if not (p.odds and p.odds >= 100)]
-        # 2026-11-09 ご主人様指示「本予想は鉄板6穴1」: 人気順の旧本予想(3〜4点)は出さず、
-        # 本予想に選ばれたレースは執事の本予想(鉄板6点+穴1点)で買う(_run_ai3 の force)
-        main_race = bool(pop_plans)
+        # 2026-11-10 ご主人様「S・Aで10R」: 人気が集中する本命レースでも、執事の自信がS・Aでなければ買わない
+        main_race = False
         b1_class = next((r.get("racer_class") for r in card.get("racers", []) if r.get("lane") == 1), None)
         weather = LAST_WEATHER.get((stadium_code, race_number, str(target_date)), {})
         # 全レースで1号艇の級と天候・風・波を記録(今後の条件づくりの材料)
