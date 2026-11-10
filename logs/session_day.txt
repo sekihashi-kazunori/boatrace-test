@@ -25,29 +25,29 @@
 締切予定時刻取得件数: 12件（本来12件）
 場コード=22 場名=福岡 1R締切=10:46 判定=day
 session=day 絞り込み後: 8場（全13場中）
-直前情報ページ status_code=200 本文長=45887文字
+直前情報ページ status_code=200 本文長=45872文字
 '展示タイム'という文字列が本文に含まれるか: False
 'チルト'という文字列が本文に含まれるか: True
-水面気象: {'wind': 3, 'wave': 3, 'weather': '雨'}
+水面気象: {'wind': 3, 'wave': 3, 'weather': '曇り'}
 展示タイム取得件数: 6件（本来6件） 中身={1: 6.79, 2: 6.91, 3: 6.68, 4: 6.87, 5: 6.9, 6: 6.81}
 チルト取得件数: 6件（本来6件） 中身={1: 0.0, 2: -0.5, 3: 0.0, 4: -0.5, 5: -0.5, 6: -0.5}
-抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x7f4b9eedc690>]
+抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x73db5c9ffed0>]
 [save_entries] 6 entries saved
-直前情報ページ status_code=200 本文長=45901文字
+直前情報ページ status_code=200 本文長=45885文字
 '展示タイム'という文字列が本文に含まれるか: False
 'チルト'という文字列が本文に含まれるか: True
 水面気象: {'wind': 3, 'wave': 3, 'weather': '雨'}
 展示タイム取得件数: 6件（本来6件） 中身={1: 6.89, 2: 6.63, 3: 6.77, 4: 6.81, 5: 6.8, 6: 6.8}
 チルト取得件数: 6件（本来6件） 中身={1: 0.0, 2: 0.0, 3: 0.0, 4: 0.0, 5: 0.0, 6: 0.0}
-抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x7f4b9b833bd0>]
+抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x73db591cfe10>]
 [save_entries] 6 entries saved
-直前情報ページ status_code=200 本文長=43059文字
+直前情報ページ status_code=200 本文長=45930文字
 '展示タイム'という文字列が本文に含まれるか: False
 'チルト'という文字列が本文に含まれるか: True
-水面気象: {'wind': 3, 'wave': 3, 'weather': '雨'}
-展示タイム取得件数: 0件（本来6件） 中身={}
+水面気象: {'wind': 2, 'wave': 3, 'weather': '雨'}
+展示タイム取得件数: 6件（本来6件） 中身={1: 6.91, 2: 6.79, 3: 6.97, 4: 6.96, 5: 6.78, 6: 6.93}
 チルト取得件数: 6件（本来6件） 中身={1: -0.5, 2: 0.0, 3: -0.5, 4: 0.0, 5: 0.0, 6: 0.0}
-抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x7f4b9ec2bb90>]
+抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x73db5c64bf10>]
 Traceback (most recent call last):
   File "/opt/hostedtoolcache/Python/3.11.18/x64/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 2113, in _exec_insertmany_context
     dialect.do_execute(
@@ -123,5 +123,5 @@ Traceback (most recent call last):
     cursor.execute(statement, parameters)
 sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) attempt to write a readonly database
 [SQL: INSERT INTO race_entries (race_date, stadium_code, race_number, lane_number, racer_id, national_win_rate, local_win_rate, motor_2rate, boat_2rate, exhibition_time, tilt, start_timing, win_odds, finish_position, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id]
-[parameters: ('2026-11-10', '04', 3, 1, None, 6.28, 5.54, 38.04, 20.29, None, -0.5, None, None, None, '2026-11-10 02:32:25.478640')]
+[parameters: ('2026-11-10', '04', 3, 1, None, 6.28, 5.54, 38.04, 20.29, 6.91, -0.5, -0.04, None, None, '2026-11-10 08:11:37.692035')]
 (Background on this error at: https://sqlalche.me/e/21/e3q8)
