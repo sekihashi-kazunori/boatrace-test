@@ -157,7 +157,11 @@ def pick(rows, stadium, race_number, wind=None, wave=None, n=6, odds=None, venue
     tier = "S" if s6 >= 0.5239 else ("A" if s6 >= 0.4819 else None)
     if odds is not None:
         # 2026-11-08 ご主人様「鉄板6穴1の7点」: 鉄板の外から、オッズ50〜100倍で一番来そうな1点を穴として足す
-        ana = next(((c, q) for c, q in allp[n:] if 50 <= (odds.get(c) or 0) < 100), None)
+        ana = None
+        if int(stadium) == 8:
+            # 2026-11-10 常滑の法則: 1号艇が2着の時の頭は4号艇のカドが多い(22.2%・全場18.3%)。常滑の穴は「4-1-x」を優先
+            ana = next(((c, q) for c, q in allp[n:] if c.startswith("4-1-") and 30 <= (odds.get(c) or 0) < 150), None)
+        ana = ana or next(((c, q) for c, q in allp[n:] if 50 <= (odds.get(c) or 0) < 100), None)
         return top, tier, ana
     return top, tier
 
