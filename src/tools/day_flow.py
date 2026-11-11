@@ -105,14 +105,12 @@ def main():
     p = os.path.join(DIR, f"{d}.txt")
     key = "\n".join(l for l in msg.split("\n")[1:] if l.startswith(("⚠️", "🛡️", "🔥", "💥", "🌊")))
     last = open(p, encoding="utf-8").read() if os.path.exists(p) else None
+    # 2026-11-11 ご主人様「30分おきの報告は要らない。執事が確認するだけでよい」: Discordには送らず、記録だけ残す
     if key and key != last:
-        try:
-            from src.notify.notifier import notify_discord
-            notify_discord(msg[:1950])
-        except Exception as e:
-            print(f"通知失敗: {e}")
         with open(p, "w", encoding="utf-8") as f:
             f.write(key)
+    with open(os.path.join(DIR, f"{d}_log.txt"), "a", encoding="utf-8") as f:
+        f.write(msg + "\n\n")
 
 
 if __name__ == "__main__":
