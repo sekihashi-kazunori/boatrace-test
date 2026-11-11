@@ -167,11 +167,15 @@ def pick(rows, stadium, race_number, wind=None, wave=None, n=6, odds=None, venue
         tier = "A"
     if odds is not None:
         # 2026-11-08 ご主人様「鉄板6穴1の7点」: 鉄板の外から、オッズ50〜100倍で一番来そうな1点を穴として足す
+        # 2026-11-11 ご主人様「万舟のオッズほど当てにならないものは無い」: 穴はオッズではなく、レースの中身の筋で選ぶ。
+        #   常滑: 4号艇のカドまくり・1号艇2着(4-1-x)
+        #   それ以外: 外の差し込み = 1号艇は逃げ、5・6号艇が2着(1-6-2型)。鉄板レースの万舟で1号艇が頭のままの時、
+        #   2着は6号艇24回・5号艇18回と外が多い(2026年 自信S・A 308R)
+        rest = [(c, q) for c, q in allp if all(c != x for x, _ in top)]
         ana = None
         if int(stadium) == 8:
-            # 2026-11-10 常滑の法則: 1号艇が2着の時の頭は4号艇のカドが多い(22.2%・全場18.3%)。常滑の穴は「4-1-x」を優先
-            ana = next(((c, q) for c, q in allp[n:] if c.startswith("4-1-") and 30 <= (odds.get(c) or 0) < 150), None)
-        ana = ana or next(((c, q) for c, q in allp[n:] if 50 <= (odds.get(c) or 0) < 100), None)
+            ana = next(((c, q) for c, q in rest if c.startswith("4-1-")), None)
+        ana = ana or next(((c, q) for c, q in rest if c[0] == "1" and c[2] in "56"), None)
         return top, tier, ana
     return top, tier
 
