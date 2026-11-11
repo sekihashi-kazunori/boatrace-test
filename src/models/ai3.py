@@ -147,6 +147,12 @@ def pick(rows, stadium, race_number, wind=None, wave=None, n=6, odds=None, venue
     p = trifecta_probs(f)
     allp = sorted(p.items(), key=lambda x: -x[1])
     top = allp[:n]
+    # 2026-11-11 ご主人様「1-2-6を一番と考えるなら1-6-2は押さえるもの」(芦屋5R 1-6-2を取り逃した反省):
+    # 一番の買い目の裏(2着と3着を入れ替えた組)が入っていなければ、6点目と入れ替える
+    a, b, c = allp[0][0].split("-")
+    ura = f"{a}-{c}-{b}"
+    if all(x != ura for x, _q in top):
+        top = top[:-1] + [(ura, p[ura])]
     v = top[0][1]
     m = load()
     # 2026-11-10 ご主人様「1日必ず10Rは出す」: 自信 上位10%(B・1日約14R・6点的中率57%)まで広げる
