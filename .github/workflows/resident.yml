@@ -67,7 +67,7 @@ jobs:
             fi
             # 2026-11-11 ご主人様指示: 30分おきに全場の結果を見て、その日の流れ(荒れ・1-456・万舟など)を読んで知らせる
             if [ $(( $(date +%s) - ${FLOW_T:-0} )) -ge 1800 ]; then
-              python -u -m src.tools.day_flow > logs/last_flow.txt 2>&1 || true
+              ( python -u -m src.tools.day_flow > logs/last_flow.txt 2>&1 || true ) &  # 裏で走らせて、3分おきの予想を止めない
               FLOW_T=$(date +%s)
             fi
             tail -n 40 logs/last_final.txt
