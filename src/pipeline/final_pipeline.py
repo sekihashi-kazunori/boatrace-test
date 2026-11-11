@@ -811,7 +811,7 @@ def _run_ai3(state, target_date, session_name, stadium_code, race_number, odds_m
         _run_are(state, target_date, session_name, stadium_code, race_number, odds_map, rows, weather, stadium_name,
                  deadline)
         res = ai3.pick(rows, int(stadium_code), int(race_number), (weather or {}).get("wind"), (weather or {}).get("wave"),
-                       n=6, odds=odds_s, ladies=ladies)
+                       n=8, odds=odds_s, ladies=ladies)  # 2026-11-11 ご主人様OK: 鉄板を6点→8点(的中61.3%→68.5%)
         if not res:
             return
         top6, tier, ana = res
