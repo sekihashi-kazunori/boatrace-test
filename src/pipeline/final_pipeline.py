@@ -843,6 +843,21 @@ def _run_ai3(state, target_date, session_name, stadium_code, race_number, odds_m
             return
         # 2026-11-08 ご主人様「1レース1500円くらい・鉄板6穴1の7点」: 鉄板6点に確率に合わせて1,400円、穴1点に100円
         picks = list(top6) + ([ana] if ana else [])
+        # 2026-11-11 ご主人様「本線1-3-2なら大穴は3-1-2が普通」(宮島1R 3-1-2の万舟を取り逃した反省):
+        # 本線の頭と2着を入れ替えた組(本線の筋のままの逆転)を、穴としてもう1点(100円)押さえる
+        try:
+            a_, b_, c_ = top6[0][0].split("-")
+            gyaku = f"{b_}-{a_}-{c_}"
+            pp = ai3.probs(rows, int(stadium_code), int(race_number), (weather or {}).get("wind"),
+                           (weather or {}).get("wave")) or {}
+            if all(gyaku != c for c, _q in picks):
+                picks.append((gyaku, pp.get(gyaku, 0.0)))
+                ana2 = gyaku
+            else:
+                ana2 = None
+        except Exception as e:
+            print(f"逆転の穴の計算失敗: {e}")
+            ana2 = None
         # 2026-11-10〜 ご主人様指示「ガミを改善」: どれが当たっても投資を上回る配分(ガミる安い鉄板は外す)
         alloc = ai3.allocate(picks, odds_s, total=1500, ana=ana[0] if ana else None)  # ガミりそうなレースだけ2,000円まで
         pmap = dict(picks)
@@ -858,7 +873,8 @@ def _run_ai3(state, target_date, session_name, stadium_code, race_number, odds_m
         # 2026-11-08 ご主人様指示: 「AI」と呼ばない。執事が責任を持って出す予想として、根拠(レースの中身)も添える
         why = ai3.reasons(rows, [c for c, _p in top6], (weather or {}).get("wind"))
         lab = {"S": "自信S", "A": "自信A", "B": "自信B"}.get(tier, "本命レース") + ("・👩レディース" if ladies else "")
-        lines = [("・穴 " if ana and c == ana[0] else "・鉄板 ") + x for (c, _p), x in zip(picks, lines)]
+        lines = [("・逆転の穴 " if c == ana2 else "・穴 " if ana and c == ana[0] else "・鉄板 ") + x
+                 for (c, _p), x in zip(picks, lines)]
         msg = (f"🎩 **執事の本予想** {stadium_name}{race_number}R" + (f"(締切{deadline})" if deadline else "")
                + f"  {lab}\n" + "\n".join(lines) + f"\n投資：{sum(amt):,}円／{len(amt)}点 ※紙上\n"
                + "【根拠】" + " / ".join(why))
