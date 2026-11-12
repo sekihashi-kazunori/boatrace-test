@@ -180,8 +180,8 @@ def verify_summary(engine, target_date: date) -> str:
         items.append(item(title, bt))
     from src.pipeline.final_pipeline import WIND_RULES, WEATHER_RULES
     from src.pipeline.final_pipeline import MANSHU_RULES
-    from src.pipeline.final_pipeline import OUTER_RULES, LIKELY_RULES, BOX456_RULES, BOX1456_RULES, EDO15_RULES, VENUE_RULES, AI3_RULES, ARE_RULES, KORO_RULES
-    for bt, title in MANSHU_RULES + OUTER_RULES + [(b, t) for b, _c, _th, t in LIKELY_RULES] + BOX456_RULES + BOX1456_RULES + EDO15_RULES + VENUE_RULES + AI3_RULES + ARE_RULES + KORO_RULES:
+    from src.pipeline.final_pipeline import OUTER_RULES, LIKELY_RULES, BOX456_RULES, BOX1456_RULES, EDO15_RULES, VENUE_RULES, AI3_RULES, ARE_RULES, KORO_RULES, WATCH_RULES
+    for bt, title in MANSHU_RULES + OUTER_RULES + [(b, t) for b, _c, _th, t in LIKELY_RULES] + BOX456_RULES + BOX1456_RULES + EDO15_RULES + VENUE_RULES + AI3_RULES + ARE_RULES + KORO_RULES + WATCH_RULES:
         items.append(item(title, bt))
     for bt, _st, _w, _c, title in WIND_RULES + WEATHER_RULES:
         items.append(item(title, bt))

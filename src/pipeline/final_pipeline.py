@@ -810,6 +810,8 @@ def _run_ai3(state, target_date, session_name, stadium_code, race_number, odds_m
             ladies = False
         _run_are(state, target_date, session_name, stadium_code, race_number, odds_map, rows, weather, stadium_name,
                  deadline)
+        _run_watch(state, target_date, session_name, stadium_code, race_number, odds_map, rows, weather, stadium_name,
+                   deadline)
         res = ai3.pick(rows, int(stadium_code), int(race_number), (weather or {}).get("wind"), (weather or {}).get("wave"),
                        n=8, odds=odds_s, ladies=ladies)  # 2026-11-11 ご主人様OK: 鉄板を6点→8点(的中61.3%→68.5%)
         if not res:
@@ -995,6 +997,49 @@ def _run_are(state, target_date, session_name, stadium_code, race_number, odds_m
         time.sleep(1.2)
     except Exception as e:
         print(f"荒天万舟枠の失敗 {race_number}R: {e}")
+
+
+# 2026-11-13 ご主人様「この情報(予想家の万舟狙いレース)を元に執事も万舟を出してみろ」: 注目レースの万舟狙い(紙上・練習)。
+# tipster/watch_日付.csv に 場・R・頭にする艇 を書いておくと、そのレースの締切前に、
+# 「その艇が頭」の組から執事の読みで上位8点を100円ずつ買う。記録は v_watch。
+WATCH_RULES = [("v_watch", "注目レースの万舟狙い(予想家の着眼×執事の読み・練習)")]
+
+
+def _run_watch(state, target_date, session_name, stadium_code, race_number, odds_map, rows, weather,
+               stadium_name="", deadline=None) -> None:
+    try:
+        import csv as _csv
+        path = os.path.join("tipster", f"watch_{target_date}.csv")
+        if not os.path.exists(path):
+            return
+        with open(path, encoding="utf-8") as f:
+            w = [r for r in _csv.DictReader(f)
+                 if r["stadium_code"].zfill(2) == stadium_code and int(r["race_number"]) == int(race_number)]
+        if not w:
+            return
+        heads = w[0]["heads"].split()
+        from src.models import ai3
+        p = ai3.probs(rows, int(stadium_code), int(race_number), (weather or {}).get("wind"),
+                      (weather or {}).get("wave")) or {}
+        combos = [c for c, _q in sorted(p.items(), key=lambda x: -x[1]) if c[0] in heads][:8]
+        if not combos:
+            return
+        tickets, lines = [], []
+        for c in combos:
+            o = (odds_map or {}).get(tuple(map(int, c.split("-"))))
+            tickets.append(BetTicket(race_date=str(target_date), session=session_name, stadium_code=stadium_code,
+                                     race_number=race_number, combination=c, amount=100, bet_type="v_watch", odds=o))
+            lines.append(c + (f"({o}倍)" if o else ""))
+        save_bet_tickets(state, tickets)
+        why = ai3.reasons(rows, combos, (weather or {}).get("wind"))
+        msg = (f"🎯 **執事の万舟狙い(練習)** {stadium_name}{race_number}R" + (f"(締切{deadline})" if deadline else "")
+               + f"\n着眼：{w[0].get('note', '')}\n" + " / ".join(lines)
+               + f"\n投資：{len(combos) * 100:,}円／{len(combos)}点 ※紙上\n【根拠】" + " / ".join(why))
+        print(msg)
+        notify_discord(msg)
+        time.sleep(1.2)
+    except Exception as e:
+        print(f"注目レースの万舟狙いの失敗 {race_number}R: {e}")
 
 
 def _verify_races(target_date: date) -> list:
