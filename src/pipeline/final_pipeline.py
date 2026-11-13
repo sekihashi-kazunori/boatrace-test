@@ -812,8 +812,20 @@ def _run_ai3(state, target_date, session_name, stadium_code, race_number, odds_m
                  deadline)
         _run_watch(state, target_date, session_name, stadium_code, race_number, odds_map, rows, weather, stadium_name,
                    deadline)
+        # 2026-11-13 ご主人様「水面は大事。こまめに見ろ」: その日その場で1号艇が4R以上走って6割以上勝っている本命水面は、
+        # 次のレースも1号艇が勝ちやすい(2025〜26年 約10万R: 1号艇の勝率 全体54.6% → 本命水面60〜63%、荒れ水面〜25%は50%)。
+        # 本命水面では自信Aの下限をレディースと同じだけ下げて、拾えるレースを増やす
+        honmei = False
+        try:
+            from src.tools.day_trend import boat1_lose_rate
+            _np, _lo = boat1_lose_rate(stadium_code, int(race_number), target_date)
+            honmei = _np >= 4 and _lo is not None and _lo <= 0.4
+            if honmei:
+                print(f"執事の本予想 {stadium_name}{race_number}R: 本命水面(1号艇{_np}R中{round(_np * (1 - _lo))}勝)")
+        except Exception as e:
+            print(f"本命水面の判定失敗: {e}")
         res = ai3.pick(rows, int(stadium_code), int(race_number), (weather or {}).get("wind"), (weather or {}).get("wave"),
-                       n=8, odds=odds_s, ladies=ladies)  # 2026-11-11 ご主人様OK: 鉄板を6点→8点(的中61.3%→68.5%)
+                       n=8, odds=odds_s, ladies=ladies or honmei)  # 2026-11-11 ご主人様OK: 鉄板を6点→8点(的中61.3%→68.5%)
         if not res:
             return
         top6, tier, ana = res
@@ -840,6 +852,12 @@ def _run_ai3(state, target_date, session_name, stadium_code, race_number, odds_m
             print(f"執事の本予想 {stadium_name}{race_number}R: 風{wind}mで見送り(風5m以上は1号艇が崩れやすい)")
             return
         n_done = _main_count(state, target_date)
+        # 2026-11-13 反省: 10Rの枠を18:33で使い切り、夜の本命水面(蒲郡11R・大村11R、湊さんは的中)を買えなかった。
+        # 15時までは5Rまでにして、残りの枠は水面の様子が見えてくる夕方〜夜のために残す
+        _now = datetime.now(ZoneInfo("Asia/Tokyo"))
+        if n_done >= 5 and _now.hour < 15:
+            print(f"執事の本予想 {stadium_name}{race_number}R: 15時までの枠(5R)を使い切ったので見送り(夜の本命水面のために残す)")
+            return
         if n_done >= MAIN_MAX_PER_DAY:
             print(f"執事の本予想: 今日はすでに{n_done}R出したので見送り(1日10Rまで・自信S/Aだけ)")
             return
