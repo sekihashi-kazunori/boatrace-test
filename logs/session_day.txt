@@ -1,53 +1,53 @@
 締切予定時刻取得件数: 12件（本来12件）
 場コード=02 場名=戸田 1R締切=10:45 判定=day
 締切予定時刻取得件数: 12件（本来12件）
+場コード=03 場名=江戸川 1R締切=10:59 判定=day
+締切予定時刻取得件数: 12件（本来12件）
 場コード=04 場名=平和島 1R締切=10:51 判定=day
 締切予定時刻取得件数: 12件（本来12件）
-場コード=07 場名=蒲郡 1R締切=15:20 判定=nighter
+場コード=07 場名=蒲郡 1R締切=15:25 判定=nighter
+締切予定時刻取得件数: 12件（本来12件）
+場コード=08 場名=常滑 1R締切=10:18 判定=day
 締切予定時刻取得件数: 12件（本来12件）
 場コード=09 場名=津 1R締切=10:28 判定=day
 締切予定時刻取得件数: 12件（本来12件）
-場コード=10 場名=三国 1R締切=08:43 判定=morning
+場コード=10 場名=三国 1R締切=08:35 判定=morning
 締切予定時刻取得件数: 12件（本来12件）
-場コード=13 場名=尼崎 1R締切=10:36 判定=day
+場コード=13 場名=尼崎 1R締切=10:41 判定=day
 締切予定時刻取得件数: 12件（本来12件）
-場コード=16 場名=児島 1R締切=10:49 判定=day
+場コード=16 場名=児島 1R締切=10:44 判定=day
 締切予定時刻取得件数: 12件（本来12件）
-場コード=17 場名=宮島 1R締切=10:20 判定=day
+場コード=20 場名=若松 1R締切=15:20 判定=nighter
 締切予定時刻取得件数: 12件（本来12件）
-場コード=19 場名=下関 1R締切=15:22 判定=nighter
+場コード=22 場名=福岡 1R締切=10:48 判定=day
 締切予定時刻取得件数: 12件（本来12件）
-場コード=21 場名=芦屋 1R締切=08:35 判定=morning
+場コード=23 場名=唐津 1R締切=08:47 判定=morning
 締切予定時刻取得件数: 12件（本来12件）
-場コード=22 場名=福岡 1R締切=10:47 判定=day
-締切予定時刻取得件数: 12件（本来12件）
-場コード=23 場名=唐津 1R締切=08:51 判定=morning
-締切予定時刻取得件数: 12件（本来12件）
-場コード=24 場名=大村 1R締切=15:29 判定=nighter
-session=day 絞り込み後: 7場（全13場中）
-直前情報ページ status_code=200 本文長=45789文字
-'展示タイム'という文字列が本文に含まれるか: False
-'チルト'という文字列が本文に含まれるか: True
-水面気象: {'wind': 1, 'wave': 1, 'weather': '晴'}
-展示タイム取得件数: 6件（本来6件） 中身={1: 6.73, 2: 6.87, 3: 6.71, 4: 6.9, 5: 6.68, 6: 6.82}
-チルト取得件数: 6件（本来6件） 中身={1: 0.0, 2: 0.0, 3: -0.5, 4: -0.5, 5: -0.5, 6: -0.5}
-抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x7e3adba68550>]
-[save_entries] 6 entries saved
-直前情報ページ status_code=200 本文長=45868文字
-'展示タイム'という文字列が本文に含まれるか: False
-'チルト'という文字列が本文に含まれるか: True
-水面気象: {'wind': 1, 'wave': 1, 'weather': '晴'}
-展示タイム取得件数: 6件（本来6件） 中身={1: 6.62, 2: 6.71, 3: 6.69, 4: 6.68, 5: 6.7, 6: 6.69}
-チルト取得件数: 6件（本来6件） 中身={1: -0.5, 2: 0.0, 3: -0.5, 4: 0.0, 5: 0.0, 6: 0.0}
-抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x7e3ad82d9c10>]
-[save_entries] 6 entries saved
-直前情報ページ status_code=200 本文長=45788文字
+場コード=24 場名=大村 1R締切=15:16 判定=nighter
+session=day 絞り込み後: 8場（全13場中）
+直前情報ページ status_code=200 本文長=46116文字
 '展示タイム'という文字列が本文に含まれるか: False
 'チルト'という文字列が本文に含まれるか: True
 水面気象: {'wind': 0, 'wave': 0, 'weather': '晴'}
-展示タイム取得件数: 6件（本来6件） 中身={1: 6.78, 2: 6.75, 3: 6.81, 4: 6.81, 5: 6.65, 6: 6.81}
-チルト取得件数: 6件（本来6件） 中身={1: -0.5, 2: -0.5, 3: -0.5, 4: -0.5, 5: -0.5, 6: -0.5}
-抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x7e3ad82b8ad0>]
+展示タイム取得件数: 6件（本来6件） 中身={1: 6.78, 2: 6.76, 3: 6.75, 4: 6.81, 5: 6.88, 6: 6.81}
+チルト取得件数: 6件（本来6件） 中身={1: -0.5, 2: -0.5, 3: 0.0, 4: 0.0, 5: 0.0, 6: -0.5}
+抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x73efa967e450>]
+[save_entries] 6 entries saved
+直前情報ページ status_code=200 本文長=43063文字
+'展示タイム'という文字列が本文に含まれるか: False
+'チルト'という文字列が本文に含まれるか: True
+水面気象: {'wind': 0, 'wave': 0, 'weather': '晴'}
+展示タイム取得件数: 0件（本来6件） 中身={}
+チルト取得件数: 6件（本来6件） 中身={1: -0.5, 2: -0.5, 3: 0.0, 4: 0.0, 5: -0.5, 6: -0.5}
+抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x73efa96be310>]
+[save_entries] 6 entries saved
+直前情報ページ status_code=200 本文長=43077文字
+'展示タイム'という文字列が本文に含まれるか: False
+'チルト'という文字列が本文に含まれるか: True
+水面気象: {'wind': 0, 'wave': 0, 'weather': '晴'}
+展示タイム取得件数: 0件（本来6件） 中身={}
+チルト取得件数: 0件（本来6件） 中身={}
+抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x73efa5e6e310>]
 Traceback (most recent call last):
   File "/opt/hostedtoolcache/Python/3.11.18/x64/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 2113, in _exec_insertmany_context
     dialect.do_execute(
@@ -123,5 +123,5 @@ Traceback (most recent call last):
     cursor.execute(statement, parameters)
 sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) attempt to write a readonly database
 [SQL: INSERT INTO race_entries (race_date, stadium_code, race_number, lane_number, racer_id, national_win_rate, local_win_rate, motor_2rate, boat_2rate, exhibition_time, tilt, start_timing, win_odds, finish_position, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id]
-[parameters: ('2026-11-12', '02', 3, 1, None, 4.54, 5.72, 56.25, 25.42, 6.78, -0.5, 0.08, None, None, '2026-11-12 08:28:43.190061')]
+[parameters: ('2026-11-13', '02', 3, 1, None, 4.74, 5.74, 19.61, 40.0, None, None, None, None, None, '2026-11-13 01:42:19.863209')]
 (Background on this error at: https://sqlalche.me/e/21/e3q8)
