@@ -1039,7 +1039,12 @@ def _run_watch(state, target_date, session_name, stadium_code, race_number, odds
         from src.models import ai3
         p = ai3.probs(rows, int(stadium_code), int(race_number), (weather or {}).get("wind"),
                       (weather or {}).get("wave")) or {}
-        combos = [c for c, _q in sorted(p.items(), key=lambda x: -x[1]) if c[0] in heads][:8]
+        # 2026-11-14 ご主人様「万舟は100円が10,000円を超えて初めて万舟」: 万舟狙いは100倍以上の目だけから選ぶ
+        # (オッズが取れない目は確率の順で残す)
+        def _o(c):
+            return (odds_map or {}).get(tuple(map(int, c.split("-"))))
+        combos = [c for c, _q in sorted(p.items(), key=lambda x: -x[1])
+                  if c[0] in heads and (_o(c) is None or float(_o(c)) >= 100)][:8]
         if not combos:
             return
         tickets, lines = [], []
@@ -1050,7 +1055,7 @@ def _run_watch(state, target_date, session_name, stadium_code, race_number, odds
             lines.append(c + (f"({o}倍)" if o else ""))
         save_bet_tickets(state, tickets)
         why = ai3.reasons(rows, combos, (weather or {}).get("wind"))
-        msg = (f"🎯 **執事の万舟狙い(練習)** {stadium_name}{race_number}R" + (f"(締切{deadline})" if deadline else "")
+        msg = (f"🎯 **執事の万舟狙い(練習・100倍以上の目だけ)** {stadium_name}{race_number}R" + (f"(締切{deadline})" if deadline else "")
                + f"\n着眼：{w[0].get('note', '')}\n" + " / ".join(lines)
                + f"\n投資：{len(combos) * 100:,}円／{len(combos)}点 ※紙上\n【根拠】" + " / ".join(why))
         print(msg)
