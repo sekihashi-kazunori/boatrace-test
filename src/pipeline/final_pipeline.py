@@ -825,7 +825,7 @@ def _run_ai3(state, target_date, session_name, stadium_code, race_number, odds_m
         except Exception as e:
             print(f"本命水面の判定失敗: {e}")
         res = ai3.pick(rows, int(stadium_code), int(race_number), (weather or {}).get("wind"), (weather or {}).get("wave"),
-                       n=8, odds=odds_s, ladies=ladies or honmei)  # 2026-11-11 ご主人様OK: 鉄板を6点→8点(的中61.3%→68.5%)
+                       n=6, odds=odds_s, ladies=ladies or honmei)  # 2026-11-14 ご主人様OK「6点で良い」: 8点→6点(ガミ対策)
         if not res:
             return
         top6, tier, ana = res
@@ -861,25 +861,12 @@ def _run_ai3(state, target_date, session_name, stadium_code, race_number, odds_m
         if n_done >= MAIN_MAX_PER_DAY:
             print(f"執事の本予想: 今日はすでに{n_done}R出したので見送り(1日10Rまで・自信S/Aだけ)")
             return
-        # 2026-11-08 ご主人様「1レース1500円くらい・鉄板6穴1の7点」: 鉄板6点に確率に合わせて1,400円、穴1点に100円
-        picks = list(top6) + ([ana] if ana else [])
-        # 2026-11-11 ご主人様「本線1-3-2なら大穴は3-1-2が普通」(宮島1R 3-1-2の万舟を取り逃した反省):
-        # 本線の頭と2着を入れ替えた組(本線の筋のままの逆転)を、穴としてもう1点(100円)押さえる
-        try:
-            a_, b_, c_ = top6[0][0].split("-")
-            gyaku = f"{b_}-{a_}-{c_}"
-            pp = ai3.probs(rows, int(stadium_code), int(race_number), (weather or {}).get("wind"),
-                           (weather or {}).get("wave")) or {}
-            if all(gyaku != c for c, _q in picks):
-                picks.append((gyaku, pp.get(gyaku, 0.0)))
-                ana2 = gyaku
-            else:
-                ana2 = None
-        except Exception as e:
-            print(f"逆転の穴の計算失敗: {e}")
-            ana2 = None
-        # 2026-11-10〜 ご主人様指示「ガミを改善」: どれが当たっても投資を上回る配分(ガミる安い鉄板は外す)
-        alloc = ai3.allocate(picks, odds_s, total=1500, ana=ana[0] if ana else None)  # ガミりそうなレースだけ2,000円まで
+        # 2026-11-14 ご主人様OK「6点で良いよ」: ガミが多すぎて回収率が上がらない反省。
+        # 実戦40R(11/11〜14)で 今の8〜10点(1番手厚め+穴+逆転の穴) 的中57%・回収69% → 上位6点均等 的中52%・回収85%。
+        # 2026年 自信S/A 3,253Rでは 6点 的中61%・回収82%。穴・逆転の穴・ガミ対策の追加はやめ、上位6点を200円ずつ(1,200円)
+        ana, ana2 = None, None
+        picks = list(top6)
+        alloc = [(c, 200) for c, _q in picks]
         pmap = dict(picks)
         picks = [(c, pmap[c]) for c, _a in alloc]
         amt = [a for _c, a in alloc]
@@ -931,7 +918,10 @@ def _run_koro(state, target_date, session_name, stadium_code, race_number, picks
             print(f"コロガシ(練習): 前のレースの結果待ちなので {stadium_name}{race_number}R は見送り")
             return
         bank = int(st["bank"])
-        alloc = ai3.allocate(picks, odds_s, total=bank, ana=ana, cap=int(bank * 4 / 3))
+        # 2026-11-14 本予想と同じく上位6点を均等に(端数は1番手へ)
+        per = max(100, bank // len(picks) // 100 * 100)
+        alloc = [(c, per) for c, _q in picks]
+        alloc[0] = (alloc[0][0], alloc[0][1] + max(0, bank - per * len(picks)) // 100 * 100)
         tickets, lines = [], []
         for c, a in alloc:
             o = odds_s.get(c)
