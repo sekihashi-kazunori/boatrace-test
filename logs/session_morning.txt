@@ -43,3 +43,87 @@ session=morning 絞り込み後: 2場（全14場中）
 チルト取得件数: 6件（本来6件） 中身={1: 0.0, 2: 0.0, 3: -0.5, 4: -0.5, 5: -0.5, 6: -0.5}
 抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x7b0482198d90>]
 [save_entries] 6 entries saved
+直前情報ページ status_code=200 本文長=46280文字
+'展示タイム'という文字列が本文に含まれるか: False
+'チルト'という文字列が本文に含まれるか: True
+水面気象: {'wind': 2, 'wave': 2, 'weather': '曇り'}
+展示タイム取得件数: 6件（本来6件） 中身={1: 6.65, 2: 6.68, 3: 6.76, 4: 6.66, 5: 6.8, 6: 6.74}
+チルト取得件数: 6件（本来6件） 中身={1: 0.0, 2: -0.5, 3: -0.5, 4: -0.5, 5: 0.0, 6: -0.5}
+抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x7b04856cf790>]
+Traceback (most recent call last):
+  File "/opt/hostedtoolcache/Python/3.11.18/x64/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 2113, in _exec_insertmany_context
+    dialect.do_execute(
+  File "/opt/hostedtoolcache/Python/3.11.18/x64/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 1192, in do_execute
+    cursor.execute(statement, parameters)
+sqlite3.OperationalError: attempt to write a readonly database
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/runner/work/boatrace-test/boatrace-test/src/pipeline/session_pipeline.py", line 364, in <module>
+    run_session(args.session, model_path="model.txt", max_races=max_races, plan_only=not args.immediate)
+  File "/home/runner/work/boatrace-test/boatrace-test/src/pipeline/session_pipeline.py", line 133, in run_session
+    save_entries(engine, entries)
+  File "/home/runner/work/boatrace-test/boatrace-test/src/storage/db.py", line 68, in save_entries
+    session.commit()
+  File "/opt/hostedtoolcache/Python/3.11.18/x64/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 2177, in commit
+    trans.commit(_to_root=True)
+  File "<sqlalchemy generated _go() wrapper for sqlalchemy.orm.session.SessionTransaction.commit>", line 2, in commit
+  File "/opt/hostedtoolcache/Python/3.11.18/x64/lib/python3.11/site-packages/sqlalchemy/orm/state_changes.py", line 137, in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.18/x64/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 1412, in commit
+    self._prepare_impl()
+  File "<sqlalchemy generated _go() wrapper for sqlalchemy.orm.session.SessionTransaction._prepare_impl>", line 2, in _prepare_impl
+  File "/opt/hostedtoolcache/Python/3.11.18/x64/lib/python3.11/site-packages/sqlalchemy/orm/state_changes.py", line 137, in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.18/x64/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 1386, in _prepare_impl
+    self.session.flush()
+  File "/opt/hostedtoolcache/Python/3.11.18/x64/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 4626, in flush
+    self._flush(objects)
+  File "<sqlalchemy generated warned() wrapper for sqlalchemy.orm.session.Session._flush>", line 2, in _flush
+  File "/opt/hostedtoolcache/Python/3.11.18/x64/lib/python3.11/site-packages/sqlalchemy/util/deprecations.py", line 281, in warned
+    return fn(*args, **kwargs)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.18/x64/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 4769, in _flush
+    with util.safe_reraise():
+  File "/opt/hostedtoolcache/Python/3.11.18/x64/lib/python3.11/site-packages/sqlalchemy/util/langhelpers.py", line 166, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "/opt/hostedtoolcache/Python/3.11.18/x64/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 4730, in _flush
+    flush_context.execute()
+  File "/opt/hostedtoolcache/Python/3.11.18/x64/lib/python3.11/site-packages/sqlalchemy/orm/unitofwork.py", line 467, in execute
+    rec.execute(self)
+  File "/opt/hostedtoolcache/Python/3.11.18/x64/lib/python3.11/site-packages/sqlalchemy/orm/unitofwork.py", line 643, in execute
+    util.preloaded.orm_persistence._save_obj(
+  File "/opt/hostedtoolcache/Python/3.11.18/x64/lib/python3.11/site-packages/sqlalchemy/orm/persistence.py", line 92, in _save_obj
+    _emit_insert_statements(
+  File "/opt/hostedtoolcache/Python/3.11.18/x64/lib/python3.11/site-packages/sqlalchemy/orm/persistence.py", line 1160, in _emit_insert_statements
+    result = connection.execute(
+             ^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.18/x64/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1494, in execute
+    return meth(
+           ^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.18/x64/lib/python3.11/site-packages/sqlalchemy/sql/elements.py", line 534, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.18/x64/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1714, in _execute_clauseelement
+    ret = self._execute_context(
+          ^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.18/x64/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1866, in _execute_context
+    return self._exec_insertmany_context(dialect, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.18/x64/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 2130, in _exec_insertmany_context
+    self._handle_dbapi_exception(
+  File "/opt/hostedtoolcache/Python/3.11.18/x64/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 2351, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "/opt/hostedtoolcache/Python/3.11.18/x64/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 2113, in _exec_insertmany_context
+    dialect.do_execute(
+  File "/opt/hostedtoolcache/Python/3.11.18/x64/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 1192, in do_execute
+    cursor.execute(statement, parameters)
+sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) attempt to write a readonly database
+[SQL: INSERT INTO race_entries (race_date, stadium_code, race_number, lane_number, racer_id, national_win_rate, local_win_rate, motor_2rate, boat_2rate, exhibition_time, tilt, start_timing, win_odds, finish_position, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id]
+[parameters: ('2026-11-14', '10', 3, 1, None, 6.25, 6.88, 35.26, 33.94, 6.65, 0.0, 0.02, None, None, '2026-11-14 00:27:38.267539')]
+(Background on this error at: https://sqlalche.me/e/21/e3q8)
