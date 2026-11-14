@@ -30,18 +30,26 @@ session=day 絞り込み後: 9場（全14場中）
 直前情報ページ status_code=200 本文長=45958文字
 '展示タイム'という文字列が本文に含まれるか: False
 'チルト'という文字列が本文に含まれるか: True
-水面気象: {'wind': 1, 'wave': 1, 'weather': '晴'}
+水面気象: {'wind': 0, 'wave': 0, 'weather': '曇り'}
 展示タイム取得件数: 6件（本来6件） 中身={1: 6.74, 2: 6.76, 3: 6.79, 4: 6.76, 5: 6.91, 6: 6.82}
 チルト取得件数: 6件（本来6件） 中身={1: -0.5, 2: 0.0, 3: 0.0, 4: -0.5, 5: -0.5, 6: -0.5}
-抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x72d61efd0a90>]
+抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x7177332bb0d0>]
 [save_entries] 6 entries saved
-直前情報ページ status_code=200 本文長=43128文字
+直前情報ページ status_code=200 本文長=45976文字
 '展示タイム'という文字列が本文に含まれるか: False
 'チルト'という文字列が本文に含まれるか: True
-水面気象: {'wind': 1, 'wave': 1, 'weather': '晴'}
-展示タイム取得件数: 0件（本来6件） 中身={}
-チルト取得件数: 0件（本来6件） 中身={}
-抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x72d61efd3ad0>]
+水面気象: {'wind': 1, 'wave': 1, 'weather': '曇り'}
+展示タイム取得件数: 6件（本来6件） 中身={1: 6.81, 2: 6.85, 3: 6.76, 4: 6.87, 5: 6.81, 6: 6.88}
+チルト取得件数: 6件（本来6件） 中身={1: -0.5, 2: -0.5, 3: 0.0, 4: -0.5, 5: -0.5, 6: -0.5}
+抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x71772fa41c10>]
+[save_entries] 6 entries saved
+直前情報ページ status_code=200 本文長=46034文字
+'展示タイム'という文字列が本文に含まれるか: False
+'チルト'という文字列が本文に含まれるか: True
+水面気象: {'wind': 1, 'wave': 1, 'weather': '曇り'}
+展示タイム取得件数: 6件（本来6件） 中身={1: 6.78, 2: 6.88, 3: 6.72, 4: 6.77, 5: 6.79, 6: 6.86}
+チルト取得件数: 6件（本来6件） 中身={1: 0.0, 2: 0.0, 3: 0.0, 4: -0.5, 5: 0.0, 6: -0.5}
+抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x717732f52d90>]
 Traceback (most recent call last):
   File "/opt/hostedtoolcache/Python/3.11.18/x64/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 2113, in _exec_insertmany_context
     dialect.do_execute(
@@ -117,5 +125,5 @@ Traceback (most recent call last):
     cursor.execute(statement, parameters)
 sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) attempt to write a readonly database
 [SQL: INSERT INTO race_entries (race_date, stadium_code, race_number, lane_number, racer_id, national_win_rate, local_win_rate, motor_2rate, boat_2rate, exhibition_time, tilt, start_timing, win_odds, finish_position, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id]
-[parameters: ('2026-11-14', '02', 2, 1, None, 4.58, 2.5, 49.18, 35.71, None, None, None, None, None, '2026-11-14 01:35:22.350620')]
+[parameters: ('2026-11-14', '02', 3, 1, None, 5.23, 4.0, 22.06, 28.07, 6.78, 0.0, 0.21, None, None, '2026-11-14 06:24:35.620327')]
 (Background on this error at: https://sqlalche.me/e/21/e3q8)
