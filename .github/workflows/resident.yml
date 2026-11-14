@@ -63,6 +63,7 @@ jobs:
             # 2026-11-08 ご主人様指示: 予想家アンダーグラウンド盛田さんの無料予想を30分おきに記録(最初に見た本文を残す)
             if [ $(( $(date +%s) - ${MORITA_T:-0} )) -ge 1800 ]; then
               python -u -m src.tools.morita collect || true
+              python -u -m src.tools.minamo collect || true  # 2026-11-14 みなもさんの無料先出し(全場3連単2点)も毎日記録
               MORITA_T=$(date +%s)
             fi
             # 2026-11-11 ご主人様指示: 30分おきに全場の結果を見て、その日の流れ(荒れ・1-456・万舟など)を読んで知らせる
