@@ -30,7 +30,7 @@ const formation = (f) => `<span class="form">${f.split("-").map((g) => `<span cl
 const planLines = (pl) => (pl.lines && pl.lines.length ? pl.lines : [{ form: pl.form, n: pl.n }]);
 function formText(pl) {
   const ls = planLines(pl);
-  return `本線 <b>${esc(ls[0].form)}</b>${ls.length > 1 ? `　押さえ ${ls.slice(1).map((l) => esc(l.form)).join("・")}` : ""}`;
+  return `<span class="nw">本線 <b>${esc(ls[0].form)}</b></span>${ls.length > 1 ? `　押さえ ${ls.slice(1).map((l) => `<span class="nw">${esc(l.form)}</span>`).join("・")}` : ""}`;   // 【2026-11-15】買い目の途中で折り返さない
 }
 const planHit = (race, key) => (race.result ? (race.result.plans || {})[key] : null);
 const grade = (g) => (g && g !== "一般" ? `<span class="grade ${esc(g)}">${esc(g)}</span>` : "");
@@ -69,7 +69,7 @@ function header(active) {
 const PLAN_TYPES = [
   ["hit", "的中特化型", "当たる確率を最優先。AIの確率が高い順に15点"],
   ["narrow", "絞り込み型", "AIの自信が高いレースだけ。確率が高い順に6点で勝負"],
-  ["shot", "一撃重視型", "本命の1着確率60%以下の荒れそうなレースだけ。1号艇は3着だけ・2点まで、万舟になる組を確率順に10点"],
+  ["shot", "一撃重視型", "本命の1着確率55%以下の荒れそうなレースだけ。1号艇は3着だけ・2点まで、万舟になる組を確率順に10点"],
 ];
 const T = PLAN_TYPES.some(([k]) => k === qs("t")) ? qs("t") : "hit";
 const T_NAME = PLAN_TYPES.find(([k]) => k === T)[1];
