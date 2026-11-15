@@ -244,6 +244,30 @@ def allocate(picks: list[tuple[str, float]], odds: dict, total: int = 1500, ana:
     return [(c, amt[c]) for c, _p in picks]
 
 
+def allocate_even(picks: list[tuple[str, float]], odds: dict, total: int = 1200, unit: int = 100) -> list[tuple[str, int]]:
+    """2026-11-15 ご主人様「24.3倍に200円はおかしい。1-2-6・1-2-3は100円、1-3-6は200〜300円でしょ」:
+    1レースの合計(1,200円)は変えずに、オッズの低い目ほど厚く・高い目ほど薄く(最低100円)配る。
+    どの目が当たっても払戻がだいたいそろうように、掛け金をオッズの逆数に比例させる(100円単位・最大剰余で丸め)。
+    オッズが分からない目は、分かっている目の真ん中のオッズとして扱う。"""
+    os_ = sorted(odds[c] for c, _p in picks if odds.get(c))
+    mid = os_[len(os_) // 2] if os_ else 10.0
+    inv = {c: 1.0 / float(odds.get(c) or mid) for c, _p in picks}
+    n_units = total // unit
+    s = sum(inv.values())
+    ideal = {c: inv[c] / s * n_units for c in inv}
+    u = {c: max(1, int(ideal[c])) for c in inv}
+    while sum(u.values()) > n_units:  # 最低100円のせいで超えたら、多い所から削る
+        c = max(u, key=lambda x: (u[x] - ideal[x], u[x]))
+        if u[c] <= 1:
+            break
+        u[c] -= 1
+    for c in sorted(inv, key=lambda x: -(ideal[x] - int(ideal[x]))):
+        if sum(u.values()) >= n_units:
+            break
+        u[c] += 1
+    return [(c, u[c] * unit) for c, _p in picks]
+
+
 def boat1_lose(rows, stadium, race_number, wind=None, wave=None) -> float | None:
     """執事の読みでの「1号艇が負ける確率」(荒れ度)。"""
     m = load()

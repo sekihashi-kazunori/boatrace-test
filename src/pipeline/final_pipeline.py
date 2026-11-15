@@ -866,7 +866,8 @@ def _run_ai3(state, target_date, session_name, stadium_code, race_number, odds_m
         # 2026年 自信S/A 3,253Rでは 6点 的中61%・回収82%。穴・逆転の穴・ガミ対策の追加はやめ、上位6点を200円ずつ(1,200円)
         ana, ana2 = None, None
         picks = list(top6)
-        alloc = [(c, 200) for c, _q in picks]
+        # 2026-11-15 ご主人様「24.3倍に200円はおかしい」: 合計1,200円のまま、安い目に厚く・高い目は100円
+        alloc = ai3.allocate_even(picks, odds_s, total=1200)
         pmap = dict(picks)
         picks = [(c, pmap[c]) for c, _a in alloc]
         amt = [a for _c, a in alloc]
@@ -918,10 +919,8 @@ def _run_koro(state, target_date, session_name, stadium_code, race_number, picks
             print(f"コロガシ(練習): 前のレースの結果待ちなので {stadium_name}{race_number}R は見送り")
             return
         bank = int(st["bank"])
-        # 2026-11-14 本予想と同じく上位6点を均等に(端数は1番手へ)
-        per = max(100, bank // len(picks) // 100 * 100)
-        alloc = [(c, per) for c, _q in picks]
-        alloc[0] = (alloc[0][0], alloc[0][1] + max(0, bank - per * len(picks)) // 100 * 100)
+        # 2026-11-15 本予想と同じく、安い目に厚く・高い目は薄く
+        alloc = ai3.allocate_even(picks, odds_s, total=bank // 100 * 100)
         tickets, lines = [], []
         for c, a in alloc:
             o = odds_s.get(c)
