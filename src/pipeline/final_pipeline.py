@@ -866,8 +866,18 @@ def _run_ai3(state, target_date, session_name, stadium_code, race_number, odds_m
         # 2026年 自信S/A 3,253Rでは 6点 的中61%・回収82%。穴・逆転の穴・ガミ対策の追加はやめ、上位6点を200円ずつ(1,200円)
         ana, ana2 = None, None
         picks = list(top6)
-        # 2026-11-15 ご主人様「24.3倍に200円はおかしい」: 合計1,200円のまま、安い目に厚く・高い目は100円
-        alloc = ai3.allocate_even(picks, odds_s, total=1200)
+        # 2026-11-15 ご主人様「鉄板1-2-4の逆張り2-1-4を入れてない。当たってたのに」(津5R 2-1-4 7,530円):
+        # 1番手の頭と2着を入れ替えた「逆転」を、もう1点100円で必ず押さえる(合計1,200円の中で)。
+        # 11/11〜15の実戦45Rで逆転は3回的中(宮島1R 3-1-2 15,740円・尼崎12R 3-1-5・津5R 2-1-4)
+        a_, b_, c_ = top6[0][0].split("-")
+        gyaku = f"{b_}-{a_}-{c_}"
+        has_g = any(gyaku == c for c, _q in picks)
+        # 2026-11-15 ご主人様「24.3倍に200円はおかしい」: 安い目に厚く・高い目は100円
+        alloc = ai3.allocate_even(picks, odds_s, total=1200 if has_g else 1100)
+        if not has_g:
+            ana2 = gyaku
+            picks.append((gyaku, 0.0))
+            alloc.append((gyaku, 100))
         pmap = dict(picks)
         picks = [(c, pmap[c]) for c, _a in alloc]
         amt = [a for _c, a in alloc]
