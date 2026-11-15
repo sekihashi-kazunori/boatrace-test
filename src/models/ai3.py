@@ -249,23 +249,17 @@ def allocate_even(picks: list[tuple[str, float]], odds: dict, total: int = 1200,
     1レースの合計(1,200円)は変えずに、オッズの低い目ほど厚く・高い目ほど薄く(最低100円)配る。
     どの目が当たっても払戻がだいたいそろうように、掛け金をオッズの逆数に比例させる(100円単位・最大剰余で丸め)。
     オッズが分からない目は、分かっている目の真ん中のオッズとして扱う。"""
-    os_ = sorted(odds[c] for c, _p in picks if odds.get(c))
+    # 2026-11-15 直し(徳山4R 1-3-2(28.4倍)に200円・1-4-2(12.8倍)に100円と逆になったミス):
+    # 丸めの計算をやめ、「全部100円から始めて、当たった時の払戻が一番少ない目に100円ずつ足す」に。
+    # こうすると必ず、オッズの低い目ほど掛け金が多く(か同じに)なる
+    os_ = sorted(float(odds[c]) for c, _p in picks if odds.get(c))
     mid = os_[len(os_) // 2] if os_ else 10.0
-    inv = {c: 1.0 / float(odds.get(c) or mid) for c, _p in picks}
-    n_units = total // unit
-    s = sum(inv.values())
-    ideal = {c: inv[c] / s * n_units for c in inv}
-    u = {c: max(1, int(ideal[c])) for c in inv}
-    while sum(u.values()) > n_units:  # 最低100円のせいで超えたら、多い所から削る
-        c = max(u, key=lambda x: (u[x] - ideal[x], u[x]))
-        if u[c] <= 1:
-            break
-        u[c] -= 1
-    for c in sorted(inv, key=lambda x: -(ideal[x] - int(ideal[x]))):
-        if sum(u.values()) >= n_units:
-            break
-        u[c] += 1
-    return [(c, u[c] * unit) for c, _p in picks]
+    o = {c: float(odds.get(c) or mid) for c, _p in picks}
+    a = {c: unit for c in o}
+    while sum(a.values()) + unit <= total:
+        c = min(a, key=lambda x: (a[x] * o[x], o[x]))
+        a[c] += unit
+    return [(c, a[c]) for c, _p in picks]
 
 
 def boat1_lose(rows, stadium, race_number, wind=None, wave=None) -> float | None:
