@@ -989,11 +989,12 @@ def _run_are(state, target_date, session_name, stadium_code, race_number, odds_m
             return
         p = ai3.probs(rows, int(stadium_code), int(race_number), wind, (weather or {}).get("wave")) or {}
         ranked = [c for c, _q in sorted(p.items(), key=lambda x: -x[1]) if not c.startswith("1-")]
-        combos = ranked[:8]
-        if practice:
-            oo = {"-".join(map(str, k)): v for k, v in (odds_map or {}).items() if v}
-            combos += [c for c in ranked[8:] if (oo.get(c) or 0) >= 100][:2]
+        # 2026-11-15 ご主人様「万舟狙いで3-1-6の5.5倍は要らない。皆100倍無い。これじゃ一生万舟出ない」:
+        # 万舟(100円→10,000円以上)になる100倍以上の目だけから、来やすい順に8点。オッズが取れない時は買わない
+        oo = {"-".join(map(str, k)): float(v) for k, v in (odds_map or {}).items() if v}
+        combos = [c for c in ranked if oo.get(c, 0) >= 100][:8]
         if not combos:
+            print(f"荒天万舟枠 {stadium_name}{race_number}R: 100倍以上の目が取れず見送り")
             return
         tickets, lines = [], []
         for c in combos:
@@ -1005,7 +1006,7 @@ def _run_are(state, target_date, session_name, stadium_code, race_number, odds_m
         save_bet_tickets(state, tickets)
         heads = sorted({c[0] for c in combos}, key=lambda h: -sum(p[c] for c in combos if c[0] == h))
         why = ai3.reasons(rows, combos, wind)
-        msg = (f"🌪️ **荒天万舟枠{'(練習・集計外)' if practice else ''}** {stadium_name}{race_number}R" + (f"(締切{deadline})" if deadline else "")
+        msg = (f"🌪️ **荒天万舟枠{'(練習・集計外)' if practice else ''}・100倍以上の目だけ** {stadium_name}{race_number}R" + (f"(締切{deadline})" if deadline else "")
                + f"  風{wind}m・荒れ度{are * 100:.0f}%{trend}\n" + " / ".join(lines)
                + f"\n投資：{len(combos) * 100:,}円／{len(combos)}点 ※紙上・お楽しみ\n"
                + f"【根拠】頭の本線は{'・'.join(h + '号艇' for h in heads[:2])} / " + " / ".join(why))
@@ -1043,7 +1044,7 @@ def _run_watch(state, target_date, session_name, stadium_code, race_number, odds
         def _o(c):
             return (odds_map or {}).get(tuple(map(int, c.split("-"))))
         combos = [c for c, _q in sorted(p.items(), key=lambda x: -x[1])
-                  if c[0] in heads and (_o(c) is None or float(_o(c)) >= 100)][:8]
+                  if c[0] in heads and _o(c) is not None and float(_o(c)) >= 100][:8]
         if not combos:
             return
         tickets, lines = [], []
