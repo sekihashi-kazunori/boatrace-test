@@ -812,6 +812,7 @@ def _run_ai3(state, target_date, session_name, stadium_code, race_number, odds_m
                  deadline)
         _run_watch(state, target_date, session_name, stadium_code, race_number, odds_map, rows, weather, stadium_name,
                    deadline)
+        _run_minamo(state, target_date, session_name, stadium_code, race_number, odds_map, stadium_name, deadline)
         # 2026-11-13 ご主人様「水面は大事。こまめに見ろ」: その日その場で1号艇が4R以上走って6割以上勝っている本命水面は、
         # 次のレースも1号艇が勝ちやすい(2025〜26年 約10万R: 1号艇の勝率 全体54.6% → 本命水面60〜63%、荒れ水面〜25%は50%)。
         # 本命水面では自信Aの下限をレディースと同じだけ下げて、拾えるレースを増やす
@@ -1050,6 +1051,87 @@ def _run_are(state, target_date, session_name, stadium_code, race_number, odds_m
 # 2026-11-13 ご主人様「この情報(予想家の万舟狙いレース)を元に執事も万舟を出してみろ」: 注目レースの万舟狙い(紙上・練習)。
 # tipster/watch_日付.csv に 場・R・頭にする艇 を書いておくと、そのレースの締切前に、
 # 「その艇が頭」の組から執事の読みで上位8点を100円ずつ買う。記録は v_watch。
+# 2026-11-16 ご主人様OK「みなもさんの当たる会場と当たらない会場を精査すれば楽に回収率稼げる」:
+# 「みなも×強い場」枠(紙上)。毎朝、その日より前のみなもさんの先出し(tipster/minamo_all_*.csv)を場ごとに採点し、
+# 24R以上で回収率110%以上の場だけ、みなもさんの2点(◎-○-▲ / ◎-▲-○)を200円ずつ買う。記録は v_minamo。
+# 場の選び方はその朝までの成績だけで決める(後から良かった場を選ぶズルにしない)。
+MINAMO_RULES = [("v_minamo", "みなも×強い場(先出し2点を200円ずつ・その朝までの成績で場を選ぶ)")]
+MINAMO_MIN_RACES, MINAMO_MIN_RET = 24, 1.10
+
+
+def minamo_strong_venues(target_date) -> dict:
+    """{場コード: (レース数, 的中, 回収率)} その日より前の成績で、24R以上・回収率110%以上の場。plans/minamo_venues に記録"""
+    import csv as _csv
+    import glob
+    cache = os.path.join("plans", "minamo_venues", f"{target_date}.json")
+    if os.path.exists(cache):
+        with open(cache, encoding="utf-8") as f:
+            return {k: tuple(v) for k, v in json.load(f).items()}
+    acc = {}
+    for fp in sorted(glob.glob(os.path.join("tipster", "minamo_all_*.csv"))):
+        d = os.path.basename(fp)[len("minamo_all_"):-4]
+        if d >= str(target_date):
+            continue
+        rp = os.path.join("plans", "day_results", f"{d}.csv")
+        if not os.path.exists(rp):
+            continue
+        with open(rp, encoding="utf-8") as f:
+            res = {(r["stadium_code"].zfill(2), int(r["race_number"])): (r["trifecta"], int(r.get("payout") or 0))
+                   for r in _csv.DictReader(f)}
+        with open(fp, encoding="utf-8") as f:
+            for r in _csv.DictReader(f):
+                k = (r["stadium_code"].zfill(2), int(r["race_number"]))
+                if k not in res:
+                    continue
+                tri, pay = res[k]
+                v = acc.setdefault(k[0], [0, 0, 0])
+                v[0] += 1
+                if tri in r["combos"].split():
+                    v[1] += 1
+                    v[2] += pay
+    out = {s: (v[0], v[1], round(v[2] / (v[0] * 200), 3)) for s, v in acc.items()
+           if v[0] >= MINAMO_MIN_RACES and v[2] / (v[0] * 200) >= MINAMO_MIN_RET}
+    os.makedirs(os.path.dirname(cache), exist_ok=True)
+    with open(cache, "w", encoding="utf-8") as f:
+        json.dump(out, f, ensure_ascii=False)
+    return out
+
+
+def _run_minamo(state, target_date, session_name, stadium_code, race_number, odds_map, stadium_name="",
+                deadline=None) -> None:
+    try:
+        import csv as _csv
+        strong = minamo_strong_venues(target_date)
+        if stadium_code not in strong:
+            return
+        path = os.path.join("tipster", f"minamo_all_{target_date}.csv")
+        if not os.path.exists(path):
+            return
+        with open(path, encoding="utf-8") as f:
+            row = next((r for r in _csv.DictReader(f) if r["stadium_code"].zfill(2) == stadium_code
+                        and int(r["race_number"]) == int(race_number)), None)
+        if not row:
+            return
+        combos = row["combos"].split()
+        tickets, lines = [], []
+        for c in combos:
+            o = (odds_map or {}).get(tuple(map(int, c.split("-"))))
+            tickets.append(BetTicket(race_date=str(target_date), session=session_name, stadium_code=stadium_code,
+                                     race_number=race_number, combination=c, amount=200, bet_type="v_minamo", odds=o))
+            lines.append(f"・{c} 200円" + (f"({o}倍)" if o else ""))
+        save_bet_tickets(state, tickets)
+        n, h, ret = strong[stadium_code]
+        msg = (f"🌊 **みなも×強い場(紙上)** {stadium_name}{race_number}R" + (f"(締切{deadline})" if deadline else "")
+               + f"  {row.get('marks', '')}\n" + "\n".join(lines)
+               + f"\n投資：{len(combos) * 200:,}円／{len(combos)}点 ※紙上\n"
+               + f"【根拠】みなもさんのこの場の成績 {n}R中{h}的中・回収率{ret * 100:.0f}%(昨日まで)")
+        print(msg)
+        notify_discord(msg)
+        time.sleep(1.2)
+    except Exception as e:
+        print(f"みなも×強い場の失敗 {race_number}R: {e}")
+
+
 WATCH_RULES = [("v_watch", "注目レースの万舟狙い(予想家の着眼×執事の読み・練習)")]
 
 
