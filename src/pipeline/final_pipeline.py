@@ -940,7 +940,7 @@ def _run_koro(state, target_date, session_name, stadium_code, race_number, picks
             o = odds_s.get(c)
             tickets.append(BetTicket(race_date=str(target_date), session=session_name, stadium_code=stadium_code,
                                      race_number=race_number, combination=c, amount=a, bet_type="v_koro", odds=o))
-            lines.append(f"{c} {a:,}円" + (f"({o}倍)" if o else ""))
+            lines.append(f"・{c} {a:,}円" + (f"({o}倍)" if o else ""))
         save_bet_tickets(state, tickets)
         stake = sum(a for _c, a in alloc)
         st["pending"] = {"stadium_code": stadium_code, "race_number": int(race_number), "name": stadium_name,
@@ -948,7 +948,7 @@ def _run_koro(state, target_date, session_name, stadium_code, race_number, picks
         K.save(target_date, st)
         n = st["chain"] + 1
         msg = (f"🎲 **コロガシ(練習・{n}戦目)** {stadium_name}{race_number}R" + (f"(締切{deadline})" if deadline else "")
-               + f"  元手{stake:,}円\n" + " / ".join(lines)
+               + f"  元手{stake:,}円\n" + "\n".join(lines)
                + ("\n※1戦目。当たったら払戻を全部、次の自信Sのレースへ" if n == 1 else "\n※2戦目。当たれば2連チャン成功！"))
         print(msg)
         notify_discord(msg)
@@ -1006,12 +1006,12 @@ def _run_are(state, target_date, session_name, stadium_code, race_number, odds_m
             tickets.append(BetTicket(race_date=str(target_date), session=session_name, stadium_code=stadium_code,
                                      race_number=race_number, combination=c, amount=100,
                                      bet_type="v_are_p" if practice else "v_are", odds=o))
-            lines.append(c + (f"({o}倍)" if o else ""))
+            lines.append(f"・万舟 {c} 100円" + (f"({o}倍)" if o else ""))
         save_bet_tickets(state, tickets)
         heads = sorted({c[0] for c in combos}, key=lambda h: -sum(p[c] for c in combos if c[0] == h))
         why = ai3.reasons(rows, combos, wind)
         msg = (f"🌪️ **荒天万舟枠{'(練習・集計外)' if practice else ''}・100倍以上の目だけ** {stadium_name}{race_number}R" + (f"(締切{deadline})" if deadline else "")
-               + f"  風{wind}m・荒れ度{are * 100:.0f}%{trend}\n" + " / ".join(lines)
+               + f"  風{wind}m・荒れ度{are * 100:.0f}%{trend}\n" + "\n".join(lines)
                + f"\n投資：{len(combos) * 100:,}円／{len(combos)}点 ※紙上・お楽しみ\n"
                + f"【根拠】頭の本線は{'・'.join(h + '号艇' for h in heads[:2])} / " + " / ".join(why))
         print(msg)
@@ -1056,11 +1056,11 @@ def _run_watch(state, target_date, session_name, stadium_code, race_number, odds
             o = (odds_map or {}).get(tuple(map(int, c.split("-"))))
             tickets.append(BetTicket(race_date=str(target_date), session=session_name, stadium_code=stadium_code,
                                      race_number=race_number, combination=c, amount=100, bet_type="v_watch", odds=o))
-            lines.append(c + (f"({o}倍)" if o else ""))
+            lines.append(f"・万舟 {c} 100円" + (f"({o}倍)" if o else ""))
         save_bet_tickets(state, tickets)
         why = ai3.reasons(rows, combos, (weather or {}).get("wind"))
         msg = (f"🎯 **執事の万舟狙い(練習・100倍以上の目だけ)** {stadium_name}{race_number}R" + (f"(締切{deadline})" if deadline else "")
-               + f"\n着眼：{w[0].get('note', '')}\n" + " / ".join(lines)
+               + f"\n着眼：{w[0].get('note', '')}\n" + "\n".join(lines)
                + f"\n投資：{len(combos) * 100:,}円／{len(combos)}点 ※紙上\n【根拠】" + " / ".join(why))
         print(msg)
         notify_discord(msg)
