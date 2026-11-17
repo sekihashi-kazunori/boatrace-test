@@ -48,7 +48,8 @@ function resultBadge(race) {
 function header(active) {
   // [リンク先, 表示名, スマホでの短い表示名, キー]
   const nav = [["index.html", "今日の予想", "予想", "home"], ["performance.html", "成績", "成績", "perf"],
-               ["venues.html", "会場データ", "会場", "venues"], ["about.html", "このサイトについて", "説明", "about"]];
+               ["venues.html", "会場データ", "会場", "venues"], ["about.html", "このサイトについて", "説明", "about"],
+               ["guide.html", "はじめての方へ", "初めて", "guide"]];   // 【2026-11-17】はじめての方向けのページ(ユーザー指示)
   document.getElementById("header").innerHTML = `
     <header class="site-header"><div class="wrap">
       <a class="brand" href="index.html">${SITE_NAME}<small>直前予想</small></a>
