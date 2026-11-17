@@ -905,8 +905,10 @@ def _run_ai3(state, target_date, session_name, stadium_code, race_number, odds_m
             if c56:
                 man = max(c56, key=lambda c: pp[c])
         extra = (0 if has_g else 100) + (100 if yon else 0) + (100 if man else 0)
-        # 2026-11-15 ご主人様「24.3倍に200円はおかしい」: 安い目に厚く・高い目は100円(合計1,200円)
-        alloc = ai3.allocate_even(picks, odds_s, total=1200 - extra)
+        # 2026-11-15 ご主人様「24.3倍に200円はおかしい」: 安い目に厚く・高い目は100円
+        # 2026-11-17 ご主人様OK: 鉄板6点は1,200円のまま、押さえ(逆転・4号艇2着・万舟)は100円ずつ上乗せ(最大1,500円)。
+        # 押さえで鉄板を削ると当たってもガミ(11/17に3本)。上乗せなら11/17の9Rで回収59%→69%
+        alloc = ai3.allocate_even(picks, odds_s, total=1200)
         if not has_g:
             ana2 = gyaku
             picks.append((gyaku, 0.0))
@@ -1003,6 +1005,10 @@ ARE_RULES = [("v_are", "荒天万舟枠((風5m以上 or その日の荒れ水面
 
 def _run_are(state, target_date, session_name, stadium_code, race_number, odds_map, rows, weather, stadium_name="",
              deadline=None) -> None:
+    # 2026-11-17 ご主人様OK: 万舟枠(荒天万舟・万舟狙い)はいったん止める(16〜17日23R 0本。来にくい目の順番は当てにならない)。
+    # 万舟の取り方が見つかったら作り直す。万舟は本予想の押さえ(逆転・4号艇2着・1-5/1-6)で拾う
+    if MANSHU_SLOTS_STOPPED:
+        return
     try:
         from src.models import ai3
         wind = (weather or {}).get("wind")
@@ -1172,11 +1178,16 @@ def _run_minamo(state, target_date, session_name, stadium_code, race_number, odd
         print(f"みなも×強い場の失敗 {race_number}R: {e}")
 
 
+MANSHU_SLOTS_STOPPED = True
 WATCH_RULES = [("v_watch", "注目レースの万舟狙い(予想家の着眼×執事の読み・練習)")]
 
 
 def _run_watch(state, target_date, session_name, stadium_code, race_number, odds_map, rows, weather,
                stadium_name="", deadline=None) -> None:
+    # 2026-11-17 ご主人様OK: 万舟枠(荒天万舟・万舟狙い)はいったん止める(16〜17日23R 0本。来にくい目の順番は当てにならない)。
+    # 万舟の取り方が見つかったら作り直す。万舟は本予想の押さえ(逆転・4号艇2着・1-5/1-6)で拾う
+    if MANSHU_SLOTS_STOPPED:
+        return
     try:
         import csv as _csv
         path = os.path.join("tipster", f"watch_{target_date}.csv")
