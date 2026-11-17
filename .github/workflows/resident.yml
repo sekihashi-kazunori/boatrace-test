@@ -71,6 +71,11 @@ jobs:
               ( python -u -m src.tools.day_flow > logs/last_flow.txt 2>&1 || true ) &  # 裏で走らせて、3分おきの予想を止めない
               FLOW_T=$(date +%s)
             fi
+            # 2026-11-18 ご主人様OK: 公式コンピューター予想(全場・全レースの3連単フォーカスと自信度)を毎日記録(1日1回・裏で)
+            if [ $(( $(date +%s) - ${PC_T:-0} )) -ge 1800 ] && [ ! -f "tipster/pc_$(TZ=Asia/Tokyo date +%F).csv" ]; then
+              ( python -u -m src.tools.pcexpect collect > logs/last_pc.txt 2>&1 || true ) &
+              PC_T=$(date +%s)
+            fi
             tail -n 40 logs/last_final.txt
             save "all final"
             TODAY=$(TZ=Asia/Tokyo date +%F)
