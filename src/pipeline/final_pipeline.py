@@ -833,6 +833,12 @@ def _run_ai3(state, target_date, session_name, stadium_code, race_number, odds_m
         print(f"執事の本予想 {stadium_name}{race_number}R: 一番の買い目{top6[0][0]} 確率{top6[0][1] * 100:.1f}% 級{tier} 本予想レース{force}")
         if not tier and not force:
             return
+        # 2026-11-17 ご主人様「みなもさんの予想を加味しなさい」: みなもさんの◎が1号艇以外のレースは
+        # 1号艇の勝率17%・万舟33%(11/14〜16の52R。◎が1号艇なら1号艇64%)。1号艇頭の本予想は見送る
+        mk = minamo_mark(target_date, stadium_code, race_number)
+        if mk and len(mk) > 1 and mk[1] != "1" and top6[0][0][0] == "1":
+            print(f"執事の本予想 {stadium_name}{race_number}R: みなもさんの◎が{mk[1]}号艇(1号艇以外)なので見送り")
+            return
         # 2026-11-10 場の掘り下げ: 自信S・Aの6点的中率が戸田50%・鳴門53%と低い(全場61%)。この2場は自信Sだけにする
         if stadium_code in ("02", "14") and tier != "S":
             print(f"執事の本予想 {stadium_name}{race_number}R: 戸田・鳴門は自信Sだけ(今は自信{tier})")
@@ -1014,14 +1020,18 @@ def _run_are(state, target_date, session_name, stadium_code, race_number, odds_m
         except Exception as e:
             print(f"その日の流れの計算失敗: {e}")
         rough_day = n_prev >= 4 and lose is not None and lose >= 0.6
+        # 2026-11-17 ご主人様「みなもさんの予想を加味しなさい」: みなもさんの◎が1号艇以外のレースは万舟33%。
+        # 風や水面に関係なく狙い、頭はみなもさんの◎の艇を優先する
+        mk = minamo_mark(target_date, stadium_code, race_number)
+        m_head = mk[1] if mk and len(mk) > 1 and mk[1] != "1" else None
         calm_day = n_prev >= 3 and lose is not None and lose <= 0.34
         windy = wind is not None and float(wind) >= w_min
-        if calm_day:
+        if calm_day and not m_head:
             if windy:
                 print(f"荒天万舟枠 {stadium_name}{race_number}R: 風{wind}mでも今日この場は1号艇{n_prev}R中"
                       f"{n_prev - round(lose * n_prev)}勝の本命水面なので見送り")
             return
-        if not (windy or rough_day):
+        if not (windy or rough_day or m_head):
             return
         are = ai3.boat1_lose(rows, int(stadium_code), int(race_number), wind, (weather or {}).get("wave"))
         trend = ""
@@ -1029,14 +1039,18 @@ def _run_are(state, target_date, session_name, stadium_code, race_number, odds_m
             trend = f"・今日この場の1号艇は{n_prev}R中{round(lose * n_prev)}回負け"
             if lose >= 0.75:  # 実際の1号艇は読みより約5pt弱い
                 are += 0.05
-        if are is None or are < a_min:
+        if are is None or (are < a_min and not m_head):
             return
         p = ai3.probs(rows, int(stadium_code), int(race_number), wind, (weather or {}).get("wave")) or {}
         ranked = [c for c, _q in sorted(p.items(), key=lambda x: -x[1]) if not c.startswith("1-")]
         # 2026-11-15 ご主人様「万舟狙いで3-1-6の5.5倍は要らない。皆100倍無い。これじゃ一生万舟出ない」:
         # 万舟(100円→10,000円以上)になる100倍以上の目だけから、来やすい順に8点。オッズが取れない時は買わない
         oo = {"-".join(map(str, k)): float(v) for k, v in (odds_map or {}).items() if v}
-        combos = [c for c in ranked if oo.get(c, 0) >= 100][:8]
+        combos = [c for c in ranked if oo.get(c, 0) >= 100]
+        if m_head:  # みなもさんの◎の艇が頭の目を先に
+            combos = [c for c in combos if c[0] == m_head][:5] + [c for c in combos if c[0] != m_head]
+            trend += f"・みなもさんの◎は{m_head}号艇"
+        combos = combos[:8]
         if not combos:
             print(f"荒天万舟枠 {stadium_name}{race_number}R: 100倍以上の目が取れず見送り")
             return
@@ -1068,6 +1082,19 @@ def _run_are(state, target_date, session_name, stadium_code, race_number, odds_m
 # 「みなも×強い場」枠(紙上)。毎朝、その日より前のみなもさんの先出し(tipster/minamo_all_*.csv)を場ごとに採点し、
 # 24R以上で回収率110%以上の場だけ、みなもさんの2点(◎-○-▲ / ◎-▲-○)を200円ずつ買う。記録は v_minamo。
 # 場の選び方はその朝までの成績だけで決める(後から良かった場を選ぶズルにしない)。
+def minamo_mark(target_date, stadium_code, race_number) -> str | None:
+    """みなもさんの先出しの印("◎1○3▲2")。無ければ None"""
+    import csv as _csv
+    path = os.path.join("tipster", f"minamo_all_{target_date}.csv")
+    if not os.path.exists(path):
+        return None
+    with open(path, encoding="utf-8") as f:
+        for r in _csv.DictReader(f):
+            if r["stadium_code"].zfill(2) == str(stadium_code).zfill(2) and int(r["race_number"]) == int(race_number):
+                return r.get("marks") or None
+    return None
+
+
 MINAMO_RULES = [("v_minamo", "みなも×強い場(先出し2点を200円ずつ・その朝までの成績で場を選ぶ)")]
 MINAMO_MIN_RACES, MINAMO_MIN_RET = 24, 1.10
 
