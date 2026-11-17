@@ -21,37 +21,37 @@
 締切予定時刻取得件数: 12件（本来12件）
 場コード=23 場名=唐津 1R締切=08:47 判定=morning
 session=day 絞り込み後: 6場（全11場中）
-直前情報ページ status_code=200 本文長=46395文字
+直前情報ページ status_code=200 本文長=46227文字
 '展示タイム'という文字列が本文に含まれるか: False
 'チルト'という文字列が本文に含まれるか: True
-水面気象: {'wind': 3, 'wave': 5, 'weather': '雨'}
+水面気象: {'wind': 6, 'wave': 5, 'weather': '雨'}
 展示タイム取得件数: 6件（本来6件） 中身={1: 6.72, 2: 6.75, 3: 6.99, 4: 7.02, 5: 6.73, 6: 6.98}
 チルト取得件数: 6件（本来6件） 中身={1: 0.0, 2: 0.5, 3: 0.0, 4: 0.5, 5: 0.5, 6: 0.0}
-抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x72affc0395d0>]
+抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x7965f525a450>]
 [save_entries] 6 entries saved
-直前情報ページ status_code=200 本文長=46350文字
+直前情報ページ status_code=200 本文長=46182文字
 '展示タイム'という文字列が本文に含まれるか: False
 'チルト'という文字列が本文に含まれるか: True
 水面気象: {'wind': 4, 'wave': 5, 'weather': '雨'}
 展示タイム取得件数: 6件（本来6件） 中身={1: 6.79, 2: 6.65, 3: 6.8, 4: 6.74, 5: 6.85, 6: 6.94}
 チルト取得件数: 6件（本来6件） 中身={1: 0.0, 2: 1.5, 3: 0.0, 4: 0.5, 5: 0.5, 6: 0.5}
-抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x72aff8924e90>]
+抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x7965f1c3be10>]
 [save_entries] 6 entries saved
-直前情報ページ status_code=200 本文長=46453文字
+直前情報ページ status_code=200 本文長=46285文字
 '展示タイム'という文字列が本文に含まれるか: False
 'チルト'という文字列が本文に含まれるか: True
 水面気象: {'wind': 3, 'wave': 5, 'weather': '雨'}
 展示タイム取得件数: 6件（本来6件） 中身={1: 6.68, 2: 6.7, 3: 6.99, 4: 6.72, 5: 6.82, 6: 6.85}
 チルト取得件数: 6件（本来6件） 中身={1: 0.5, 2: 0.0, 3: 0.0, 4: 2.0, 5: 0.5, 6: 0.5}
-抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x72affc11f610>]
+抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x7965f5183ad0>]
 [save_entries] 6 entries saved
-直前情報ページ status_code=200 本文長=43566文字
+直前情報ページ status_code=200 本文長=46182文字
 '展示タイム'という文字列が本文に含まれるか: False
 'チルト'という文字列が本文に含まれるか: True
-水面気象: {'wind': 3, 'wave': 5, 'weather': '雨'}
-展示タイム取得件数: 0件（本来6件） 中身={}
-チルト取得件数: 0件（本来6件） 中身={}
-抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x72aff8a475d0>]
+水面気象: {'wind': 4, 'wave': 5, 'weather': '雨'}
+展示タイム取得件数: 6件（本来6件） 中身={1: 6.57, 2: 6.73, 3: 6.77, 4: 6.67, 5: 6.67, 6: 6.66}
+チルト取得件数: 6件（本来6件） 中身={1: 1.5, 2: 0.0, 3: 0.0, 4: 0.0, 5: 0.5, 6: 0.5}
+抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x7965f1ca8110>]
 Traceback (most recent call last):
   File "/opt/hostedtoolcache/Python/3.11.18/x64/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 2113, in _exec_insertmany_context
     dialect.do_execute(
@@ -127,5 +127,5 @@ Traceback (most recent call last):
     cursor.execute(statement, parameters)
 sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) attempt to write a readonly database
 [SQL: INSERT INTO race_entries (race_date, stadium_code, race_number, lane_number, racer_id, national_win_rate, local_win_rate, motor_2rate, boat_2rate, exhibition_time, tilt, start_timing, win_odds, finish_position, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id]
-[parameters: ('2026-11-17', '03', 4, 1, None, 3.82, 4.38, 37.38, 37.5, None, None, None, None, None, '2026-11-17 02:57:48.974019')]
+[parameters: ('2026-11-17', '03', 4, 1, None, 3.82, 4.38, 37.38, 37.5, 6.57, 1.5, 0.05, None, None, '2026-11-17 08:38:51.747264')]
 (Background on this error at: https://sqlalche.me/e/21/e3q8)
