@@ -880,15 +880,25 @@ def _run_ai3(state, target_date, session_name, stadium_code, race_number, odds_m
         # 2026-11-16 ご主人様OK「プラスしても良いよ」: 1号艇頭なのに「1-4-◯」が1点も無い時は、1-4-(一番来そうな3着)を100円。
         # 6日61Rの反省: 1号艇が勝って外した15Rのうち6Rは2着4号艇の抜け。実戦33Rで足していれば3回的中(+6,400円)
         yon = None
-        if a_ == "1" and not any(c.startswith("1-4-") for c, _q in picks):
+        pp = {}
+        if a_ == "1":
             pp = ai3.probs(rows, int(stadium_code), int(race_number), (weather or {}).get("wind"),
                            (weather or {}).get("wave")) or {}
+        if a_ == "1" and not any(c.startswith("1-4-") for c, _q in picks):
             c14 = [c for c in pp if c.startswith("1-4-")]
             if c14:
                 yon = max(c14, key=lambda c: pp[c])
                 if yon == gyaku:
                     yon = None
-        extra = (0 if has_g else 100) + (100 if yon else 0)
+        # 2026-11-17 ご主人様「こう言うの取りなよ!」(唐津2R 1-6-2 45,120円): 1号艇頭なら「1-5-◯ / 1-6-◯」の
+        # 一番来そうな目を万舟の押さえとして100円。6日61Rで1-5/1-6の2着で外したのが4本(計14,980円・費用6,100円)
+        man = None
+        if a_ == "1":
+            have = {c for c, _q in picks} | {gyaku, yon}
+            c56 = [c for c in pp if c[:3] in ("1-5", "1-6") and c not in have]
+            if c56:
+                man = max(c56, key=lambda c: pp[c])
+        extra = (0 if has_g else 100) + (100 if yon else 0) + (100 if man else 0)
         # 2026-11-15 ご主人様「24.3倍に200円はおかしい」: 安い目に厚く・高い目は100円(合計1,200円)
         alloc = ai3.allocate_even(picks, odds_s, total=1200 - extra)
         if not has_g:
@@ -898,6 +908,9 @@ def _run_ai3(state, target_date, session_name, stadium_code, race_number, odds_m
         if yon:
             picks.append((yon, 0.0))
             alloc.append((yon, 100))
+        if man:
+            picks.append((man, 0.0))
+            alloc.append((man, 100))
         pmap = dict(picks)
         picks = [(c, pmap[c]) for c, _a in alloc]
         amt = [a for _c, a in alloc]
@@ -911,7 +924,7 @@ def _run_ai3(state, target_date, session_name, stadium_code, race_number, odds_m
         # 2026-11-08 ご主人様指示: 「AI」と呼ばない。執事が責任を持って出す予想として、根拠(レースの中身)も添える
         why = ai3.reasons(rows, [c for c, _p in top6], (weather or {}).get("wind"))
         lab = {"S": "自信S", "A": "自信A", "B": "自信B"}.get(tier, "本命レース") + ("・👩レディース" if ladies else "")
-        lines = [("・逆転の穴 " if c == ana2 else "・4号艇2着の押さえ " if c == yon else "・穴 " if ana and c == ana[0] else "・鉄板 ") + x
+        lines = [("・逆転の穴 " if c == ana2 else "・4号艇2着の押さえ " if c == yon else "・万舟の押さえ " if c == man else "・穴 " if ana and c == ana[0] else "・鉄板 ") + x
                  for (c, _p), x in zip(picks, lines)]
         msg = (f"🎩 **執事の本予想** {stadium_name}{race_number}R" + (f"(締切{deadline})" if deadline else "")
                + f"  {lab}\n" + "\n".join(lines) + f"\n投資：{sum(amt):,}円／{len(amt)}点 ※紙上\n"
