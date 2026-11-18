@@ -5,10 +5,14 @@ jobs:
   t:
     strategy:
       matrix:
-        rq: ["2.32.5", "2.33.1", "2.34.2"]
+        u3: ["1.26.20", "2.3.0", "2.5.0", "2.6.3", "2.7.0"]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-      - run: pip install "requests==${{ matrix.rq }}" >/dev/null 2>&1; python -c "import requests,urllib3,sys;r=requests.get('https://www.boatrace.jp/owpc/pc/race/index?hd=20261118',headers={'User-Agent':'Mozilla/5.0 (boatrace-test research)'},timeout=20);print('RESULT',requests.__version__,urllib3.__version__,r.status_code)"
+      - run: pip install requests "urllib3==${{ matrix.u3 }}" >/dev/null 2>&1; python -c "import requests,urllib3,sys;r=requests.get('https://www.boatrace.jp/owpc/pc/race/index?hd=20261118',headers={'User-Agent':'Mozilla/5.0 (boatrace-test research)'},timeout=20);print('RESULT',urllib3.__version__,r.status_code)"
+  sysinfo:
+    runs-on: ubuntu-latest
+    steps:
+      - run: python3 -c "import requests,urllib3;print('RESULT sys',requests.__version__,urllib3.__version__)"
