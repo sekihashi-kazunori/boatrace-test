@@ -58,6 +58,18 @@ jobs:
             git pull -q --rebase --autostash || true
             mkdir -p logs
             python -u -m src.pipeline.final_pipeline > logs/last_final.txt 2>&1 || echo "final失敗" >> logs/last_final.txt
+            # 2026-11-18 ご主人様「執事君が確認しなければ駄目。自動システム化だよ」: 見張りの自己点検。
+            # 公式サイトに3回続けて入れない(403)・最終予想が落ちる時は、Discordに知らせて見張りを自分で立て直す(1時間に1回まで)
+            if grep -qE "403 Client Error|Forbidden|final失敗" logs/last_final.txt; then FAIL=$(( ${FAIL:-0} + 1 )); else FAIL=0; fi
+            LASTFIX=$(cat plans/health_restart.txt 2>/dev/null || echo 0)
+            echo "$(TZ=Asia/Tokyo date +%FT%T) 連続失敗=$FAIL" > plans/health.txt
+            if [ "$FAIL" -ge 3 ] && [ $(( $(date +%s) - LASTFIX )) -ge 3600 ]; then
+              date +%s > plans/health_restart.txt
+              python -c "from src.notify.notifier import notify_discord as n; n('⚠️ 執事の見張りが3回続けて失敗しました(公式サイトに入れない等)。見張りを自動で立て直します。')" || true
+              save "health restart"
+              GH_TOKEN="${{ github.token }}" gh workflow run resident.yml --ref main || true
+              break
+            fi
             # 2026-11-08 ご主人様指示: 予想家アンダーグラウンド盛田さんの無料予想を30分おきに記録(最初に見た本文を残す)
             if [ $(( $(date +%s) - ${MORITA_T:-0} )) -ge 1800 ]; then
               python -u -m src.tools.morita collect || true
