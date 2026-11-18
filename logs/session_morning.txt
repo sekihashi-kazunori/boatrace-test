@@ -1,13 +1,120 @@
 Traceback (most recent call last):
+  File "/home/runner/venv/lib/python3.14/site-packages/sqlalchemy/engine/base.py", line 1977, in _exec_single_context
+    self.dialect.do_execute(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        cursor, str_statement, effective_parameters, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/home/runner/venv/lib/python3.14/site-packages/sqlalchemy/engine/default.py", line 1192, in do_execute
+    cursor.execute(statement, parameters)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+sqlite3.OperationalError: table race_decisions already exists
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
   File "<frozen runpy>", line 198, in _run_module_as_main
   File "<frozen runpy>", line 88, in _run_code
   File "/home/runner/work/boatrace-test/boatrace-test/src/pipeline/session_pipeline.py", line 364, in <module>
     run_session(args.session, model_path="model.txt", max_races=max_races, plan_only=not args.immediate)
-  File "/home/runner/work/boatrace-test/boatrace-test/src/pipeline/session_pipeline.py", line 102, in run_session
-    stadium_codes = fetch_today_stadiums(target_date, session=session_name)
-                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/boatrace-test/boatrace-test/src/collectors/official_site.py", line 79, in fetch_today_stadiums
-    res.raise_for_status()
-  File "/opt/hostedtoolcache/Python/3.11.18/x64/lib/python3.11/site-packages/requests/models.py", line 1167, in raise_for_status
-    raise HTTPError(http_error_msg, response=self)
-requests.exceptions.HTTPError: 403 Client Error: Forbidden for url: https://www.boatrace.jp/owpc/pc/race/index?hd=20261118
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/boatrace-test/boatrace-test/src/pipeline/session_pipeline.py", line 99, in run_session
+    init_db(engine)
+    ~~~~~~~^^^^^^^^
+  File "/home/runner/work/boatrace-test/boatrace-test/src/storage/db.py", line 155, in init_db
+    Base.metadata.create_all(engine)
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^
+  File "/home/runner/venv/lib/python3.14/site-packages/sqlalchemy/sql/schema.py", line 6766, in create_all
+    bind._run_ddl_visitor(
+    ~~~~~~~~~~~~~~~~~~~~~^
+        ddl.SchemaGenerator, self, checkfirst=checkfirst, tables=tables
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/home/runner/venv/lib/python3.14/site-packages/sqlalchemy/engine/base.py", line 3254, in _run_ddl_visitor
+    conn._run_ddl_visitor(visitorcallable, element, **kwargs)
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/venv/lib/python3.14/site-packages/sqlalchemy/engine/base.py", line 2455, in _run_ddl_visitor
+    ).traverse_single(element)
+      ~~~~~~~~~~~~~~~^^^^^^^^^
+  File "/home/runner/venv/lib/python3.14/site-packages/sqlalchemy/sql/visitors.py", line 650, in traverse_single
+    return meth(obj, **kw)
+  File "/home/runner/venv/lib/python3.14/site-packages/sqlalchemy/sql/ddl.py", line 1472, in visit_metadata
+    self.traverse_single(
+    ~~~~~~~~~~~~~~~~~~~~^
+        table,
+        ^^^^^^
+    ...<2 lines>...
+        _is_metadata_operation=True,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/home/runner/venv/lib/python3.14/site-packages/sqlalchemy/sql/visitors.py", line 650, in traverse_single
+    return meth(obj, **kw)
+  File "/home/runner/venv/lib/python3.14/site-packages/sqlalchemy/sql/ddl.py", line 1515, in visit_table
+    table_create_ddl._invoke_with(self.connection)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/runner/venv/lib/python3.14/site-packages/sqlalchemy/sql/ddl.py", line 337, in _invoke_with
+    return bind.execute(self)
+           ~~~~~~~~~~~~^^^^^^
+  File "/home/runner/venv/lib/python3.14/site-packages/sqlalchemy/engine/base.py", line 1494, in execute
+    return meth(
+        self,
+        distilled_parameters,
+        execution_options or NO_OPTIONS,
+    )
+  File "/home/runner/venv/lib/python3.14/site-packages/sqlalchemy/sql/ddl.py", line 203, in _execute_on_connection
+    return connection._execute_ddl(
+           ~~~~~~~~~~~~~~~~~~~~~~~^
+        self, distilled_params, execution_options
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/home/runner/venv/lib/python3.14/site-packages/sqlalchemy/engine/base.py", line 1603, in _execute_ddl
+    ret = self._execute_context(
+        dialect,
+    ...<4 lines>...
+        compiled,
+    )
+  File "/home/runner/venv/lib/python3.14/site-packages/sqlalchemy/engine/base.py", line 1868, in _execute_context
+    return self._exec_single_context(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~^
+        dialect, context, statement, parameters
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/home/runner/venv/lib/python3.14/site-packages/sqlalchemy/engine/base.py", line 1996, in _exec_single_context
+    self._handle_dbapi_exception(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        e, str_statement, effective_parameters, cursor, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/home/runner/venv/lib/python3.14/site-packages/sqlalchemy/engine/base.py", line 2351, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "/home/runner/venv/lib/python3.14/site-packages/sqlalchemy/engine/base.py", line 1977, in _exec_single_context
+    self.dialect.do_execute(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        cursor, str_statement, effective_parameters, context
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/home/runner/venv/lib/python3.14/site-packages/sqlalchemy/engine/default.py", line 1192, in do_execute
+    cursor.execute(statement, parameters)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) table race_decisions already exists
+[SQL: 
+CREATE TABLE race_decisions (
+	id INTEGER NOT NULL, 
+	race_date VARCHAR, 
+	session VARCHAR, 
+	stadium_code VARCHAR, 
+	race_number INTEGER, 
+	status VARCHAR, 
+	created_at DATETIME, 
+	PRIMARY KEY (id)
+)
+
+]
+(Background on this error at: https://sqlalche.me/e/21/e3q8)
