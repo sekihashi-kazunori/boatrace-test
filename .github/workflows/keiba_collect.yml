@@ -16,9 +16,8 @@ jobs:
     timeout-minutes: 340
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
+      - name: python (システムのPythonを使う。2026-11-18 setup-pythonのPythonだと公式サイトが403で弾く)
+        run: python3 -m venv "$HOME/venv" && echo "$HOME/venv/bin" >> "$GITHUB_PATH"
       - run: pip install requests
       - run: python -m src.tools.keiba_collect --start "${{ inputs.start }}" --end "${{ inputs.end }}" --max-minutes 300
       - name: save

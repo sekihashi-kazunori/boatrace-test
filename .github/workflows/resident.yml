@@ -23,10 +23,8 @@ jobs:
     timeout-minutes: 355
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-          cache: pip
+      - name: python (システムのPythonを使う。2026-11-18 setup-pythonのPythonだと公式サイトが403で弾く)
+        run: python3 -m venv "$HOME/venv" && echo "$HOME/venv/bin" >> "$GITHUB_PATH"
       - run: pip install -e .
       - name: mihari loop
         env:
