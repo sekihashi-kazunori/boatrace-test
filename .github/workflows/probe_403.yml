@@ -5,10 +5,10 @@ jobs:
   t:
     strategy:
       matrix:
-        py: ["3.12", "3.13"]
+        rq: ["2.32.5", "2.33.1", "2.34.2"]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/setup-python@v5
         with:
-          python-version: ${{ matrix.py }}
-      - run: pip install requests >/dev/null 2>&1; python -c "import requests,sys;r=requests.get('https://www.boatrace.jp/owpc/pc/race/index?hd=20261118',headers={'User-Agent':'Mozilla/5.0 (boatrace-test research)'},timeout=20);print('RESULT',sys.version.split()[0],r.status_code)"
+          python-version: "3.11"
+      - run: pip install "requests==${{ matrix.rq }}" >/dev/null 2>&1; python -c "import requests,urllib3,sys;r=requests.get('https://www.boatrace.jp/owpc/pc/race/index?hd=20261118',headers={'User-Agent':'Mozilla/5.0 (boatrace-test research)'},timeout=20);print('RESULT',requests.__version__,urllib3.__version__,r.status_code)"
