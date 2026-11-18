@@ -20,7 +20,45 @@ def _get(url, **kw):
     if wait > 0:
         _time.sleep(wait)
     _LAST[0] = _time.time()
-    return requests.get(url, **kw)
+    try:
+        res = requests.get(url, **kw)
+    except requests.RequestException as e:
+        print(f"[_get] requestsで取得失敗 {e} → curlで再挑戦")
+        res = None
+    if res is not None and res.status_code != 403:
+        return res
+    # 2026-11-18: Pythonの通信のしかた(TLS)によって公式サイトが403で弾き、15:30〜18:10の22レースを落とした。
+    # 403が出たら、別の通信の仕組み(curl)で取り直す予備の手。curlでも駄目なら元の結果(403)を返す。
+    alt = _get_by_curl(url, kw.get("headers") or {}, kw.get("timeout", 15))
+    if alt is not None:
+        print(f"[_get] 403のためcurlで取り直し成功 {url}")
+        return alt
+    if res is None:
+        raise requests.ConnectionError(f"取得失敗(requests・curlとも) {url}")
+    return res
+
+
+def _get_by_curl(url, headers, timeout):
+    import subprocess
+    cmd = ["curl", "-sS", "-L", "--compressed", "--max-time", str(int(timeout) + 5), "-w", "\n%{http_code}"]
+    for k, v in headers.items():
+        cmd += ["-H", f"{k}: {v}"]
+    cmd.append(url)
+    try:
+        out = subprocess.run(cmd, capture_output=True, timeout=int(timeout) + 10).stdout
+    except Exception as e:
+        print(f"[_get] curlも失敗 {e}")
+        return None
+    body, _, code = out.rpartition(b"\n")
+    if not code.strip().isdigit() or int(code) != 200:
+        print(f"[_get] curlも失敗 status={code.strip().decode(errors='replace')}")
+        return None
+    r = requests.models.Response()
+    r.status_code = 200
+    r._content = body
+    r.url = url
+    r.encoding = "utf-8"
+    return r
 
 BASE_URL = "https://www.boatrace.jp"
 HEADERS = {

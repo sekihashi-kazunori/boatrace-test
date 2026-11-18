@@ -42,7 +42,8 @@ def fetch_race_result(race_date: date, stadium_code: int | str, race_number: int
         race_date, stadium_tel_code, race_number
     )
 
-    res = requests.get(url, headers=HEADERS, timeout=15)
+    from src.collectors.official_site import _get  # 403時はcurlで取り直す予備の手つき
+    res = _get(url, headers=HEADERS, timeout=15)
     res.raise_for_status()
     res.encoding = res.apparent_encoding
     html = res.text
