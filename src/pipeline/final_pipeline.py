@@ -1396,7 +1396,10 @@ def run_final(target_date: date | None = None, model_path: str = "model.txt", db
             bet_plans = build_bet_plan(indexed, total_stake=1000, odds_map=odds_map)
             _save_snapshot(state, target_date, stadium_code, race_number, odds_map, indexed)
         except Exception as e:
-            print(f"{label}: 最終予想失敗 {e}")
+            # 2026-11-18 執事: 若松8R・9Rが「最終予想失敗 」(理由が空)で落ちた。原因が見えるよう例外の型と場所を必ず出す
+            import traceback as _tb
+            print(f"{label}: 最終予想失敗 {type(e).__name__}: {e!r}")
+            print(_tb.format_exc()[-1500:])
             # 締切が迫っていればあきらめる。まだ時間があれば次回再挑戦。
             if mins is not None and mins < 10:
                 _record(state, target_date, session_name, stadium_code, race_number, "missed")

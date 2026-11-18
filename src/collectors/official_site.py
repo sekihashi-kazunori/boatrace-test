@@ -407,6 +407,16 @@ def fetch_before_info(stadium_code: str, race_number: int, target_date: Optional
     print(f"展示タイム取得件数: {len(exhibition_by_lane)}件（本来6件） 中身={exhibition_by_lane}")
     print(f"チルト取得件数: {len(tilt_by_lane)}件（本来6件） 中身={tilt_by_lane}")
 
+    if not exhibition_by_lane:
+        # 2026-11-18 執事: 若松だけ締切9分前でも展示0/6艇が続いた。ページの中身を残して原因を切り分ける
+        try:
+            import os as _os
+            _os.makedirs("logs", exist_ok=True)
+            with open(f"logs/beforeinfo_{stadium_code}_{race_number}.html", "w", encoding="utf-8") as _f:
+                _f.write(res.text)
+        except Exception:
+            pass
+
     st_by_lane, course_by_lane = _parse_start_exhibition(res.text)
     entries = []
     for lane in range(1, 7):
