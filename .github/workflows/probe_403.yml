@@ -2,14 +2,13 @@ name: probe 403 (公式サイトが弾く原因の切り分け)
 on:
   workflow_dispatch:
 jobs:
-  sys:
-    runs-on: ubuntu-latest
-    steps:
-      - run: pip install requests >/dev/null 2>&1; python3 --version; python3 -c "import requests,ssl;print(ssl.OPENSSL_VERSION, requests.__version__);r=requests.get('https://www.boatrace.jp/owpc/pc/race/index?hd=20261118',headers={'User-Agent':'Mozilla/5.0 (boatrace-test research)'},timeout=20);print('SYS',r.status_code)"
-  py311:
+  t:
+    strategy:
+      matrix:
+        py: ["3.12", "3.13"]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
-      - run: pip install requests >/dev/null 2>&1; python --version; python -c "import requests,ssl;print(ssl.OPENSSL_VERSION, requests.__version__);r=requests.get('https://www.boatrace.jp/owpc/pc/race/index?hd=20261118',headers={'User-Agent':'Mozilla/5.0 (boatrace-test research)'},timeout=20);print('PY311',r.status_code)"
+          python-version: ${{ matrix.py }}
+      - run: pip install requests >/dev/null 2>&1; python -c "import requests,sys;r=requests.get('https://www.boatrace.jp/owpc/pc/race/index?hd=20261118',headers={'User-Agent':'Mozilla/5.0 (boatrace-test research)'},timeout=20);print('RESULT',sys.version.split()[0],r.status_code)"
