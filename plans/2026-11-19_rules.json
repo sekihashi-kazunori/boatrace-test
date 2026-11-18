@@ -1,0 +1,110 @@
+[
+ {
+  "session": "day",
+  "stadium_code": "09",
+  "race_number": 1,
+  "stadium_name": "津",
+  "deadline": "10:28",
+  "main": true,
+  "gen": false
+ },
+ {
+  "session": "day",
+  "stadium_code": "09",
+  "race_number": 2,
+  "stadium_name": "津",
+  "deadline": "10:55",
+  "main": true,
+  "gen": false
+ },
+ {
+  "session": "day",
+  "stadium_code": "09",
+  "race_number": 3,
+  "stadium_name": "津",
+  "deadline": "11:23",
+  "main": true,
+  "gen": false
+ },
+ {
+  "session": "day",
+  "stadium_code": "09",
+  "race_number": 4,
+  "stadium_name": "津",
+  "deadline": "11:49",
+  "main": true,
+  "gen": false
+ },
+ {
+  "session": "day",
+  "stadium_code": "09",
+  "race_number": 5,
+  "stadium_name": "津",
+  "deadline": "12:20",
+  "main": true,
+  "gen": false
+ },
+ {
+  "session": "day",
+  "stadium_code": "09",
+  "race_number": 6,
+  "stadium_name": "津",
+  "deadline": "12:48",
+  "main": true,
+  "gen": false
+ },
+ {
+  "session": "day",
+  "stadium_code": "09",
+  "race_number": 7,
+  "stadium_name": "津",
+  "deadline": "13:18",
+  "main": true,
+  "gen": false
+ },
+ {
+  "session": "day",
+  "stadium_code": "09",
+  "race_number": 8,
+  "stadium_name": "津",
+  "deadline": "13:47",
+  "main": true,
+  "gen": false
+ },
+ {
+  "session": "day",
+  "stadium_code": "09",
+  "race_number": 9,
+  "stadium_name": "津",
+  "deadline": "14:18",
+  "main": true,
+  "gen": false
+ },
+ {
+  "session": "day",
+  "stadium_code": "09",
+  "race_number": 10,
+  "stadium_name": "津",
+  "deadline": "14:50",
+  "main": true,
+  "gen": false
+ },
+ {
+  "session": "day",
+  "stadium_code": "09",
+  "race_number": 11,
+  "stadium_name": "津",
+  "deadline": "15:28",
+  "main": true,
+  "gen": false
+ },
+ {
+  "session": "day",
+  "stadium_code": "09",
+  "race_number": 12,
+  "stadium_name": "津",
+  "deadline": "16:04",
+  "main": true,
+  "gen": false
+ }
+]
