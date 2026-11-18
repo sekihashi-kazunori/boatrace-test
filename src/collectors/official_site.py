@@ -357,6 +357,7 @@ def _parse_before_info_table(html: str) -> tuple[dict[int, float], dict[int, flo
 
 
 LAST_WEATHER: dict = {}
+CANCELLED: dict = {}
 
 
 def parse_weather(html: str) -> dict:
@@ -400,6 +401,14 @@ def fetch_before_info(stadium_code: str, race_number: int, target_date: Optional
     print(f"直前情報ページ status_code={res.status_code} 本文長={len(res.text)}文字")
     print(f"'展示タイム'という文字列が本文に含まれるか: {'展示タイム' in res.text}")
     print(f"'チルト'という文字列が本文に含まれるか: {'チルト' in res.text}")
+
+    # 2026-11-18 執事: 若松がこの日「中止」(日付タブに「11月18日 中止」)なのに、展示待ち→失敗を繰り返していた。
+    # 中止の日は印を付け、最終予想側で「開催中止」として静かに外す
+    _day_txt = f"{target_date.month}月{target_date.day}日"
+    _plain = BeautifulSoup(res.text, "html.parser").get_text(" ", strip=True)
+    CANCELLED[(stadium_code, str(target_date))] = bool(re.search(_day_txt + r"\s*(中止|順延)", _plain))
+    if CANCELLED[(stadium_code, str(target_date))]:
+        print(f"開催中止の表示あり: {stadium_code} {_day_txt}")
 
     exhibition_by_lane, tilt_by_lane = _parse_before_info_table(res.text)
     LAST_WEATHER[(stadium_code, race_number, str(target_date))] = parse_weather(res.text)

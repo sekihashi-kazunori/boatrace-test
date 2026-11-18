@@ -25,7 +25,7 @@ import pandas as pd
 from sqlalchemy import select
 from sqlalchemy.orm import Session as OrmSession
 
-from src.collectors.official_site import fetch_race_card, fetch_before_info, fetch_odds_3rentan, LAST_WEATHER, fetch_race_deadline_times, _classify_session_from_first_deadline
+from src.collectors.official_site import CANCELLED, fetch_race_card, fetch_before_info, fetch_odds_3rentan, LAST_WEATHER, fetch_race_deadline_times, _classify_session_from_first_deadline
 from src.storage.db import (
     get_engine, init_db, save_entries, save_bet_tickets, get_state_engine,
     BetTicket, RaceDecision, OddsSnapshot, RaceMeta,
@@ -1369,6 +1369,10 @@ def run_final(target_date: date | None = None, model_path: str = "model.txt", db
         except Exception as e:
             print(f"{label}: 直前情報取得失敗 {e}")
             before_info = None
+        if CANCELLED.get((stadium_code, str(target_date))):
+            print(f"{label}: 開催中止 → 対象外")
+            _record(state, target_date, session_name, stadium_code, race_number, "cancelled")
+            continue
         n_exh = sum(1 for b in (before_info or []) if b.get("exhibition_time") is not None)
 
         if n_exh < 6 and mins is not None and mins > FORCE_IF_LESS_THAN_MIN:
