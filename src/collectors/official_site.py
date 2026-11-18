@@ -5,8 +5,22 @@ import re
 from datetime import date
 from typing import Optional
 
+import time as _time
+
 import requests
 from bs4 import BeautifulSoup
+
+_LAST = [0.0]
+
+
+def _get(url, **kw):
+    """2026-11-18: 公式サイトに短時間に大量に取りに行って403(アクセス拒否)になり、予想が昼から止まった。
+    1回ごとに最低1.2秒あけて、やさしく取りに行く"""
+    wait = 1.2 - (_time.time() - _LAST[0])
+    if wait > 0:
+        _time.sleep(wait)
+    _LAST[0] = _time.time()
+    return requests.get(url, **kw)
 
 BASE_URL = "https://www.boatrace.jp"
 HEADERS = {
@@ -61,7 +75,7 @@ def fetch_today_stadiums(target_date: Optional[date] = None, session: Optional[s
     hd = target_date.strftime("%Y%m%d")
 
     url = f"{BASE_URL}/owpc/pc/race/index?hd={hd}"
-    res = requests.get(url, headers=HEADERS, timeout=15)
+    res = _get(url, headers=HEADERS, timeout=15)
     res.raise_for_status()
     res.encoding = res.apparent_encoding
 
@@ -152,7 +166,7 @@ def fetch_race_card(stadium_code: str, race_number: int, target_date: Optional[d
         f"{BASE_URL}/owpc/pc/race/racelist"
         f"?rno={race_number}&jcd={stadium_code}&hd={hd}"
     )
-    res = requests.get(url, headers=HEADERS, timeout=15)
+    res = _get(url, headers=HEADERS, timeout=15)
     res.raise_for_status()
     res.encoding = res.apparent_encoding
 
@@ -341,7 +355,7 @@ def fetch_before_info(stadium_code: str, race_number: int, target_date: Optional
     hd = target_date.strftime("%Y%m%d")
 
     url = f"{BASE_URL}/owpc/pc/race/beforeinfo?rno={race_number}&jcd={stadium_code}&hd={hd}"
-    res = requests.get(url, headers=HEADERS, timeout=15)
+    res = _get(url, headers=HEADERS, timeout=15)
     res.raise_for_status()
     res.encoding = res.apparent_encoding
 
@@ -409,7 +423,7 @@ def fetch_race_deadline_times(stadium_code: str, target_date: Optional[date] = N
     hd = target_date.strftime("%Y%m%d")
 
     url = f"{BASE_URL}/owpc/pc/race/racelist?rno=1&jcd={stadium_code}&hd={hd}"
-    res = requests.get(url, headers=HEADERS, timeout=15)
+    res = _get(url, headers=HEADERS, timeout=15)
     res.raise_for_status()
     res.encoding = res.apparent_encoding
 
@@ -454,7 +468,7 @@ def fetch_odds_3rentan(stadium_code: str, race_number: int, target_date: Optiona
     stadium_tel_code = StadiumTelCode(int(stadium_code))
     url = odds_location.create_odds_page_url(target_date, stadium_tel_code, race_number)
 
-    res = requests.get(url, headers=HEADERS, timeout=15)
+    res = _get(url, headers=HEADERS, timeout=15)
     res.raise_for_status()
     res.encoding = res.apparent_encoding
 

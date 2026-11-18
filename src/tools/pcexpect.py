@@ -78,7 +78,7 @@ def collect(d: date | None = None) -> int:
                 rows.append({"race_date": str(d), "stadium_code": jcd, "race_number": rno, "confidence": lv or "",
                              "combos": " ".join(tri), "exacta": " ".join(ex),
                              "captured_at": now.isoformat(timespec="seconds")})
-            time.sleep(0.4)
+            time.sleep(1.5)
     if not rows:
         print("コンピューター予想が取れませんでした", d)
         return 0

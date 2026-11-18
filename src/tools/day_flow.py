@@ -46,7 +46,7 @@ def collect(d) -> dict:
             tri = have.get(k)
             if tri is None:
                 tri = T._fetch(jcd, rn, d)
-                time.sleep(0.5)
+                time.sleep(1.5)
                 if not tri:
                     break
                 T._save(d, k, tri)
