@@ -1400,6 +1400,12 @@ def run_final(target_date: date | None = None, model_path: str = "model.txt", db
             bet_plans = build_bet_plan(indexed, total_stake=1000, odds_map=odds_map)
             _save_snapshot(state, target_date, stadium_code, race_number, odds_map, indexed)
         except Exception as e:
+            # 2026-11-19 執事: 津3R・4Rが強風で中止になり、オッズ側の RaceCanceled が「最終予想失敗+Traceback」として出ていた。
+            # 公式の中止は不具合ではないので、開催中止として静かに外す(本物の失敗と見分けるため)
+            if type(e).__name__ == "RaceCanceled":
+                print(f"{label}: レース中止(公式) → 対象外")
+                _record(state, target_date, session_name, stadium_code, race_number, "cancelled")
+                continue
             # 2026-11-18 執事: 若松8R・9Rが「最終予想失敗 」(理由が空)で落ちた。原因が見えるよう例外の型と場所を必ず出す
             import traceback as _tb
             print(f"{label}: 最終予想失敗 {type(e).__name__}: {e!r}")
