@@ -704,6 +704,45 @@ def _run_456box(state, target_date, session_name, stadium_code, race_number, odd
         print(f"456BOX検証枠の保存失敗: {e}")
 
 
+# 2026-11-21 ご主人様「129と456は執事君の采配に任せる！全レースでは無く会場とレースを読んで掛けてみて」:
+# 2026年1〜10月 約4万Rで条件を探し、前半(1〜5月)・後半(6〜10月)の両方で確かめた形だけ(紙上の検証枠)。
+#  v_456sel: 9〜12R × 1号艇の全国勝率5.0以下 × 4・5・6号艇のどれかが展示タイム2位以内 → 456BOX 6点×100円
+#            960R 的中24本 回収率 前132%・後188%(9か月中7か月プラス)。ただし大きい3本を除くと83%で、波が大きい。
+#  v_12sel : 9〜12R × 1号艇の全国勝率6.5以上・展示タイム2位以内 × 2号艇の全国勝率が3〜6号艇より上 → 1-2-全 4点×100円
+#            736R 的中289本 回収率 前91%・後96%(全レース平均75%より上。まだ100%には届かない)
+SEL_RULES = [("v_456sel", "9〜12R×1号艇勝率5.0以下×456展示2位内 456BOX"),
+             ("v_12sel", "9〜12R×1号艇勝率6.5以上展示2位内×2号艇が2番手 1-2-全")]
+
+
+def _run_sel(state, target_date, session_name, stadium_code, race_number, odds_map, card, before_info) -> None:
+    if not (9 <= race_number <= 12):
+        return
+    racers = {r.get("lane"): r for r in (card or {}).get("racers", [])}
+    bi = {b.get("lane"): b for b in (before_info or [])}
+    try:
+        nw = {l: float(racers[l].get("national_win_rate")) for l in range(1, 7)}
+        ex = {l: float((bi.get(l) or {}).get("exhibition_time")) for l in range(1, 7)}
+    except (KeyError, TypeError, ValueError):
+        return
+    order = sorted(range(1, 7), key=lambda l: ex[l])
+    rk = {l: order.index(l) + 1 for l in range(1, 7)}
+    picks = []
+    if nw[1] <= 5.0 and min(rk[4], rk[5], rk[6]) <= 2:
+        picks.append(("v_456sel", _perm([4, 5, 6], [4, 5, 6], [4, 5, 6])))
+    if nw[1] >= 6.5 and rk[1] <= 2 and nw[2] >= max(nw[3], nw[4], nw[5], nw[6]):
+        picks.append(("v_12sel", [f"1-2-{c}" for c in range(3, 7)]))
+    for bt, combos in picks:
+        try:
+            save_bet_tickets(state, [BetTicket(race_date=str(target_date), session=session_name,
+                                               stadium_code=stadium_code, race_number=race_number, combination=c,
+                                               amount=100, bet_type=bt,
+                                               odds=(odds_map or {}).get(tuple(map(int, c.split("-")))))
+                                     for c in combos])
+            print(f"執事の采配 {bt}: {stadium_code} {race_number}R " + " ".join(combos))
+        except Exception as e:
+            print(f"執事の采配 {bt} の保存失敗: {e}")
+
+
 # 2026-11-06 ご主人様OK: 1-456-456 の新システム。会場×級×R帯を掘り下げ、前後の期間で両方100%超え(128% / 124%)。
 # 江戸川・児島・津・尼崎・宮島・戸田 × 1号艇B級 × 9〜12R → 1-456-456 6点×100円。
 BOX1456_RULES = [("v_1456b", "江戸川児島津尼崎宮島戸田×1号艇B級×9〜12R 1-456-456")]
@@ -1475,6 +1514,7 @@ def run_final(target_date: date | None = None, model_path: str = "model.txt", db
         _run_tanfuku(target_date, session_name, stadium_code, race_number, before_info, card, race.get("deadline"))
         _run_likely(state, target_date, session_name, stadium_code, race_number, odds_map)
         _run_456box(state, target_date, session_name, stadium_code, race_number, odds_map, card)
+        _run_sel(state, target_date, session_name, stadium_code, race_number, odds_map, card, before_info)
         _run_1456b(state, target_date, session_name, stadium_code, race_number, odds_map, card)
         _run_edo15(state, target_date, session_name, stadium_code, race_number, odds_map, before_info)
         _run_venue(state, target_date, session_name, stadium_code, race_number, odds_map, card, weather)
