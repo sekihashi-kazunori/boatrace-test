@@ -1,0 +1,380 @@
+[
+ {
+  "stadium_code": "22",
+  "race_number": 10,
+  "stadium_name": "福岡",
+  "deadline": "15:29",
+  "score": 0.3758,
+  "main": false,
+  "gen": true
+ },
+ {
+  "stadium_code": "22",
+  "race_number": 1,
+  "stadium_name": "福岡",
+  "deadline": "10:43",
+  "score": 0.3706,
+  "main": false,
+  "gen": true
+ },
+ {
+  "stadium_code": "17",
+  "race_number": 1,
+  "stadium_name": "宮島",
+  "deadline": "10:16",
+  "score": 0.3036,
+  "main": false,
+  "gen": true
+ },
+ {
+  "stadium_code": "17",
+  "race_number": 7,
+  "stadium_name": "宮島",
+  "deadline": "12:53",
+  "score": 0.3021,
+  "main": false,
+  "gen": true
+ },
+ {
+  "stadium_code": "13",
+  "race_number": 6,
+  "stadium_name": "尼崎",
+  "deadline": "13:05",
+  "score": 0.2794,
+  "main": false,
+  "gen": true
+ },
+ {
+  "stadium_code": "04",
+  "race_number": 5,
+  "stadium_name": "平和島",
+  "deadline": "12:40",
+  "score": 0.2758,
+  "main": false,
+  "gen": true
+ },
+ {
+  "stadium_code": "17",
+  "race_number": 10,
+  "stadium_name": "宮島",
+  "deadline": "14:21",
+  "score": 0.2685,
+  "main": false,
+  "gen": true
+ },
+ {
+  "stadium_code": "17",
+  "race_number": 8,
+  "stadium_name": "宮島",
+  "deadline": "13:24",
+  "score": 0.2667,
+  "main": false,
+  "gen": false
+ },
+ {
+  "stadium_code": "22",
+  "race_number": 6,
+  "stadium_name": "福岡",
+  "deadline": "13:14",
+  "score": 0.2667,
+  "main": false,
+  "gen": false
+ },
+ {
+  "stadium_code": "22",
+  "race_number": 3,
+  "stadium_name": "福岡",
+  "deadline": "11:49",
+  "score": 0.2642,
+  "main": false,
+  "gen": false
+ },
+ {
+  "stadium_code": "13",
+  "race_number": 5,
+  "stadium_name": "尼崎",
+  "deadline": "12:31",
+  "score": 0.2592,
+  "main": false,
+  "gen": false
+ },
+ {
+  "stadium_code": "22",
+  "race_number": 8,
+  "stadium_name": "福岡",
+  "deadline": "14:17",
+  "score": 0.2372,
+  "main": false,
+  "gen": false
+ },
+ {
+  "stadium_code": "22",
+  "race_number": 9,
+  "stadium_name": "福岡",
+  "deadline": "14:48",
+  "score": 0.2364,
+  "main": false,
+  "gen": false
+ },
+ {
+  "stadium_code": "04",
+  "race_number": 10,
+  "stadium_name": "平和島",
+  "deadline": "15:06",
+  "score": 0.2232,
+  "main": false,
+  "gen": false
+ },
+ {
+  "stadium_code": "22",
+  "race_number": 5,
+  "stadium_name": "福岡",
+  "deadline": "12:47",
+  "score": 0.2218,
+  "main": false,
+  "gen": false
+ },
+ {
+  "stadium_code": "02",
+  "race_number": 1,
+  "stadium_name": "戸田",
+  "deadline": "10:45",
+  "score": 0.2208,
+  "main": false,
+  "gen": false
+ },
+ {
+  "stadium_code": "13",
+  "race_number": 1,
+  "stadium_name": "尼崎",
+  "deadline": "10:34",
+  "score": 0.2134,
+  "main": false,
+  "gen": false
+ },
+ {
+  "stadium_code": "13",
+  "race_number": 3,
+  "stadium_name": "尼崎",
+  "deadline": "11:26",
+  "score": 0.2051,
+  "main": false,
+  "gen": false
+ },
+ {
+  "stadium_code": "17",
+  "race_number": 9,
+  "stadium_name": "宮島",
+  "deadline": "13:52",
+  "score": 0.2012,
+  "main": false,
+  "gen": false
+ },
+ {
+  "stadium_code": "13",
+  "race_number": 2,
+  "stadium_name": "尼崎",
+  "deadline": "11:00",
+  "score": 0.1985,
+  "main": false,
+  "gen": false
+ },
+ {
+  "stadium_code": "04",
+  "race_number": 9,
+  "stadium_name": "平和島",
+  "deadline": "14:36",
+  "score": 0.1978,
+  "main": false,
+  "gen": false
+ },
+ {
+  "stadium_code": "22",
+  "race_number": 7,
+  "stadium_name": "福岡",
+  "deadline": "13:49",
+  "score": 0.1966,
+  "main": false,
+  "gen": false
+ },
+ {
+  "stadium_code": "13",
+  "race_number": 10,
+  "stadium_name": "尼崎",
+  "deadline": "15:13",
+  "score": 0.1951,
+  "main": false,
+  "gen": false
+ },
+ {
+  "stadium_code": "17",
+  "race_number": 4,
+  "stadium_name": "宮島",
+  "deadline": "11:34",
+  "score": 0.1817,
+  "main": false,
+  "gen": false
+ },
+ {
+  "stadium_code": "22",
+  "race_number": 4,
+  "stadium_name": "福岡",
+  "deadline": "12:18",
+  "score": 0.175,
+  "main": false,
+  "gen": false
+ },
+ {
+  "stadium_code": "17",
+  "race_number": 3,
+  "stadium_name": "宮島",
+  "deadline": "11:08",
+  "score": 0.1711,
+  "main": false,
+  "gen": false
+ },
+ {
+  "stadium_code": "04",
+  "race_number": 3,
+  "stadium_name": "平和島",
+  "deadline": "11:45",
+  "score": 0.1702,
+  "main": false,
+  "gen": false
+ },
+ {
+  "stadium_code": "04",
+  "race_number": 4,
+  "stadium_name": "平和島",
+  "deadline": "12:12",
+  "score": 0.1642,
+  "main": false,
+  "gen": false
+ },
+ {
+  "stadium_code": "13",
+  "race_number": 4,
+  "stadium_name": "尼崎",
+  "deadline": "11:52",
+  "score": 0.1607,
+  "main": false,
+  "gen": false
+ },
+ {
+  "stadium_code": "04",
+  "race_number": 7,
+  "stadium_name": "平和島",
+  "deadline": "13:36",
+  "score": 0.1586,
+  "main": false,
+  "gen": false
+ },
+ {
+  "stadium_code": "13",
+  "race_number": 7,
+  "stadium_name": "尼崎",
+  "deadline": "13:43",
+  "score": 0.1575,
+  "main": false,
+  "gen": false
+ },
+ {
+  "stadium_code": "22",
+  "race_number": 2,
+  "stadium_name": "福岡",
+  "deadline": "11:09",
+  "score": 0.1488,
+  "main": false,
+  "gen": false
+ },
+ {
+  "stadium_code": "04",
+  "race_number": 2,
+  "stadium_name": "平和島",
+  "deadline": "11:18",
+  "score": 0.1479,
+  "main": false,
+  "gen": false
+ },
+ {
+  "stadium_code": "13",
+  "race_number": 8,
+  "stadium_name": "尼崎",
+  "deadline": "14:12",
+  "score": 0.1475,
+  "main": false,
+  "gen": false
+ },
+ {
+  "stadium_code": "13",
+  "race_number": 9,
+  "stadium_name": "尼崎",
+  "deadline": "14:42",
+  "score": 0.147,
+  "main": false,
+  "gen": false
+ },
+ {
+  "stadium_code": "04",
+  "race_number": 8,
+  "stadium_name": "平和島",
+  "deadline": "14:09",
+  "score": 0.1462,
+  "main": false,
+  "gen": false
+ },
+ {
+  "stadium_code": "17",
+  "race_number": 2,
+  "stadium_name": "宮島",
+  "deadline": "10:42",
+  "score": 0.1262,
+  "main": false,
+  "gen": false
+ },
+ {
+  "stadium_code": "17",
+  "race_number": 5,
+  "stadium_name": "宮島",
+  "deadline": "12:00",
+  "score": 0.1234,
+  "main": false,
+  "gen": false
+ },
+ {
+  "stadium_code": "04",
+  "race_number": 1,
+  "stadium_name": "平和島",
+  "deadline": "10:51",
+  "score": 0.1216,
+  "main": false,
+  "gen": false
+ },
+ {
+  "stadium_code": "17",
+  "race_number": 6,
+  "stadium_name": "宮島",
+  "deadline": "12:26",
+  "score": 0.0903,
+  "main": false,
+  "gen": false
+ },
+ {
+  "stadium_code": "04",
+  "race_number": 6,
+  "stadium_name": "平和島",
+  "deadline": "13:07",
+  "score": 0.0824,
+  "main": false,
+  "gen": false
+ },
+ {
+  "stadium_code": "02",
+  "race_number": 2,
+  "stadium_name": "戸田",
+  "deadline": "11:12",
+  "score": 0.0729,
+  "main": false,
+  "gen": false
+ }
+]
