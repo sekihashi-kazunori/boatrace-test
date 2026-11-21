@@ -1,22 +1,24 @@
 {
- "bank": 1500,
- "chain": 0,
+ "bank": 4800,
+ "chain": 1,
  "pending": {
   "stadium_code": "24",
-  "race_number": 10,
+  "race_number": 12,
   "name": "大村",
   "alloc": [
    [
     "1-2-3",
-    900
+    2300
    ],
    [
     "1-3-2",
-    600
+    2500
    ]
   ],
-  "stake": 1500,
-  "chain_races": []
+  "stake": 4800,
+  "chain_races": [
+   "大村10R"
+  ]
  },
  "log": [
   {
@@ -56,5 +58,7 @@
    "final": 9800
   }
  ],
- "chain_races": []
+ "chain_races": [
+  "大村10R"
+ ]
 }
