@@ -230,6 +230,7 @@ MAIN_TARGET_PER_SESSION = 0
 # 2026-11-05〜 ご主人様指示: モーニング/デイ/ナイターで分けず、1日を通して自信のあるレースだけ最大10R。
 # 締切前オッズの集中度(上位5点)0.47以上 ≒ 全レースの上位5%(1日7〜10R)。セッションごとの上限はなし。
 MAIN_MIN_CONC_NEW = 0.47
+TRIO_AMT = 400  # 2026-11-21 本予想の3連複1点の掛け金(3連単は2点で200円)
 MAIN_MAX_PER_DAY = 20  # 2026-11-21 ご主人様「最低15レース」: 自信Bを足して上限20Rに。旧: 2026-11-16 ご主人様「1日15レース迄に拡大」(11/14・15は16:21で10Rを使い切りナイター0R)
 MAIN_EXTRA_MAX = 15  # 10Rを超えたら自信S/Aだけ、15Rまで
 MAIN_STOP_DATE = "2099-01-01"  # 2026-11-08 ご主人様指示で本予想(3連単)を復活(11/6〜11/7は停止していた)
@@ -953,7 +954,9 @@ def _run_ai3(state, target_date, session_name, stadium_code, race_number, odds_m
         # 実績の買い目で試算すると 11/14〜20の56R: 上位6点65.7% → 上位2点112.9%(的中22本)。11/4〜の144R: 61.4% → 86.3%
         picks = picks[:2]
         has_g, yon, man = True, None, None
-        alloc = ai3.allocate_even(picks, odds_s, total=400)
+        # 2026-11-21 ご主人様「任せる」: 1レース600円のまま、3連単200円(2点×100円)+3連複400円に配分を変更。
+        # 執事の読みは着順より3艇の顔ぶれが確か(137R: 3連単2点 82.6% / 3連複1点 91.2%)。旧: 3連単400円+3連複200円 85.5% → 約88%
+        alloc = ai3.allocate_even(picks, odds_s, total=200)
         if not has_g:
             ana2 = gyaku
             picks.append((gyaku, 0.0))
@@ -988,13 +991,13 @@ def _run_ai3(state, target_date, session_name, stadium_code, race_number, odds_m
             print(f"みなも型の記録失敗: {e}")
         # 2026-11-21 ご主人様「本予想出す時に3連単と3連複を出せば？」: 執事は3艇の顔ぶれは掴めるが順番を外しやすい
         # (11/4〜の本予想137R: 1番手の3艇で3連複1点なら 的中38.0%・回収91.2% / 3連単2点 28.5%・82.6%)。
-        # 1番手の3艇の3連複1点(200円)を本予想と一緒に出す(bet_type='gen_trio'、組は '1=2=3' の形)
+        # 1番手の3艇の3連複1点(TRIO_AMT円)を本予想と一緒に出す(bet_type='gen_trio'、組は '1=2=3' の形)
         trio = None
         try:
             trio = "=".join(sorted(top6[0][0].split("-")))
             save_bet_tickets(state, [BetTicket(race_date=str(target_date), session=session_name,
                                                stadium_code=stadium_code, race_number=race_number, combination=trio,
-                                               amount=200, bet_type="gen_trio", odds=None)])
+                                               amount=TRIO_AMT, bet_type="gen_trio", odds=None)])
         except Exception as e:
             print(f"3連複の記録失敗: {e}")
             trio = None
@@ -1005,8 +1008,8 @@ def _run_ai3(state, target_date, session_name, stadium_code, race_number, odds_m
                  for (c, _p), x in zip(picks, lines)]
         msg = (f"🎩 **執事の本予想** {stadium_name}{race_number}R" + (f"(締切{deadline})" if deadline else "")
                + f"  {lab}\n【3連単】\n" + "\n".join(lines)
-               + (f"\n【3連複】\n・{trio} 200円" if trio else "")
-               + f"\n投資：{sum(amt) + (200 if trio else 0):,}円(3連単{sum(amt):,}円" + (" + 3連複200円" if trio else "") + ") ※紙上\n"
+               + (f"\n【3連複】\n・{trio} {TRIO_AMT}円" if trio else "")
+               + f"\n投資：{sum(amt) + (TRIO_AMT if trio else 0):,}円(3連単{sum(amt):,}円" + (f" + 3連複{TRIO_AMT}円" if trio else "") + ") ※紙上\n"
                + "【根拠】" + " / ".join(why))
         print(msg)
         try:
