@@ -9,7 +9,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session as OrmSession
 
 from src.storage.db import get_state_engine, BetTicket, save_race_result, RaceResult
-from src.results.fetch_results import fetch_race_result, settle_tickets
+from src.results.fetch_results import RaceCancelledError, fetch_race_result, refund_tickets, settle_tickets
 from src.reporting.report import session_report, daily_report, session_breakdown, cumulative_report, format_report, CUMULATIVE_START, experiment_report, format_experiment
 from src.notify.notifier import notify_console, notify_discord
 
@@ -117,10 +117,18 @@ def run_settle(session_name: str, target_date: date | None = None, is_last_sessi
         for (stadium_code, race_number), tickets in races.items():
             try:
                 result = fetch_race_result(target_date, stadium_code, race_number)
+            except RaceCancelledError as e:
+                # 2026-11-21 ご主人様「返還も計算に入れるんだよ」: 中止レースの買い目は全部返還
+                refund_tickets(tickets)
+                print(f"{e} → 買い目{len(tickets)}点を返還")
+                continue
             except Exception as e:
                 print(f"結果取得失敗 {stadium_code=} {race_number=}: {e}")
                 continue
             settle_tickets(tickets, result)
+            if result.refund_boats:
+                from src.results.refund import save as save_refund
+                save_refund(target_date, stadium_code, race_number, result.refund_boats)
             save_race_result(engine, RaceResult(
                 race_date=target_date,
                 stadium_code=stadium_code,

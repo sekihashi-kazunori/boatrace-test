@@ -54,6 +54,11 @@ def _fetch(stadium_code: str, rn: int, d: date) -> str | None:
         from bs4 import BeautifulSoup
         r = requests.get(URL.format(rn=rn, jcd=stadium_code, hd=f"{d:%Y%m%d}"), headers=H, timeout=15)
         t = BeautifulSoup(r.text, "html.parser").get_text(" ", strip=True)
+        try:  # 2026-11-21 返還艇も記録(予想家の採点で返還を計算に入れる)
+            from src.results.refund import parse_refund_boats, save as save_refund
+            save_refund(d, stadium_code, rn, parse_refund_boats(r.text))
+        except Exception as e:
+            print(f"返還の記録失敗 {stadium_code} {rn}R: {e}")
         m = re.search(r"3連単\s*([1-6])\s*-?\s*([1-6])\s*-?\s*([1-6])\s*¥?\s*([\d,]+)?", t)
         if not m:
             return None

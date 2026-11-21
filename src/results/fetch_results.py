@@ -27,6 +27,11 @@ class RaceResultData:
     race_number: int
     finish_order: str
     trifecta_payout: int
+    refund_boats: str = ""  # 2026-11-21 返還になった艇(例 '3')。この艇を含む買い目は返還
+
+
+class RaceCancelledError(Exception):
+    """レース中止(買い目は全部返還)。"""
 
 
 def fetch_race_result(race_date: date, stadium_code: int | str, race_number: int) -> RaceResultData:
@@ -48,6 +53,9 @@ def fetch_race_result(race_date: date, stadium_code: int | str, race_number: int
     res.encoding = res.apparent_encoding
     html = res.text
 
+    from src.results.refund import is_cancelled_page, parse_refund_boats
+    if is_cancelled_page(html):
+        raise RaceCancelledError(f"レース中止: {stadium_code=} {race_number=}")
     payoffs = result_page_scraping.extract_race_payoffs(StringIO(html))
 
     trifecta_payoff = next(
@@ -65,14 +73,27 @@ def fetch_race_result(race_date: date, stadium_code: int | str, race_number: int
         race_number=race_number,
         finish_order=finish_order,
         trifecta_payout=trifecta_payout,
+        refund_boats=parse_refund_boats(html),
     )
 
 
 def settle_tickets(tickets: list, result: RaceResultData) -> None:
+    from src.results.refund import is_refund
     for ticket in tickets:
-        if ticket.combination == result.finish_order:
+        # 2026-11-21 ご主人様「返還も計算に入れるんだよ」: 返還艇を含む買い目は掛け金がそのまま戻る
+        if is_refund(ticket.combination, getattr(result, "refund_boats", "")):
+            ticket.result = "refund"
+            ticket.payout = int(ticket.amount)
+        elif ticket.combination == result.finish_order:
             ticket.result = "hit"
             ticket.payout = int(result.trifecta_payout * (ticket.amount / 100))
         else:
             ticket.result = "miss"
             ticket.payout = 0
+
+
+def refund_tickets(tickets: list) -> None:
+    """レース中止: 全部返還。"""
+    for ticket in tickets:
+        ticket.result = "refund"
+        ticket.payout = int(ticket.amount)
