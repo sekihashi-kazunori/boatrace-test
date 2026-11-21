@@ -70,15 +70,22 @@ def session_message(session_ja: str, md: str, s: dict, races: list[dict]) -> str
     if races:
         rows = []
         # 絵文字は幅がずれるので行末に置く
+        # 2026-11-21夜 ご主人様「収支報告は各レースごとに出す事！」: 3連単・3連複を分けて、買い目も並べる
+        split = any(r.get("trio") for r in races)
         for r in races:
             if r["status"] == "wait":
-                rows.append([r["name"], "待ち", f"{r['stake']:,}", "-", "⏳"])
+                rows.append([r["name"], "待ち"] + (["-", "-"] if split else []) + [f"{r['stake']:,}", "-", "⏳"])
                 continue
             pr = r["payout"] - r["stake"]
             big = r.get("hit_per100", 0) >= 3000
-            icon = ("💥大穴" if big else ("🎯" if pr > 0 else "🎯ガミ")) if r["status"] == "hit" else ""
-            rows.append([r["name"], r["order"] or "-", f"{r['stake']:,}", yen(pr), icon])
-        lines.append(table(["レース", "結果", "購入", "収支", ""], rows))
+            icon = ("💥大穴" if big else ("🎯" if pr > 0 else "🎯ガミ")) if r["status"] == "hit" else (
+                "返還" if r["status"] == "refund" else "")
+            rows.append([r["name"], r["order"] or "-"] + ([r.get("tan") or "-", r.get("trio") or "-"] if split else [])
+                        + [f"{r['stake']:,}", yen(pr), icon])
+        lines.append(table(["レース", "結果"] + (["3単", "3複"] if split else []) + ["購入", "収支", ""], rows))
+        buys = [f"{r['name']}: {r['buy']}" for r in races if r.get("buy")]
+        if buys:
+            lines.append("買い目 " + " ｜ ".join(buys))
         bigs = [r for r in races if r["status"] == "hit" and r.get("hit_per100", 0) >= 3000]
         for r in bigs:
             lines.append(f"💥 大穴的中! {r['name']} {r['order']} {r['hit_per100'] / 100:.1f}倍 → 払戻{r['payout']:,}円")

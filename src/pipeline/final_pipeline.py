@@ -953,7 +953,13 @@ def _run_ai3(state, target_date, session_name, stadium_code, race_number, odds_m
         # 2026-11-21 ご主人様「絞りなよ！」(みなもさんは2点で11月81.6%・直近5日92.2%、本予想は69.1%・67.3%):
         # 上位2点だけ・1レース400円(安い目に厚く)。押さえは全部やめる(11/17〜20で4,800円→1,080円・22.5%)。
         # 実績の買い目で試算すると 11/14〜20の56R: 上位6点65.7% → 上位2点112.9%(的中22本)。11/4〜の144R: 61.4% → 86.3%
-        picks = picks[:2]
+        old_top2 = [c for c, _q in picks[:2]]
+        # 2026-11-21夜 ご主人様「予想は任せるよ！」: 3連単2点を、みなもさんの形(頭1艇固定・2着3着の2艇を裏表)に変更。
+        # 執事は2着を外しやすい(11/21: 2着外れ6R)。11/21の17Rで みなも型105.0% / 旧・上位2点(2着固定) 81.8%。
+        # 旧の上位2点は v_top2 として並べて記録し、毎晩比べる
+        _q1 = dict(top6)
+        _ura = f"{a_}-{c_}-{b_}"
+        picks = [(top6[0][0], top6[0][1]), (_ura, _q1.get(_ura, (pp or {}).get(_ura, 0.0)))]
         has_g, yon, man = True, None, None
         # 2026-11-21 ご主人様「任せる」: 1レース600円のまま、3連単200円(2点×100円)+3連複400円に配分を変更。
         # 執事の読みは着順より3艇の顔ぶれが確か(137R: 3連単2点 82.6% / 3連複1点 91.2%)。旧: 3連単400円+3連複200円 85.5% → 約88%
@@ -978,6 +984,14 @@ def _run_ai3(state, target_date, session_name, stadium_code, race_number, odds_m
                                      race_number=race_number, combination=combo, amount=a, bet_type="gen", odds=o))
             lines.append(f"{combo} {a}円" + (f"({o}倍)" if o else ""))
         save_bet_tickets(state, tickets)
+        try:  # 旧・上位2点(2着固定)の記録(紙上・各100円)
+            save_bet_tickets(state, [BetTicket(race_date=str(target_date), session=session_name,
+                                               stadium_code=stadium_code, race_number=race_number, combination=c,
+                                               amount=100, bet_type="v_top2",
+                                               odds=(odds_map or {}).get(tuple(map(int, c.split("-")))))
+                                     for c in old_top2])
+        except Exception as e:
+            print(f"旧上位2点の記録失敗: {e}")
         # 2026-11-21 ご主人様「みなもさんを勉強して頭脳を吸収して」: みなもさんの形(頭1艇固定・2着3着の2艇を裏表)を
         # 執事の1番手で作った買い目を、並べて記録(紙上・各100円)。本予想(上位2点)とどちらが良いか毎晩比べる。
         # 11/4〜の同じレースで、1点だけ一致したレースはみなもさんの残り1点(裏表)が 90.7% / 執事の2番手 66.9%。

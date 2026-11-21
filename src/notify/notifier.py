@@ -24,6 +24,25 @@ def notify_discord(message: str) -> None:
     webhook_url = os.environ.get("DISCORD_WEBHOOK_URL")
     if not webhook_url:
         return
-    resp = requests.post(webhook_url, json={"content": message})
-    print(f"Discord response: {resp.status_code} {resp.text}")
+    # 2026-11-21夜: レースごとの収支を出すと長くなるので、Discordの2,000字制限を超えたら行の区切りで分けて送る
+    for part in _split(message):
+        resp = requests.post(webhook_url, json={"content": part})
+        print(f"Discord response: {resp.status_code} {resp.text}")
+
+
+def _split(message: str, limit: int = 1900) -> list[str]:
+    if len(message) <= limit:
+        return [message]
+    parts, cur, in_code = [], "", False
+    for ln in message.split("\n"):
+        add = ln + "\n"
+        if len(cur) + len(add) + 4 > limit and cur:
+            parts.append(cur + ("```" if in_code else ""))
+            cur = "```\n" if in_code else ""
+        cur += add
+        if ln.strip().startswith("```"):
+            in_code = not in_code
+    if cur.strip():
+        parts.append(cur)
+    return parts
 

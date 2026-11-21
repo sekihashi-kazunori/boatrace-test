@@ -32,6 +32,10 @@ def race_review(engine, target_date: date, session_name: str, kind: str = "rule"
     return "\n".join(lines)
 
 
+def yen_s(v: int) -> str:
+    return f"{v:+,}"
+
+
 def race_rows(engine, target_date: date, session_name: str, kind: str = "rule") -> list[dict]:
     """セッションの各レースの振り返り(結果の3連単と、的中なら払戻額)。
 
@@ -72,15 +76,78 @@ def race_rows(engine, target_date: date, session_name: str, kind: str = "rule") 
     for key in sorted(races, key=lambda k: (deadlines.get(k, "99:99"), k)):
         ts = races[key]
         status = "wait" if any(t.result is None for t in ts) else (
-            "hit" if any(t.result == "hit" for t in ts) else "miss")
+            "hit" if any(t.result == "hit" for t in ts) else
+            "refund" if all(t.result == "refund" for t in ts) else "miss")
+        # 2026-11-21夜 ご主人様「収支報告は各レースごとに出す事！俺が分析出来ないよ！」: 3連単・3連複を分けて出す
+        tan = [t for t in ts if t.bet_type != "gen_trio"]
+        tri = [t for t in ts if t.bet_type == "gen_trio"]
+        def _part(xs):
+            if not xs:
+                return None
+            if any(t.result is None for t in xs):
+                return "待ち"
+            pr = sum(t.payout or 0 for t in xs) - sum(t.amount for t in xs)
+            hit = any(t.result == "hit" for t in xs)
+            return ("○" if hit else "返" if all(t.result == "refund" for t in xs) else "×") + (yen_s(pr) if hit else "")
         out.append({"name": f"{STADIUM_NAMES.get(key[0], key[0])}{key[1]}R",
                      "order": (results.get(key) or "").replace("-", ""),
                      "stake": sum(t.amount for t in ts),
                      "payout": sum(t.payout or 0 for t in ts), "status": status,
+                     "tan": _part(tan), "trio": _part(tri),
+                     "buy": " ".join(t.combination for t in tan) + (f" / {tri[0].combination}" if tri else ""),
                      # 2026-10-22: 当たった買い目の100円あたり払戻(30倍以上なら大穴として目立たせる)
                      "hit_per100": max((int((t.payout or 0) * 100 / t.amount) for t in ts
                                         if t.result == "hit" and t.amount), default=0)})
     return out
+
+
+def koro_message(engine, target_date: date) -> str | None:
+    """2026-11-21夜 ご主人様「コロガシも出す事！俺が分析出来ないよ！」: その日のコロガシをレースごとに(紙上)。"""
+    from src.pipeline.session_pipeline import STADIUM_NAMES
+    from src.reporting.discord_format import table
+    with OrmSession(engine) as db:
+        ts = list(db.scalars(select(BetTicket).where(
+            BetTicket.race_date == str(target_date), BetTicket.bet_type == "v_koro")).all())
+        results = {(str(r.stadium_code).zfill(2), r.race_number): r.finish_order
+                   for r in db.scalars(select(RaceResult).where(RaceResult.race_date == str(target_date)))}
+    if not ts:
+        return None
+    races: dict = {}
+    for t in sorted(ts, key=lambda t: (t.created_at, t.id)):
+        races.setdefault((str(t.stadium_code).zfill(2), t.race_number), []).append(t)
+    rows, buys, chain, new_money, inv, ret, best = [], [], 0, 0, 0, 0, 0
+    for key, xs in races.items():
+        stake = sum(t.amount for t in xs)
+        pay = sum(t.payout or 0 for t in xs)
+        n = chain + 1
+        if n == 1:
+            new_money += stake
+        name = f"{STADIUM_NAMES.get(key[0], key[0])}{key[1]}R"
+        buy = " ".join(f"{t.combination}:{t.amount:,}" for t in xs)
+        if any(t.result is None for t in xs):
+            rows.append([name, f"{n}戦目", (results.get(key) or "-").replace("-", ""), f"{stake:,}", "-", "⏳"])
+            buys.append(f"{name}: {buy}")
+            continue
+        inv += stake
+        ret += pay
+        if any(t.result == "hit" for t in xs):
+            chain += 1
+            best = max(best, chain)
+            mark = "🎉2連成功" if chain >= 2 else "○→次へ"
+            if chain >= 2:
+                chain = 0
+        else:
+            mark = "×"
+            chain = 0
+        rows.append([name, f"{n}戦目", (results.get(key) or "-").replace("-", ""), f"{stake:,}", f"{pay:,}", mark])
+        buys.append(f"{name}: {buy}")
+    lines = [f"**🎲 コロガシ(練習・紙上) {target_date.month}/{target_date.day}**",
+             table(["レース", "", "結果", "投資", "払戻", ""], rows),
+             f"投資 {inv:,} → 払戻 {ret:,}円" + (f"(回収率 {ret / inv * 100:.0f}%)" if inv else "")
+             + f" / 最高{best}連チャン / 新しく出した元手 {new_money:,}円"]
+    if buys:
+        lines.append("買い目 " + " ｜ ".join(buys))
+    return "\n".join(lines)
 
 
 def run_settle(session_name: str, target_date: date | None = None, is_last_session_of_day: bool = False) -> None:
@@ -147,6 +214,14 @@ def run_settle(session_name: str, target_date: date | None = None, is_last_sessi
                              race_rows(engine, target_date, session_name, "main"))
     notify_console(report)
     notify_discord(report)
+    try:
+        km = koro_message(engine, target_date)
+        if km:
+            time.sleep(1.2)
+            notify_console(km)
+            notify_discord(km)
+    except Exception as e:
+        print(f"コロガシ報告の失敗: {e}")
 
     if is_last_session_of_day:
         # 2026-10-17 ご主人様指示: 最終振り返りはモーニング・デイ・ナイター・合計の収支を出す

@@ -11,7 +11,7 @@ from src.storage.db import BetTicket
 # 収支の区分(2026-10-13 ご主人様指示で分割):
 #   rule = 江戸川・津の条件ルール(bet_type なし)
 #   main = 本予想(汎用モデルの鉄板。旧「参考予想」bet_type='gen' を本予想に昇格)
-KIND_TYPES = {"rule": (None,), "main": ("gen",)}
+KIND_TYPES = {"rule": (None,), "main": ("gen", "gen_trio")}  # 2026-11-21夜 ご主人様「収支報告は各レースごとに」: 3連複も本予想の収支に入れる
 
 
 def _main_only(tickets, kind: str = "rule"):
