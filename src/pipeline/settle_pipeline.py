@@ -116,6 +116,7 @@ def koro_message(engine, target_date: date) -> str | None:
     for t in sorted(ts, key=lambda t: (t.created_at, t.id)):
         races.setdefault((str(t.stadium_code).zfill(2), t.race_number), []).append(t)
     rows, buys, chain, new_money, inv, ret, best = [], [], 0, 0, 0, 0, 0
+    venue: dict = {}  # 2026-11-22 ご主人様「Discordにコロガシの収支も会場ごとに出す様に！」
     for key, xs in races.items():
         stake = sum(t.amount for t in xs)
         pay = sum(t.payout or 0 for t in xs)
@@ -130,6 +131,11 @@ def koro_message(engine, target_date: date) -> str | None:
             continue
         inv += stake
         ret += pay
+        v = venue.setdefault(STADIUM_NAMES.get(key[0], key[0]), [0, 0, 0, 0])
+        v[0] += 1
+        v[1] += stake
+        v[2] += pay
+        v[3] += any(t.result == "hit" for t in xs)
         if any(t.result == "hit" for t in xs):
             chain += 1
             best = max(best, chain)
@@ -145,6 +151,11 @@ def koro_message(engine, target_date: date) -> str | None:
              table(["レース", "", "結果", "投資", "払戻", ""], rows),
              f"投資 {inv:,} → 払戻 {ret:,}円" + (f"(回収率 {ret / inv * 100:.0f}%)" if inv else "")
              + f" / 最高{best}連チャン / 新しく出した元手 {new_money:,}円"]
+    if venue:
+        lines.append("**会場ごと**")
+        lines.append(table(["会場", "R", "的中", "投資", "払戻", "収支"],
+                           [[n, str(v[0]), str(v[3]), f"{v[1]:,}", f"{v[2]:,}", f"{v[2] - v[1]:+,}"]
+                            for n, v in venue.items()]))
     if buys:
         lines.append("買い目 " + " ｜ ".join(buys))
     return "\n".join(lines)
