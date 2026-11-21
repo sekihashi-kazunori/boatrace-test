@@ -35,10 +35,15 @@ def is_12(t: str) -> bool:
     return t.startswith("1-2-")
 
 
+REF = {}  # (場, R) -> 返還艇
+
+
 def load(d: str) -> list[tuple[str, int, str, int]]:
     p = os.path.join("plans", "day_results", f"{d}.csv")
     if not os.path.exists(p):
         return []
+    from src.results.refund import load as load_refund
+    REF.update(load_refund(d))
     out = []
     for r in csv.DictReader(open(p, encoding="utf-8")):
         if r.get("trifecta") and r.get("payout"):
@@ -46,17 +51,30 @@ def load(d: str) -> list[tuple[str, int, str, int]]:
     return out
 
 
+def _ref(jcd, rn, combos) -> int:
+    """2026-11-21 返還も計算に入れる: 返還艇を含む買い目は100円戻る。"""
+    boats = REF.get((jcd, rn), "")
+    return 100 * sum(1 for c in combos if boats and any(b in boats for b in c.split("-")))
+
+
+BOX = [f"{a}-{b}-{c}" for a in "456" for b in "456" for c in "456" if len({a, b, c}) == 3]
+
+
 def score(rows):
     """{'box': {場: [R, 投資, 回収, 的中]}, '12': {...}}"""
     s = {"box": defaultdict(lambda: [0, 0, 0, 0]), "12": defaultdict(lambda: [0, 0, 0, 0])}
     for jcd, _rn, t, pay in rows:
+        rf_b = _ref(jcd, _rn, BOX)
+        rf_12 = _ref(jcd, _rn, [f"1-2-{c}" for c in "3456"])
         if jcd in BOX_VENUES:
             a = s["box"][jcd]
             a[0] += 1; a[1] += 600
+            a[2] += rf_b
             if is_box(t):
                 a[2] += pay; a[3] += 1
         a = s["12"][jcd]
         a[0] += 1; a[1] += 400
+        a[2] += rf_12
         if is_12(t):
             a[2] += pay; a[3] += 1
     return s

@@ -973,6 +973,18 @@ def _run_ai3(state, target_date, session_name, stadium_code, race_number, odds_m
                                      race_number=race_number, combination=combo, amount=a, bet_type="gen", odds=o))
             lines.append(f"{combo} {a}円" + (f"({o}倍)" if o else ""))
         save_bet_tickets(state, tickets)
+        # 2026-11-21 ご主人様「みなもさんを勉強して頭脳を吸収して」: みなもさんの形(頭1艇固定・2着3着の2艇を裏表)を
+        # 執事の1番手で作った買い目を、並べて記録(紙上・各100円)。本予想(上位2点)とどちらが良いか毎晩比べる。
+        # 11/4〜の同じレースで、1点だけ一致したレースはみなもさんの残り1点(裏表)が 90.7% / 執事の2番手 66.9%。
+        try:
+            a1, b1, c1 = top6[0][0].split("-")
+            save_bet_tickets(state, [BetTicket(race_date=str(target_date), session=session_name,
+                                               stadium_code=stadium_code, race_number=race_number, combination=c,
+                                               amount=100, bet_type="v_mshape",
+                                               odds=(odds_map or {}).get(tuple(map(int, c.split("-")))))
+                                     for c in (f"{a1}-{b1}-{c1}", f"{a1}-{c1}-{b1}")])
+        except Exception as e:
+            print(f"みなも型の記録失敗: {e}")
         # 2026-11-08 ご主人様指示: 「AI」と呼ばない。執事が責任を持って出す予想として、根拠(レースの中身)も添える
         why = ai3.reasons(rows, [c for c, _p in top6], (weather or {}).get("wind"))
         lab = {"S": "自信S", "A": "自信A", "B": "自信B"}.get(tier, "本命レース") + ("・👩レディース" if ladies else "")
