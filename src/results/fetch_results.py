@@ -27,7 +27,8 @@ class RaceResultData:
     race_number: int
     finish_order: str
     trifecta_payout: int
-    refund_boats: str = ""  # 2026-11-21 返還になった艇(例 '3')。この艇を含む買い目は返還
+    refund_boats: str = ""
+    trio_payout: int = 0  # 2026-11-21 3連複の払戻(100円あたり)。本予想で3連複も出すため  # 2026-11-21 返還になった艇(例 '3')。この艇を含む買い目は返還
 
 
 class RaceCancelledError(Exception):
@@ -67,6 +68,15 @@ def fetch_race_result(race_date: date, stadium_code: int | str, race_number: int
     finish_order = "-".join(str(n) for n in trifecta_payoff.betting_numbers)
     trifecta_payout = trifecta_payoff.amount
 
+    trio_payout = next((p.amount for p in payoffs
+                        if getattr(BettingMethod, "TRIO", None) is not None and p.betting_method == BettingMethod.TRIO), 0)
+    if not trio_payout:  # 予備: ページの文字から「3連複 1=3=5 ¥330」を読む
+        import re as _re
+        _t = _re.sub(r"\s+", " ", _re.sub(r"<[^>]+>", " ", html).replace("&yen;", "¥"))
+        _m = _re.search(r"3連複\s*([1-6])\s*=\s*([1-6])\s*=\s*([1-6])\s*[¥\\]\s*([\d,]+)", _t)
+        if _m:
+            trio_payout = int(_m[4].replace(",", ""))
+
     return RaceResultData(
         race_date=race_date,
         stadium_code=int(stadium_code),
@@ -74,6 +84,7 @@ def fetch_race_result(race_date: date, stadium_code: int | str, race_number: int
         finish_order=finish_order,
         trifecta_payout=trifecta_payout,
         refund_boats=parse_refund_boats(html),
+        trio_payout=trio_payout,
     )
 
 
@@ -84,6 +95,13 @@ def settle_tickets(tickets: list, result: RaceResultData) -> None:
         if is_refund(ticket.combination, getattr(result, "refund_boats", "")):
             ticket.result = "refund"
             ticket.payout = int(ticket.amount)
+        elif "=" in ticket.combination:  # 3連複
+            if sorted(ticket.combination.split("=")) == sorted(result.finish_order.split("-")) and result.trio_payout:
+                ticket.result = "hit"
+                ticket.payout = int(result.trio_payout * (ticket.amount / 100))
+            else:
+                ticket.result = "miss"
+                ticket.payout = 0
         elif ticket.combination == result.finish_order:
             ticket.result = "hit"
             ticket.payout = int(result.trifecta_payout * (ticket.amount / 100))

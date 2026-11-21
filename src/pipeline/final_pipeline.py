@@ -986,13 +986,27 @@ def _run_ai3(state, target_date, session_name, stadium_code, race_number, odds_m
                                      for c in (f"{a1}-{b1}-{c1}", f"{a1}-{c1}-{b1}")])
         except Exception as e:
             print(f"みなも型の記録失敗: {e}")
+        # 2026-11-21 ご主人様「本予想出す時に3連単と3連複を出せば？」: 執事は3艇の顔ぶれは掴めるが順番を外しやすい
+        # (11/4〜の本予想137R: 1番手の3艇で3連複1点なら 的中38.0%・回収91.2% / 3連単2点 28.5%・82.6%)。
+        # 1番手の3艇の3連複1点(200円)を本予想と一緒に出す(bet_type='gen_trio'、組は '1=2=3' の形)
+        trio = None
+        try:
+            trio = "=".join(sorted(top6[0][0].split("-")))
+            save_bet_tickets(state, [BetTicket(race_date=str(target_date), session=session_name,
+                                               stadium_code=stadium_code, race_number=race_number, combination=trio,
+                                               amount=200, bet_type="gen_trio", odds=None)])
+        except Exception as e:
+            print(f"3連複の記録失敗: {e}")
+            trio = None
         # 2026-11-08 ご主人様指示: 「AI」と呼ばない。執事が責任を持って出す予想として、根拠(レースの中身)も添える
         why = ai3.reasons(rows, [c for c, _p in top6], (weather or {}).get("wind"))
         lab = {"S": "自信S", "A": "自信A", "B": "自信B"}.get(tier, "本命レース") + ("・👩レディース" if ladies else "")
         lines = [("・逆転の穴 " if c == ana2 else "・4号艇2着の押さえ " if c == yon else "・万舟の押さえ " if c == man else "・穴 " if ana and c == ana[0] else "・鉄板 ") + x
                  for (c, _p), x in zip(picks, lines)]
         msg = (f"🎩 **執事の本予想** {stadium_name}{race_number}R" + (f"(締切{deadline})" if deadline else "")
-               + f"  {lab}\n" + "\n".join(lines) + f"\n投資：{sum(amt):,}円／{len(amt)}点 ※紙上\n"
+               + f"  {lab}\n【3連単】\n" + "\n".join(lines)
+               + (f"\n【3連複】\n・{trio} 200円" if trio else "")
+               + f"\n投資：{sum(amt) + (200 if trio else 0):,}円(3連単{sum(amt):,}円" + (" + 3連複200円" if trio else "") + ") ※紙上\n"
                + "【根拠】" + " / ".join(why))
         print(msg)
         try:
