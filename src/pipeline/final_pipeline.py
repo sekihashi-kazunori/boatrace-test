@@ -871,6 +871,7 @@ def _run_ai3(state, target_date, session_name, stadium_code, race_number, odds_m
             return
         top6, tier, ana = res
         print(f"執事の本予想 {stadium_name}{race_number}R: 一番の買い目{top6[0][0]} 確率{top6[0][1] * 100:.1f}% 級{tier} 本予想レース{force}")
+        _run_kaigi(state, target_date, session_name, stadium_code, race_number, odds_map, top6, stadium_name)
         if not tier and not force:
             return
         # 2026-11-17 ご主人様「みなもさんの予想を加味しなさい」: みなもさんの◎が1号艇以外のレースは
@@ -1173,6 +1174,76 @@ def minamo_mark(target_date, stadium_code, race_number) -> str | None:
             if r["stadium_code"].zfill(2) == str(stadium_code).zfill(2) and int(r["race_number"]) == int(race_number):
                 return r.get("marks") or None
     return None
+
+
+# 2026-11-21 ご主人様「色々な予想師を色々な角度で検証して高精度な予想を」「各予想師の的中する会場を分析して」→「良いよ」:
+# 予想家会議(紙上・1週間お試し)。執事・みなもさん・公式PCの「1番目の予想」を集め、3艇の顔ぶれが全員一致した時だけ買う。
+# みなもさんが得意な会場(minamo_strong_venues: その日までの成績で回収110%以上)では、みなもさんの意見を2票にする。
+# 11/4〜18の検証: 3艇全員一致 562R 的中29.4%・回収78.3%(本予想の形 3連単2点+3連複400円)。
+# 会場の得意を毎日入れ替える形は 66〜68% で効かなかった(しねん・あそかは得意会場が入れ替わる)ので、今は票の重みだけに使う。
+KAIGI_RULES = [("v_kaigi", "予想家会議(執事・みなも・公式PCの3艇が全員一致) 3連単2点各100円+3連複400円")]
+
+
+def _pc_top(target_date, stadium_code, race_number):
+    import csv as _csv
+    path = os.path.join("tipster", f"pc_{target_date}.csv")
+    if not os.path.exists(path):
+        return None
+    with open(path, encoding="utf-8") as f:
+        for r in _csv.DictReader(f):
+            if r["stadium_code"].zfill(2) == str(stadium_code).zfill(2) and int(r["race_number"]) == int(race_number):
+                cs = (r.get("combos") or "").split()
+                return cs[0] if cs else None
+    return None
+
+
+def _minamo_top(target_date, stadium_code, race_number):
+    import csv as _csv
+    path = os.path.join("tipster", f"minamo_all_{target_date}.csv")
+    if not os.path.exists(path):
+        return None
+    with open(path, encoding="utf-8") as f:
+        for r in _csv.DictReader(f):
+            if r["stadium_code"].zfill(2) == str(stadium_code).zfill(2) and int(r["race_number"]) == int(race_number):
+                cs = (r.get("combos") or "").split()
+                return cs[0] if cs else None
+    return None
+
+
+def _run_kaigi(state, target_date, session_name, stadium_code, race_number, odds_map, top6, stadium_name="") -> None:
+    try:
+        ops = [("執事", top6[0][0], 1)]
+        mi = _minamo_top(target_date, stadium_code, race_number)
+        if mi:
+            strong = str(stadium_code).zfill(2) in minamo_strong_venues(target_date)
+            ops.append(("みなも", mi, 2 if strong else 1))
+        pc = _pc_top(target_date, stadium_code, race_number)
+        if pc:
+            ops.append(("公式PC", pc, 1))
+        if len(ops) < 3:
+            return
+        tot = sum(w for _n, _c, w in ops)
+        sets, combos = {}, {}
+        for _n, c, w in ops:
+            k = "=".join(sorted(c.split("-")))
+            sets[k] = sets.get(k, 0) + w
+            combos[c] = combos.get(c, 0) + w
+        trio, votes = max(sets.items(), key=lambda x: x[1])
+        if votes < tot:
+            return
+        buy3 = [c for c, _v in sorted(combos.items(), key=lambda x: -x[1])][:2]
+        if len(buy3) < 2:  # 全員が同じ3連単なら、執事の2番手で2点目
+            buy3 += [c for c, _p in top6 if c not in buy3][:1]
+        tickets = [BetTicket(race_date=str(target_date), session=session_name, stadium_code=stadium_code,
+                             race_number=race_number, combination=c, amount=100, bet_type="v_kaigi",
+                             odds=(odds_map or {}).get(tuple(map(int, c.split("-"))))) for c in buy3]
+        tickets.append(BetTicket(race_date=str(target_date), session=session_name, stadium_code=stadium_code,
+                                 race_number=race_number, combination=trio, amount=400, bet_type="v_kaigi", odds=None))
+        save_bet_tickets(state, tickets)
+        print(f"予想家会議 {stadium_name}{race_number}R: " + " / ".join(f"{n}{c}" + ("(2票)" if w == 2 else "") for n, c, w in ops)
+              + f" → 3連単 {' '.join(buy3)} + 3連複 {trio}")
+    except Exception as e:
+        print(f"予想家会議の失敗 {race_number}R: {e}")
 
 
 MINAMO_RULES = [("v_minamo", "みなも×強い場(先出し2点を200円ずつ・その朝までの成績で場を選ぶ)")]
