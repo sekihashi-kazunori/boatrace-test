@@ -103,9 +103,9 @@ def race_rows(engine, target_date: date, session_name: str, kind: str = "rule") 
 
 def koro_message(engine, target_date: date) -> str | None:
     """2026-11-21夜 ご主人様「コロガシも出す事！俺が分析出来ないよ！」: その日のコロガシをレースごとに(紙上)。
-    2026-11-22 ご主人様「その書き方だとわからない！各レースごとに出す事！」: 表や会場まとめをやめ、
-    1レースずつ「レース(何戦目)・買い目と金額・結果・投資→払戻・収支・判定」を1ブロックで出す。"""
+    2026-11-22 ご主人様「各レースごとに出す事！」「見づらい！表にして！」: 1レース1行の収支表と、1レース1行の買い目表。"""
     from src.pipeline.session_pipeline import STADIUM_NAMES
+    from src.reporting.discord_format import table
     with OrmSession(engine) as db:
         ts = list(db.scalars(select(BetTicket).where(
             BetTicket.race_date == str(target_date), BetTicket.bet_type == "v_koro")).all())
@@ -116,7 +116,7 @@ def koro_message(engine, target_date: date) -> str | None:
     races: dict = {}
     for t in sorted(ts, key=lambda t: (t.created_at, t.id)):
         races.setdefault((str(t.stadium_code).zfill(2), t.race_number), []).append(t)
-    out, chain, new_money, inv, ret, best = [], 0, 0, 0, 0, 0
+    rows, brows, chain, new_money, inv, ret, best = [], [], 0, 0, 0, 0, 0
     for key, xs in races.items():
         stake = sum(t.amount for t in xs)
         pay = sum(t.payout or 0 for t in xs)
@@ -124,30 +124,33 @@ def koro_message(engine, target_date: date) -> str | None:
         if n == 1:
             new_money += stake
         name = f"{STADIUM_NAMES.get(key[0], key[0])}{key[1]}R"
-        buy = "・".join(f"{t.combination} {t.amount:,}円" for t in xs)
-        order = results.get(key) or "-"
+        brows.append([name] + [x for t in xs for x in (t.combination, f"{t.amount:,}")])
+        order = (results.get(key) or "-").replace("-", "")
         if any(t.result is None for t in xs):
-            out.append(f"**{name}**({n}戦目) 結果待ち⏳\n　買い目 {buy}\n　投資 {stake:,}円")
+            rows.append([name, str(n), order, f"{stake:,}", "-", "-", "⏳"])
             continue
         inv += stake
         ret += pay
         if any(t.result == "hit" for t in xs):
             chain += 1
             best = max(best, chain)
-            mark = "🎉2連チャン成功" if chain >= 2 else "○的中 → 払戻を次のレースへ"
+            mark = "🎉2連成功" if chain >= 2 else "○次へ"
             if chain >= 2:
                 chain = 0
         elif all(t.result == "refund" for t in xs):
-            mark = "返還"
-            chain = 0
+            mark, chain = "返還", 0
         else:
-            mark = "×外れ"
-            chain = 0
-        out.append(f"**{name}**({n}戦目) 結果 {order}　{mark}\n　買い目 {buy}\n"
-                   f"　投資 {stake:,}円 → 払戻 {pay:,}円　収支 **{pay - stake:+,}円**")
-    lines = [f"**🎲 コロガシ(練習・紙上) {target_date.month}/{target_date.day}　レースごとの収支**", *out,
-             f"――\n合計 投資 {inv:,}円 → 払戻 {ret:,}円" + (f"(回収率 {ret / inv * 100:.0f}%)" if inv else "")
-             + f"\n最高{best}連チャン / 新しく出した元手 {new_money:,}円"]
+            mark, chain = "×", 0
+        rows.append([name, str(n), order, f"{stake:,}", f"{pay:,}", f"{pay - stake:+,}", mark])
+    rows += [["__sep__"], ["合計", "", "", f"{inv:,}", f"{ret:,}", f"{ret - inv:+,}", ""]]
+    w = max(len(r) for r in brows)
+    brows = [r + [""] * (w - len(r)) for r in brows]
+    bh = ["レース"] + ["買い目", "金額"] * ((w - 1) // 2)
+    lines = [f"**🎲 コロガシ(練習・紙上) {target_date.month}/{target_date.day}**",
+             table(["レース", "戦", "結果", "投資", "払戻", "収支", ""], rows),
+             (f"回収率 {ret / inv * 100:.0f}% / " if inv else "") + f"最高{best}連チャン / 新しく出した元手 {new_money:,}円",
+             "**買い目**",
+             table(bh, brows)]
     return "\n".join(lines)
 
 
