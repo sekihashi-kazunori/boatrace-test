@@ -3,16 +3,16 @@
  "chain": 0,
  "pending": {
   "stadium_code": "22",
-  "race_number": 11,
+  "race_number": 12,
   "name": "福岡",
   "alloc": [
    [
     "1-2-4",
-    1000
+    800
    ],
    [
-    "1-2-3",
-    500
+    "1-2-6",
+    700
    ]
   ],
   "stake": 1500,
@@ -30,6 +30,13 @@
    "result": "失敗",
    "races": [
     "宮島12R"
+   ],
+   "final": 0
+  },
+  {
+   "result": "失敗",
+   "races": [
+    "福岡11R"
    ],
    "final": 0
   }
