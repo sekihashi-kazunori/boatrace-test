@@ -1,0 +1,22 @@
+{
+ "bank": 1500,
+ "chain": 0,
+ "pending": {
+  "stadium_code": "04",
+  "race_number": 1,
+  "name": "平和島",
+  "alloc": [
+   [
+    "3-2-4",
+    900
+   ],
+   [
+    "3-4-2",
+    600
+   ]
+  ],
+  "stake": 1500,
+  "chain_races": []
+ },
+ "log": []
+}
