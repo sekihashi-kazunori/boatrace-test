@@ -57,7 +57,14 @@ jobs:
             git checkout -- boatrace.db 2>/dev/null || true
             git pull -q --rebase --autostash || true
             mkdir -p logs
-            python -u -m src.pipeline.final_pipeline > logs/last_final.txt 2>&1 || echo "final失敗" >> logs/last_final.txt
+            # 2026-11-23: 18:11に state.db の一時的な disk I/O error で1回だけ落ちた。落ちたら10秒後にその場で1回だけ取り直す
+            # (次の3分を待たない。1回目のログは logs/last_final_retry.txt に残す)
+            if ! python -u -m src.pipeline.final_pipeline > logs/last_final.txt 2>&1; then
+              cp logs/last_final.txt logs/last_final_retry.txt
+              sleep 10
+              git checkout -- boatrace.db 2>/dev/null || true
+              python -u -m src.pipeline.final_pipeline > logs/last_final.txt 2>&1 || echo "final失敗" >> logs/last_final.txt
+            fi
             # 2026-11-18 ご主人様「執事君が確認しなければ駄目。自動システム化だよ」: 見張りの自己点検。
             # 公式サイトに3回続けて入れない(403)・最終予想が落ちる時は、Discordに知らせて見張りを自分で立て直す(1時間に1回まで)
             if grep -qE "403 Client Error|Forbidden|final失敗" logs/last_final.txt; then FAIL=$(( ${FAIL:-0} + 1 )); else FAIL=0; fi
