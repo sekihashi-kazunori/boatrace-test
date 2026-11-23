@@ -1,10 +1,12 @@
 """コロガシの練習(2026-11-10 ご主人様「Sレースで2連チャンの練習してみるか」・紙上・集計外)。
 
-自信Sの本予想レースだけで、1,500円から転がす。
+1戦目は自信Sの本予想レースで、1,500円から転がす。
   1戦目: 本予想と同じ鉄板6点+穴1点を1,500円で
-  当たったら、払戻を全部、次の自信Sのレース(2戦目)へ。2連勝したら成功として記録し、1,500円からやり直し
+  当たったら、払戻を全部、次の本予想レース(自信を問わない)で2戦目。2連勝したら成功として記録し、1,500円からやり直し
+  (2026-11-23 ご主人様「コロガシは必ずやりなさい！1レースやって2レース目をやらないなんてお門違い」。
+   その日に本予想レースが残っていなければ、翌日の最初の本予想レースへ持ち越す)
   外れたら失敗として記録し、次の自信Sのレースで1,500円からやり直し
-前のコロガシのレースの結果がまだ出ていない時は、そのレースは見送る。日をまたいだら1,500円から。
+前のコロガシのレースの結果がまだ出ていない時は、そのレースは見送る(次の本予想レースで)。
 状態は plans/korogashi/日付.json。買い目は bet_type "v_koro"(紙上・集計外)。
 """
 from __future__ import annotations
@@ -27,7 +29,25 @@ def load(d: date) -> dict:
     if os.path.exists(p):
         with open(p, encoding="utf-8") as f:
             return json.load(f)
-    return {"bank": START, "chain": 0, "pending": None, "log": []}
+    st = {"bank": START, "chain": 0, "pending": None, "log": []}
+    # 2026-11-23: 前日に1戦目が当たったまま(または結果待ちのまま)終わっていたら、2戦目を今日へ持ち越す
+    try:
+        from datetime import timedelta
+        prev_d = d - timedelta(days=1)
+        if os.path.exists(_path(prev_d)):
+            with open(_path(prev_d), encoding="utf-8") as f:
+                prev = json.load(f)
+            if prev.get("pending"):
+                ok, _msg = resolve(prev_d, prev)
+                if not ok:
+                    return st
+                save(prev_d, prev)
+            if int(prev.get("chain", 0)) >= 1:
+                st.update(bank=int(prev["bank"]), chain=int(prev["chain"]),
+                          chain_races=list(prev.get("chain_races", [])), carried_from=str(prev_d))
+    except Exception as e:
+        print(f"コロガシの持ち越し確認の失敗: {e}")
+    return st
 
 
 def save(d: date, st: dict) -> None:
@@ -42,7 +62,8 @@ def resolve(d: date, st: dict) -> tuple[bool, str]:
     if not pend:
         return True, ""
     from src.tools.day_trend import result
-    r = result(pend["stadium_code"], int(pend["race_number"]), d)
+    rd = date.fromisoformat(pend["date"]) if pend.get("date") else d
+    r = result(pend["stadium_code"], int(pend["race_number"]), rd)
     if not r:
         return False, ""
     tri, pay = r

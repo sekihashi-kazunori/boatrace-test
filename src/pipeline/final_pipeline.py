@@ -728,8 +728,7 @@ def _run_sel(state, target_date, session_name, stadium_code, race_number, odds_m
     order = sorted(range(1, 7), key=lambda l: ex[l])
     rk = {l: order.index(l) + 1 for l in range(1, 7)}
     picks = []
-    if nw[1] <= 5.0 and min(rk[4], rk[5], rk[6]) <= 2:
-        picks.append(("v_456sel", _perm([4, 5, 6], [4, 5, 6], [4, 5, 6])))
+    # 2026-11-23 ご主人様「456はやめて良い！」: v_456sel は停止(11/21〜23 12R 回収14%)。1-2-全(v_12sel)だけ続ける
     if nw[1] >= 6.5 and rk[1] <= 2 and nw[2] >= max(nw[3], nw[4], nw[5], nw[6]):
         picks.append(("v_12sel", [f"1-2-{c}" for c in range(3, 7)]))
     for bt, combos in picks:
@@ -1032,23 +1031,27 @@ def _run_ai3(state, target_date, session_name, stadium_code, race_number, odds_m
             time.sleep(1.2)
         except Exception as e:
             print(f"執事の本予想の通知失敗: {e}")
-        if tier == "S":
-            _run_koro(state, target_date, session_name, stadium_code, race_number, picks, odds_s, stadium_name,
-                      ana[0] if ana else None, deadline)
+        # 2026-11-23 ご主人様「コロガシは必ずやりなさい！1レースやって2レース目をやらないなんてお門違い」:
+        # 1戦目は自信Sだけ。1戦目が当たったら、2戦目は次の本予想レース(自信を問わない)で必ず買う。
+        # その日に本予想レースが残っていなければ、翌日の最初の本予想レースへ持ち越す(korogashi.load)
+        _run_koro(state, target_date, session_name, stadium_code, race_number, picks, odds_s, stadium_name,
+                  ana[0] if ana else None, deadline, is_s=(tier == "S"))
     except Exception as e:
         print(f"執事の本予想の失敗 {race_number}R: {e}")
 
 
 # 2026-11-10 ご主人様「Sレースで2連チャンの練習してみるか」: コロガシ練習(紙上・集計外)。中身は src/tools/korogashi.py
-KORO_RULES = [("v_koro", "コロガシ練習(自信Sで2連チャン・集計外)")]
+KORO_RULES = [("v_koro", "コロガシ練習(1戦目は自信S・2戦目は次の本予想で必ず・集計外)")]
 
 
 def _run_koro(state, target_date, session_name, stadium_code, race_number, picks, odds_s, stadium_name, ana,
-              deadline=None) -> None:
+              deadline=None, is_s=True) -> None:
     try:
         from src.models import ai3
         from src.tools import korogashi as K
         st = K.load(target_date)
+        if not is_s and not st.get("pending") and int(st.get("chain", 0)) == 0:
+            return  # 1戦目は自信Sだけ
         ok, rep = K.resolve(target_date, st)
         if rep:
             print(rep)
@@ -1056,7 +1059,10 @@ def _run_koro(state, target_date, session_name, stadium_code, race_number, picks
             time.sleep(1.2)
         if not ok:
             K.save(target_date, st)
-            print(f"コロガシ(練習): 前のレースの結果待ちなので {stadium_name}{race_number}R は見送り")
+            print(f"コロガシ(練習): 前のレースの結果待ちなので {stadium_name}{race_number}R は見送り(次の本予想レースで)")
+            return
+        if not is_s and int(st.get("chain", 0)) == 0:
+            K.save(target_date, st)  # 1戦目が外れた後は、次の自信Sまで待つ
             return
         bank = int(st["bank"])
         # 2026-11-15 本予想と同じく、安い目に厚く・高い目は薄く
@@ -1070,12 +1076,13 @@ def _run_koro(state, target_date, session_name, stadium_code, race_number, picks
         save_bet_tickets(state, tickets)
         stake = sum(a for _c, a in alloc)
         st["pending"] = {"stadium_code": stadium_code, "race_number": int(race_number), "name": stadium_name,
-                         "alloc": alloc, "stake": stake, "chain_races": st.get("chain_races", [])}
+                         "alloc": alloc, "stake": stake, "chain_races": st.get("chain_races", []),
+                         "date": str(target_date)}
         K.save(target_date, st)
         n = st["chain"] + 1
         msg = (f"🎲 **コロガシ(練習・{n}戦目)** {stadium_name}{race_number}R" + (f"(締切{deadline})" if deadline else "")
                + f"  元手{stake:,}円\n" + "\n".join(lines)
-               + ("\n※1戦目。当たったら払戻を全部、次の自信Sのレースへ" if n == 1 else "\n※2戦目。当たれば2連チャン成功！"))
+               + ("\n※1戦目。当たったら払戻を全部、次の本予想レースへ(必ず2戦目をやる)" if n == 1 else "\n※2戦目。当たれば2連チャン成功！"))
         print(msg)
         notify_discord(msg)
         time.sleep(1.2)
