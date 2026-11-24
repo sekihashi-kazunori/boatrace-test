@@ -1,26 +1,7 @@
 {
- "bank": 8280,
- "chain": 1,
- "pending": {
-  "stadium_code": "19",
-  "race_number": 5,
-  "name": "下関",
-  "alloc": [
-   [
-    "1-2-4",
-    4100
-   ],
-   [
-    "1-4-2",
-    4100
-   ]
-  ],
-  "stake": 8200,
-  "chain_races": [
-   "住之江3R"
-  ],
-  "date": "2026-11-24"
- },
+ "bank": 1500,
+ "chain": 0,
+ "pending": null,
  "log": [
   {
    "result": "成功",
@@ -50,10 +31,16 @@
     "住之江1R"
    ],
    "final": 0
+  },
+  {
+   "result": "成功",
+   "races": [
+    "住之江3R",
+    "下関5R"
+   ],
+   "final": 34030
   }
  ],
- "chain_races": [
-  "住之江3R"
- ],
+ "chain_races": [],
  "carried_from": "2026-11-23"
 }
