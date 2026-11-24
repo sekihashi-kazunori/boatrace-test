@@ -33,7 +33,8 @@ def is_cancelled_page(html: str) -> bool:
 
 
 def is_refund(combination: str, boats: str) -> bool:
-    return bool(boats) and any(b in boats for b in combination.split("-"))
+    # 2026-11-24: 3連複(1=3=4 の形)も返還艇を含めば返還にする(尼崎6Rで外れ扱いになっていた)
+    return bool(boats) and any(b in boats for b in re.split(r"[-=]", combination) if b)
 
 
 def save(d, stadium_code: str, race_number: int, boats: str) -> None:
