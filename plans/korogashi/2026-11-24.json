@@ -1,0 +1,29 @@
+{
+ "bank": 2380,
+ "chain": 1,
+ "pending": {
+  "stadium_code": "18",
+  "race_number": 4,
+  "name": "徳山",
+  "alloc": [
+   [
+    "1-2-4",
+    1600
+   ],
+   [
+    "1-4-2",
+    700
+   ]
+  ],
+  "stake": 2300,
+  "chain_races": [
+   "住之江8R"
+  ],
+  "date": "2026-11-24"
+ },
+ "log": [],
+ "chain_races": [
+  "住之江8R"
+ ],
+ "carried_from": "2026-11-23"
+}
