@@ -1,22 +1,24 @@
 {
- "bank": 1500,
- "chain": 0,
+ "bank": 8280,
+ "chain": 1,
  "pending": {
-  "stadium_code": "12",
-  "race_number": 3,
-  "name": "住之江",
+  "stadium_code": "19",
+  "race_number": 5,
+  "name": "下関",
   "alloc": [
    [
-    "3-2-4",
-    900
+    "1-2-4",
+    4100
    ],
    [
-    "3-4-2",
-    600
+    "1-4-2",
+    4100
    ]
   ],
-  "stake": 1500,
-  "chain_races": [],
+  "stake": 8200,
+  "chain_races": [
+   "住之江3R"
+  ],
   "date": "2026-11-24"
  },
  "log": [
@@ -50,6 +52,8 @@
    "final": 0
   }
  ],
- "chain_races": [],
+ "chain_races": [
+  "住之江3R"
+ ],
  "carried_from": "2026-11-23"
 }
