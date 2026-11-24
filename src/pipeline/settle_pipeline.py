@@ -101,14 +101,14 @@ def race_rows(engine, target_date: date, session_name: str, kind: str = "rule") 
     return out
 
 
-def koro_message(engine, target_date: date) -> str | None:
+def koro_message(engine, target_date: date, bt: str = "v_koro", goal: int = 2, title: str = "コロガシ(練習・紙上)") -> str | None:
     """2026-11-21夜 ご主人様「コロガシも出す事！俺が分析出来ないよ！」: その日のコロガシをレースごとに(紙上)。
     2026-11-22 ご主人様「各レースごとに出す事！」「見づらい！表にして！」: 1レース1行の収支表と、1レース1行の買い目表。"""
     from src.pipeline.session_pipeline import STADIUM_NAMES
     from src.reporting.discord_format import table
     with OrmSession(engine) as db:
         ts = list(db.scalars(select(BetTicket).where(
-            BetTicket.race_date == str(target_date), BetTicket.bet_type == "v_koro")).all())
+            BetTicket.race_date == str(target_date), BetTicket.bet_type == bt)).all())
         results = {(str(r.stadium_code).zfill(2), r.race_number): r.finish_order
                    for r in db.scalars(select(RaceResult).where(RaceResult.race_date == str(target_date)))}
     if not ts:
@@ -117,6 +117,18 @@ def koro_message(engine, target_date: date) -> str | None:
     for t in sorted(ts, key=lambda t: (t.created_at, t.id)):
         races.setdefault((str(t.stadium_code).zfill(2), t.race_number), []).append(t)
     rows, brows, chain, new_money, inv, ret, best = [], [], 0, 0, 0, 0, 0
+    # 前日から持ち越した連チャンは、その続きから数える(11/24は徳山4Rが2戦目なのに1戦目と出ていた)
+    try:
+        import json as _json, os as _os
+        from src.tools import korogashi as _K
+        _cfg = _K.YUME if bt == _K.YUME["bt"] else _K.KORO
+        _p = _os.path.join(_cfg["dir"], f"{target_date}.json")
+        if _os.path.exists(_p):
+            _st = _json.load(open(_p, encoding="utf-8"))
+            if _st.get("carried_from"):
+                chain = int(_st.get("carried_chain", 1))
+    except Exception as e:
+        print(f"コロガシの持ち越し確認の失敗: {e}")
     for key, xs in races.items():
         stake = sum(t.amount for t in xs)
         pay = sum(t.payout or 0 for t in xs)
@@ -134,8 +146,8 @@ def koro_message(engine, target_date: date) -> str | None:
         if any(t.result == "hit" for t in xs):
             chain += 1
             best = max(best, chain)
-            mark = "🎉2連成功" if chain >= 2 else "○次へ"
-            if chain >= 2:
+            mark = f"🎉{goal}連成功" if chain >= goal else "○次へ"
+            if chain >= goal:
                 chain = 0
         elif all(t.result == "refund" for t in xs):
             mark, chain = "返還", 0
@@ -146,7 +158,7 @@ def koro_message(engine, target_date: date) -> str | None:
     w = max(len(r) for r in brows)
     brows = [r + [""] * (w - len(r)) for r in brows]
     bh = ["レース"] + ["買い目", "金額"] * ((w - 1) // 2)
-    lines = [f"**🎲 コロガシ(練習・紙上) {target_date.month}/{target_date.day}**",
+    lines = [f"**🎲 {title} {target_date.month}/{target_date.day}**",
              table(["レース", "戦", "結果", "投資", "払戻", "収支", ""], rows),
              (f"回収率 {ret / inv * 100:.0f}% / " if inv else "") + f"最高{best}連チャン / 新しく出した元手 {new_money:,}円",
              "**買い目**",
@@ -218,14 +230,15 @@ def run_settle(session_name: str, target_date: date | None = None, is_last_sessi
                              race_rows(engine, target_date, session_name, "main"))
     notify_console(report)
     notify_discord(report)
-    try:
-        km = koro_message(engine, target_date)
-        if km:
-            time.sleep(1.2)
-            notify_console(km)
-            notify_discord(km)
-    except Exception as e:
-        print(f"コロガシ報告の失敗: {e}")
+    for _kargs in ({}, {"bt": "v_koro3", "goal": 3, "title": "夢コロガシ(10,000円・3連チャン目標・紙上)"}):
+        try:
+            km = koro_message(engine, target_date, **_kargs)
+            if km:
+                time.sleep(1.2)
+                notify_console(km)
+                notify_discord(km)
+        except Exception as e:
+            print(f"コロガシ報告の失敗: {e}")
 
     if is_last_session_of_day:
         # 2026-10-17 ご主人様指示: 最終振り返りはモーニング・デイ・ナイター・合計の収支を出す

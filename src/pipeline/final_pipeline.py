@@ -1036,33 +1036,40 @@ def _run_ai3(state, target_date, session_name, stadium_code, race_number, odds_m
         # その日に本予想レースが残っていなければ、翌日の最初の本予想レースへ持ち越す(korogashi.load)
         _run_koro(state, target_date, session_name, stadium_code, race_number, picks, odds_s, stadium_name,
                   ana[0] if ana else None, deadline, is_s=(tier == "S"))
+        # 2026-11-25 ご主人様「10000円を3回コロガシ」「やってみるか！」: 夢コロガシ(10,000円・3連チャン目標)も同じレースで
+        from src.tools.korogashi import YUME
+        _run_koro(state, target_date, session_name, stadium_code, race_number, picks, odds_s, stadium_name,
+                  ana[0] if ana else None, deadline, is_s=(tier == "S"), cfg=YUME)
     except Exception as e:
         print(f"執事の本予想の失敗 {race_number}R: {e}")
 
 
 # 2026-11-10 ご主人様「Sレースで2連チャンの練習してみるか」: コロガシ練習(紙上・集計外)。中身は src/tools/korogashi.py
-KORO_RULES = [("v_koro", "コロガシ練習(1戦目は自信S・2戦目は次の本予想で必ず・集計外)")]
+KORO_RULES = [("v_koro", "コロガシ練習(1戦目は自信S・2戦目は次の本予想で必ず・集計外)"),
+              ("v_koro3", "夢コロガシ(10,000円から・3連チャン目標・集計外)")]
 
 
 def _run_koro(state, target_date, session_name, stadium_code, race_number, picks, odds_s, stadium_name, ana,
-              deadline=None, is_s=True) -> None:
+              deadline=None, is_s=True, cfg=None) -> None:
     try:
         from src.models import ai3
         from src.tools import korogashi as K
-        st = K.load(target_date)
+        cfg = cfg or K.KORO
+        lab, goal = cfg["label"], cfg["goal"]
+        st = K.load(target_date, cfg)
         if not is_s and not st.get("pending") and int(st.get("chain", 0)) == 0:
             return  # 1戦目は自信Sだけ
-        ok, rep = K.resolve(target_date, st)
+        ok, rep = K.resolve(target_date, st, cfg)
         if rep:
             print(rep)
             notify_discord(rep)
             time.sleep(1.2)
         if not ok:
-            K.save(target_date, st)
-            print(f"コロガシ(練習): 前のレースの結果待ちなので {stadium_name}{race_number}R は見送り(次の本予想レースで)")
+            K.save(target_date, st, cfg)
+            print(f"{lab}: 前のレースの結果待ちなので {stadium_name}{race_number}R は見送り(次の本予想レースで)")
             return
         if not is_s and int(st.get("chain", 0)) == 0:
-            K.save(target_date, st)  # 1戦目が外れた後は、次の自信Sまで待つ
+            K.save(target_date, st, cfg)  # 1戦目が外れた後は、次の自信Sまで待つ
             return
         bank = int(st["bank"])
         # 2026-11-15 本予想と同じく、安い目に厚く・高い目は薄く
@@ -1071,23 +1078,24 @@ def _run_koro(state, target_date, session_name, stadium_code, race_number, picks
         for c, a in alloc:
             o = odds_s.get(c)
             tickets.append(BetTicket(race_date=str(target_date), session=session_name, stadium_code=stadium_code,
-                                     race_number=race_number, combination=c, amount=a, bet_type="v_koro", odds=o))
+                                     race_number=race_number, combination=c, amount=a, bet_type=cfg["bt"], odds=o))
             lines.append(f"・{c} {a:,}円" + (f"({o}倍)" if o else ""))
         save_bet_tickets(state, tickets)
         stake = sum(a for _c, a in alloc)
         st["pending"] = {"stadium_code": stadium_code, "race_number": int(race_number), "name": stadium_name,
                          "alloc": alloc, "stake": stake, "chain_races": st.get("chain_races", []),
                          "date": str(target_date)}
-        K.save(target_date, st)
+        K.save(target_date, st, cfg)
         n = st["chain"] + 1
-        msg = (f"🎲 **コロガシ(練習・{n}戦目)** {stadium_name}{race_number}R" + (f"(締切{deadline})" if deadline else "")
+        msg = (f"🎲 **{lab}({n}戦目)** {stadium_name}{race_number}R" + (f"(締切{deadline})" if deadline else "")
                + f"  元手{stake:,}円\n" + "\n".join(lines)
-               + ("\n※1戦目。当たったら払戻を全部、次の本予想レースへ(必ず2戦目をやる)" if n == 1 else "\n※2戦目。当たれば2連チャン成功！"))
+               + (f"\n※{n}戦目。当たれば{goal}連チャン成功！" if n >= goal
+                  else f"\n※{n}戦目。当たったら払戻を全部、次の本予想レースへ({goal}連チャンが目標)"))
         print(msg)
         notify_discord(msg)
         time.sleep(1.2)
     except Exception as e:
-        print(f"コロガシ練習の失敗 {race_number}R: {e}")
+        print(f"{(cfg or {}).get('label', 'コロガシ')}の失敗 {race_number}R: {e}")
 
 
 # 2026-11-10 ご主人様「風が強い日は万舟の法則」→ 同日「頭の5・6は良いがレースが違う」を受けて作り直し。

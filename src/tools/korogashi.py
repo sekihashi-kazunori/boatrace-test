@@ -19,45 +19,56 @@ DIR = os.path.join("plans", "korogashi")
 START = 1500
 GOAL = 2  # 2連チャン
 
+# 2026-11-25 ご主人様「10000円を3回くらいコロガシすれば500万くらいになるんじゃ無い？」「やってみるか！」:
+# 夢コロガシ(紙上・集計外)。1戦目は自信Sの本予想レースで10,000円、当たれば払戻を全部次の本予想レースへ、3連チャンで成功。
+# 普通のコロガシと同じレース・同じ買い目で並べて記録する(状態は plans/korogashi_yume/日付.json、bet_type "v_koro3")
+KORO = {"dir": DIR, "start": START, "goal": GOAL, "label": "コロガシ(練習)", "bt": "v_koro"}
+YUME = {"dir": os.path.join("plans", "korogashi_yume"), "start": 10000, "goal": 3, "label": "夢コロガシ", "bt": "v_koro3"}
 
-def _path(d: date) -> str:
-    return os.path.join(DIR, f"{d}.json")
+
+def _path(d: date, cfg: dict | None = None) -> str:
+    return os.path.join((cfg or KORO)["dir"], f"{d}.json")
 
 
-def load(d: date) -> dict:
-    p = _path(d)
+def load(d: date, cfg: dict | None = None) -> dict:
+    cfg = cfg or KORO
+    p = _path(d, cfg)
     if os.path.exists(p):
         with open(p, encoding="utf-8") as f:
             return json.load(f)
-    st = {"bank": START, "chain": 0, "pending": None, "log": []}
+    st = {"bank": cfg["start"], "chain": 0, "pending": None, "log": []}
     # 2026-11-23: 前日に1戦目が当たったまま(または結果待ちのまま)終わっていたら、2戦目を今日へ持ち越す
     try:
         from datetime import timedelta
         prev_d = d - timedelta(days=1)
-        if os.path.exists(_path(prev_d)):
-            with open(_path(prev_d), encoding="utf-8") as f:
+        if os.path.exists(_path(prev_d, cfg)):
+            with open(_path(prev_d, cfg), encoding="utf-8") as f:
                 prev = json.load(f)
             if prev.get("pending"):
-                ok, _msg = resolve(prev_d, prev)
+                ok, _msg = resolve(prev_d, prev, cfg)
                 if not ok:
                     return st
-                save(prev_d, prev)
+                save(prev_d, prev, cfg)
             if int(prev.get("chain", 0)) >= 1:
                 st.update(bank=int(prev["bank"]), chain=int(prev["chain"]),
-                          chain_races=list(prev.get("chain_races", [])), carried_from=str(prev_d))
+                          chain_races=list(prev.get("chain_races", [])), carried_from=str(prev_d),
+                          carried_chain=int(prev["chain"]))
     except Exception as e:
         print(f"コロガシの持ち越し確認の失敗: {e}")
     return st
 
 
-def save(d: date, st: dict) -> None:
-    os.makedirs(DIR, exist_ok=True)
-    with open(_path(d), "w", encoding="utf-8") as f:
+def save(d: date, st: dict, cfg: dict | None = None) -> None:
+    cfg = cfg or KORO
+    os.makedirs(cfg["dir"], exist_ok=True)
+    with open(_path(d, cfg), "w", encoding="utf-8") as f:
         json.dump(st, f, ensure_ascii=False, indent=1)
 
 
-def resolve(d: date, st: dict) -> tuple[bool, str]:
+def resolve(d: date, st: dict, cfg: dict | None = None) -> tuple[bool, str]:
     """前のコロガシのレースを精算する。(進めてよいか, 報告文)"""
+    cfg = cfg or KORO
+    lab, start, goal = cfg["label"], cfg["start"], cfg["goal"]
     pend = st.get("pending")
     if not pend:
         return True, ""
@@ -72,18 +83,18 @@ def resolve(d: date, st: dict) -> tuple[bool, str]:
     if back:
         st["chain"] += 1
         st["bank"] = back
-        msg = f"🎲 コロガシ(練習) {name} ◎的中 {tri}({pay:,}円) → {pend['stake']:,}円が{back:,}円に！ {st['chain']}連チャン"
-        if st["chain"] >= GOAL:
+        msg = f"🎲 {lab} {name} ◎的中 {tri}({pay:,}円) → {pend['stake']:,}円が{back:,}円に！ {st['chain']}連チャン"
+        if st["chain"] >= goal:
             st["log"].append({"result": "成功", "races": pend.get("chain_races", []) + [name], "final": back})
-            msg += f"\n🎉 {GOAL}連チャン成功！ 1,500円 → {back:,}円。次は1,500円からやり直し"
-            st["bank"], st["chain"] = START, 0
+            msg += f"\n🎉 {goal}連チャン成功！ {start:,}円 → {back:,}円。次は{start:,}円からやり直し"
+            st["bank"], st["chain"] = start, 0
             st["chain_races"] = []
         else:
             st["chain_races"] = pend.get("chain_races", []) + [name]
     else:
         st["log"].append({"result": "失敗", "races": pend.get("chain_races", []) + [name], "final": 0})
-        msg = f"🎲 コロガシ(練習) {name} ×外れ(結果{tri})。{st['chain']}連チャンで終了、次は1,500円から"
-        st["bank"], st["chain"] = START, 0
+        msg = f"🎲 {lab} {name} ×外れ(結果{tri})。{st['chain']}連チャンで終了、次は{start:,}円から"
+        st["bank"], st["chain"] = start, 0
         st["chain_races"] = []
     st["pending"] = None
     return True, msg
