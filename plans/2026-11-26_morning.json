@@ -1,0 +1,47 @@
+[
+ {
+  "stadium_code": "18",
+  "race_number": 1,
+  "stadium_name": "徳山",
+  "deadline": "08:43",
+  "score": 0.2989,
+  "main": false,
+  "gen": true
+ },
+ {
+  "stadium_code": "18",
+  "race_number": 4,
+  "stadium_name": "徳山",
+  "deadline": "10:01",
+  "score": 0.2394,
+  "main": false,
+  "gen": true
+ },
+ {
+  "stadium_code": "18",
+  "race_number": 2,
+  "stadium_name": "徳山",
+  "deadline": "09:09",
+  "score": 0.2115,
+  "main": false,
+  "gen": true
+ },
+ {
+  "stadium_code": "18",
+  "race_number": 5,
+  "stadium_name": "徳山",
+  "deadline": "10:29",
+  "score": 0.1579,
+  "main": false,
+  "gen": true
+ },
+ {
+  "stadium_code": "18",
+  "race_number": 3,
+  "stadium_name": "徳山",
+  "deadline": "09:35",
+  "score": 0.1036,
+  "main": false,
+  "gen": true
+ }
+]
