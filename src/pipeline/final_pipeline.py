@@ -959,6 +959,25 @@ def _run_ai3(state, target_date, session_name, stadium_code, race_number, odds_m
         _q1 = dict(top6)
         _ura = f"{a_}-{c_}-{b_}"
         picks = [(top6[0][0], top6[0][1]), (_ura, _q1.get(_ura, (pp or {}).get(_ura, 0.0)))]
+        # 2026-11-26 ご主人様「みなもさんと同じ予想なら楽しく無いでしょ！執事君なりの予想出した方が良い」:
+        # 11/21〜25 の本予想は 97R中78Rがみなもさんと同じ2点だった(一番来そうな1点とその裏 = 人気の目になりやすい)。
+        # 執事の目: 頭は執事の1番手のまま、2着3着は「裏表2点の確率の合計」が一番高い2艇にする(1点の確率ではなく2点で考える)。
+        # 2026年8〜10月の700R(頭1号艇・自信B以上)で試算: 今の決め方 83.9%(175本) → 2点合計で選ぶ 86.8%(179本)。
+        # 今までの決め方(1番手とその裏)は v_mshape として並べて記録し、毎晩比べる
+        try:
+            _pa = pp or ai3.probs(rows, int(stadium_code), int(race_number), (weather or {}).get("wind"),
+                                  (weather or {}).get("wave")) or {}
+            if _pa:
+                import itertools as _it
+                _oth = [str(l) for l in range(1, 7) if str(l) != a_]
+                _x, _y = max(_it.combinations(_oth, 2),
+                             key=lambda t: _pa.get(f"{a_}-{t[0]}-{t[1]}", 0) + _pa.get(f"{a_}-{t[1]}-{t[0]}", 0))
+                _c1, _c2 = sorted((f"{a_}-{_x}-{_y}", f"{a_}-{_y}-{_x}"), key=lambda c: -_pa.get(c, 0))
+                picks = [(_c1, _pa.get(_c1, 0.0)), (_c2, _pa.get(_c2, 0.0))]
+                if {_x, _y} != {b_, c_}:
+                    print(f"執事の本予想 {stadium_name}{race_number}R: 執事の目 {_c1}/{_c2}(今までの決め方なら {top6[0][0]}/{_ura})")
+        except Exception as e:
+            print(f"執事の目の失敗(今までの決め方で出す): {e}")
         has_g, yon, man = True, None, None
         # 2026-11-21 ご主人様「任せる」: 1レース600円のまま、3連単200円(2点×100円)+3連複400円に配分を変更。
         # 執事の読みは着順より3艇の顔ぶれが確か(137R: 3連単2点 82.6% / 3連複1点 91.2%)。旧: 3連単400円+3連複200円 85.5% → 約88%
