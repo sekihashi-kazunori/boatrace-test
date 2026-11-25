@@ -1275,7 +1275,34 @@ def _run_kaigi(state, target_date, session_name, stadium_code, race_number, odds
         print(f"予想家会議の失敗 {race_number}R: {e}")
 
 
-MINAMO_RULES = [("v_minamo", "みなも×強い場(先出し2点を200円ずつ・その朝までの成績で場を選ぶ)")]
+MINAMO_RULES = [("v_minamo", "みなも×強い場(先出し2点を200円ずつ・その朝までの成績で場を選ぶ)"),
+                ("v_mi_not1", "みなも◎が1号艇以外(先出し2点を100円ずつ・本予想が見送るレース)")]
+
+
+# 2026-11-25夜 ご主人様「良いよ！」: 本予想は「みなもさんの◎が1号艇以外なら見送り」だが、そのレースのみなもさんは
+# 11/21〜25の5日で93R・回収113.8%(◎1号艇の696Rは75.4%)。見送っているレースを紙上で記録して確かめる。
+# みなもさんの先出し2点(◎-○-▲ / ◎-▲-○)をそのまま100円ずつ。記録は v_mi_not1。
+def _run_mi_not1(state, target_date, session_name, stadium_code, race_number, odds_map) -> None:
+    try:
+        import csv as _csv
+        path = os.path.join("tipster", f"minamo_all_{target_date}.csv")
+        if not os.path.exists(path):
+            return
+        with open(path, encoding="utf-8") as f:
+            row = next((r for r in _csv.DictReader(f) if r["stadium_code"].zfill(2) == str(stadium_code).zfill(2)
+                        and int(r["race_number"]) == int(race_number)), None)
+        if not row:
+            return
+        combos = row["combos"].split()
+        if not combos or combos[0][0] == "1":
+            return
+        save_bet_tickets(state, [BetTicket(race_date=str(target_date), session=session_name, stadium_code=stadium_code,
+                                           race_number=race_number, combination=c, amount=100, bet_type="v_mi_not1",
+                                           odds=(odds_map or {}).get(tuple(map(int, c.split("-")))))
+                                 for c in combos])
+        print(f"みなも◎1号艇以外 v_mi_not1: {stadium_code} {race_number}R {row.get('marks', '')} " + " ".join(combos))
+    except Exception as e:
+        print(f"みなも◎1号艇以外の失敗 {race_number}R: {e}")
 MINAMO_MIN_RACES, MINAMO_MIN_RET = 24, 1.10
 
 
@@ -1645,6 +1672,7 @@ def run_final(target_date: date | None = None, model_path: str = "model.txt", db
         _run_likely(state, target_date, session_name, stadium_code, race_number, odds_map)
         _run_456box(state, target_date, session_name, stadium_code, race_number, odds_map, card)
         _run_sel(state, target_date, session_name, stadium_code, race_number, odds_map, card, before_info)
+        _run_mi_not1(state, target_date, session_name, stadium_code, race_number, odds_map)
         _run_1456b(state, target_date, session_name, stadium_code, race_number, odds_map, card)
         _run_edo15(state, target_date, session_name, stadium_code, race_number, odds_map, before_info)
         _run_venue(state, target_date, session_name, stadium_code, race_number, odds_map, card, weather)
