@@ -1010,6 +1010,36 @@ def _run_ai3(state, target_date, session_name, stadium_code, race_number, odds_m
                                      for c in old_top2])
         except Exception as e:
             print(f"旧上位2点の記録失敗: {e}")
+        # 2026-11-26夜 ご主人様「的中出来なすぎる！」「良いよ！」: 3着の取りこぼし対策を紙上で並べて記録(各100円・2点)。
+        # 11/22〜26の本予想96R: ぴったり28 / 3着だけ外れ31(その3着は4号艇13・6号艇5・2号艇5・5号艇4・3号艇4) / 2着外れ17 / 頭外れ20。
+        #  v_out3: 5・6号艇が展示タイム2位以内で本予想の3艇に入っていない時だけ、頭-2着候補-その外枠(2点)
+        #  v_3rd : 毎レース、本予想の2艇以外で「頭-2着候補-◯」の確率の合計が一番高い3着候補1艇(2点)
+        #  本予想(裏表2点)にこの2点を足して4点にした時の回収率を毎晩比べ、良ければ本予想に入れる
+        try:
+            _h, _x, _y = picks[0][0].split("-")
+            _odd = lambda c: (odds_map or {}).get(tuple(map(int, c.split("-"))))
+            _ext = []
+            _exm = {str(b.get("lane")): b.get("exhibition_time") for b in (before_info or [])
+                    if b.get("exhibition_time") is not None}
+            if len(_exm) == 6:
+                _ord = sorted(_exm, key=lambda l: float(_exm[l]))[:2]
+                _o = [l for l in ("5", "6") if l in _ord and l not in (_h, _x, _y)]
+                if _o:
+                    _ext.append(("v_out3", _o[0]))
+            _pz = pp or ai3.probs(rows, int(stadium_code), int(race_number), (weather or {}).get("wind"),
+                                  (weather or {}).get("wave")) or {}
+            _rest = [str(l) for l in range(1, 7) if str(l) not in (_h, _x, _y)]
+            if _pz and _rest:
+                _z = max(_rest, key=lambda z: _pz.get(f"{_h}-{_x}-{z}", 0) + _pz.get(f"{_h}-{_y}-{z}", 0))
+                _ext.append(("v_3rd", _z))
+            for _bt, _z in _ext:
+                save_bet_tickets(state, [BetTicket(race_date=str(target_date), session=session_name,
+                                                   stadium_code=stadium_code, race_number=race_number, combination=c,
+                                                   amount=100, bet_type=_bt, odds=_odd(c))
+                                         for c in (f"{_h}-{_x}-{_z}", f"{_h}-{_y}-{_z}")])
+                print(f"3着の押さえ {_bt}: {stadium_name}{race_number}R {_h}-{_x}-{_z} / {_h}-{_y}-{_z}")
+        except Exception as e:
+            print(f"3着の押さえの記録失敗: {e}")
         # 2026-11-21 ご主人様「みなもさんを勉強して頭脳を吸収して」: みなもさんの形(頭1艇固定・2着3着の2艇を裏表)を
         # 執事の1番手で作った買い目を、並べて記録(紙上・各100円)。本予想(上位2点)とどちらが良いか毎晩比べる。
         # 11/4〜の同じレースで、1点だけ一致したレースはみなもさんの残り1点(裏表)が 90.7% / 執事の2番手 66.9%。
@@ -1027,7 +1057,8 @@ def _run_ai3(state, target_date, session_name, stadium_code, race_number, odds_m
         # 1番手の3艇の3連複1点(TRIO_AMT円)を本予想と一緒に出す(bet_type='gen_trio'、組は '1=2=3' の形)
         trio = None
         try:
-            trio = "=".join(sorted(top6[0][0].split("-")))
+            # 2026-11-26夜 ご主人様OK: 3連複は本予想の3連単(裏表)と同じ3艇にそろえる(住之江1Rで 1-2-3/1-3-2 なのに 1=2=4 だった)
+            trio = "=".join(sorted(picks[0][0].split("-")))
             save_bet_tickets(state, [BetTicket(race_date=str(target_date), session=session_name,
                                                stadium_code=stadium_code, race_number=race_number, combination=trio,
                                                amount=TRIO_AMT, bet_type="gen_trio", odds=None)])
