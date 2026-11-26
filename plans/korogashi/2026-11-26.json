@@ -1,24 +1,7 @@
 {
  "bank": 1500,
  "chain": 0,
- "pending": {
-  "stadium_code": "12",
-  "race_number": 7,
-  "name": "住之江",
-  "alloc": [
-   [
-    "1-2-6",
-    1000
-   ],
-   [
-    "1-6-2",
-    500
-   ]
-  ],
-  "stake": 1500,
-  "chain_races": [],
-  "date": "2026-11-26"
- },
+ "pending": null,
  "log": [
   {
    "result": "失敗",
@@ -31,6 +14,13 @@
    "result": "失敗",
    "races": [
     "宮島11R"
+   ],
+   "final": 0
+  },
+  {
+   "result": "失敗",
+   "races": [
+    "住之江7R"
    ],
    "final": 0
   }
