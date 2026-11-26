@@ -1,23 +1,15 @@
 {
  "bank": 10000,
  "chain": 0,
- "pending": {
-  "stadium_code": "23",
-  "race_number": 5,
-  "name": "唐津",
-  "alloc": [
-   [
-    "1-2-6",
-    7800
+ "pending": null,
+ "log": [
+  {
+   "result": "失敗",
+   "races": [
+    "唐津5R"
    ],
-   [
-    "1-6-2",
-    2200
-   ]
-  ],
-  "stake": 10000,
-  "chain_races": [],
-  "date": "2026-11-26"
- },
- "log": []
+   "final": 0
+  }
+ ],
+ "chain_races": []
 }
