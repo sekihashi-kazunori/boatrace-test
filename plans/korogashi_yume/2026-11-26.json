@@ -1,29 +1,19 @@
 {
  "bank": 10000,
  "chain": 0,
- "pending": {
-  "stadium_code": "17",
-  "race_number": 11,
-  "name": "宮島",
-  "alloc": [
-   [
-    "1-2-3",
-    5500
-   ],
-   [
-    "1-3-2",
-    4500
-   ]
-  ],
-  "stake": 10000,
-  "chain_races": [],
-  "date": "2026-11-26"
- },
+ "pending": null,
  "log": [
   {
    "result": "失敗",
    "races": [
     "唐津5R"
+   ],
+   "final": 0
+  },
+  {
+   "result": "失敗",
+   "races": [
+    "宮島11R"
    ],
    "final": 0
   }
