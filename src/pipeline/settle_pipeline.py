@@ -117,6 +117,7 @@ def koro_message(engine, target_date: date, bt: str = "v_koro", goal: int = 2, t
     for t in sorted(ts, key=lambda t: (t.created_at, t.id)):
         races.setdefault((str(t.stadium_code).zfill(2), t.race_number), []).append(t)
     rows, brows, chain, new_money, inv, ret, best = [], [], 0, 0, 0, 0, 0
+    riding = 0  # 次のレースへ転がし中のお金(まだ手元に無い)
     # 前日から持ち越した連チャンは、その続きから数える(11/24は徳山4Rが2戦目なのに1戦目と出ていた)
     try:
         import json as _json, os as _os
@@ -140,27 +141,39 @@ def koro_message(engine, target_date: date, bt: str = "v_koro", goal: int = 2, t
         order = (results.get(key) or "-").replace("-", "")
         if any(t.result is None for t in xs):
             rows.append([name, str(n), order, f"{stake:,}", "-", "-", "⏳"])
+            riding = stake
             continue
         inv += stake
         ret += pay
+        riding = 0
         if any(t.result == "hit" for t in xs):
             chain += 1
             best = max(best, chain)
             mark = f"🎉{goal}連成功" if chain >= goal else "○次へ"
             if chain >= goal:
                 chain = 0
+            else:
+                riding = pay
         elif all(t.result == "refund" for t in xs):
             mark, chain = "返還", 0
         else:
             mark, chain = "×", 0
         rows.append([name, str(n), order, f"{stake:,}", f"{pay:,}", f"{pay - stake:+,}", mark])
-    rows += [["__sep__"], ["合計", "", "", f"{inv:,}", f"{ret:,}", f"{ret - inv:+,}", ""]]
+    # 2026-11-27 ご主人様「コロガシは1500円×4で6000円じゃない？」: 投資・払戻の合計は転がしたお金を何度も数えて
+    # 紛らわしい(11/27 投資14,100・回収率203%)。合計は「元手 → 手元 → 利益」で出す。
+    # 利益 = 払戻の合計 − 賭けた額の合計(転がした分は打ち消し合う)。手元 = 元手 + 利益 − 転がし中
+    profit = ret - inv
+    hand = new_money + profit - riding
     w = max(len(r) for r in brows)
     brows = [r + [""] * (w - len(r)) for r in brows]
     bh = ["レース"] + ["買い目", "金額"] * ((w - 1) // 2)
     lines = [f"**🎲 {title} {target_date.month}/{target_date.day}**",
              table(["レース", "戦", "結果", "投資", "払戻", "収支", ""], rows),
-             (f"回収率 {ret / inv * 100:.0f}% / " if inv else "") + f"最高{best}連チャン / 新しく出した元手 {new_money:,}円",
+             (f"**元手 {new_money:,}円 → 手元 {hand:,}円 + 転がし中 {riding:,}円 → 利益 {profit:+,}円**"
+              f"\n(転がし中は次のレースで精算。外れれば利益は {hand - new_money:+,}円)" if riding else
+              f"**元手 {new_money:,}円 → 手元 {hand:,}円 → 利益 {profit:+,}円**"
+              + (f"(元手の{hand / new_money * 100:.0f}%)" if new_money else ""))
+             + f"\n最高{best}連チャン",
              "**買い目**",
              table(bh, brows)]
     return "\n".join(lines)
