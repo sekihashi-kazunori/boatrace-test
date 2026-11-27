@@ -1,27 +1,7 @@
 {
- "bank": 52890,
- "chain": 2,
- "pending": {
-  "stadium_code": "07",
-  "race_number": 9,
-  "name": "蒲郡",
-  "alloc": [
-   [
-    "1-2-3",
-    27800
-   ],
-   [
-    "1-3-2",
-    25000
-   ]
-  ],
-  "stake": 52800,
-  "chain_races": [
-   "大村5R",
-   "大村7R"
-  ],
-  "date": "2026-11-27"
- },
+ "bank": 10000,
+ "chain": 0,
+ "pending": null,
  "log": [
   {
    "result": "失敗",
@@ -38,10 +18,16 @@
     "宮島12R"
    ],
    "final": 0
+  },
+  {
+   "result": "成功",
+   "races": [
+    "大村5R",
+    "大村7R",
+    "蒲郡9R"
+   ],
+   "final": 144560
   }
  ],
- "chain_races": [
-  "大村5R",
-  "大村7R"
- ]
+ "chain_races": []
 }
