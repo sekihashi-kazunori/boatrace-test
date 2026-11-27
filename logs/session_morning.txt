@@ -5,17 +5,17 @@
 締切予定時刻取得件数: 12件（本来12件）
 場コード=03 場名=江戸川 1R締切=10:59 判定=day
 締切予定時刻取得件数: 12件（本来12件）
+場コード=06 場名=浜名湖 1R締切=10:29 判定=day
+締切予定時刻取得件数: 12件（本来12件）
 場コード=07 場名=蒲郡 1R締切=15:20 判定=nighter
 締切予定時刻取得件数: 12件（本来12件）
-場コード=08 場名=常滑 1R締切=10:27 判定=day
+場コード=08 場名=常滑 1R締切=10:26 判定=day
 締切予定時刻取得件数: 12件（本来12件）
-場コード=11 場名=びわこ 1R締切=10:23 判定=day
-締切予定時刻取得件数: 12件（本来12件）
-場コード=13 場名=尼崎 1R締切=10:36 判定=day
+場コード=13 場名=尼崎 1R締切=10:35 判定=day
 締切予定時刻取得件数: 12件（本来12件）
 場コード=14 場名=鳴門 1R締切=08:35 判定=morning
 締切予定時刻取得件数: 12件（本来12件）
-場コード=15 場名=丸亀 1R締切=15:21 判定=nighter
+場コード=15 場名=丸亀 1R締切=15:23 判定=nighter
 締切予定時刻取得件数: 12件（本来12件）
 場コード=17 場名=宮島 1R締切=10:19 判定=day
 締切予定時刻取得件数: 12件（本来12件）
@@ -27,85 +27,85 @@
 締切予定時刻取得件数: 12件（本来12件）
 場コード=24 場名=大村 1R締切=15:17 判定=nighter
 session=morning 絞り込み後: 3場（全14場中）
-直前情報ページ status_code=200 本文長=43571文字
+直前情報ページ status_code=200 本文長=43636文字
 '展示タイム'という文字列が本文に含まれるか: False
 'チルト'という文字列が本文に含まれるか: True
 水面気象: {}
 展示タイム取得件数: 0件（本来6件） 中身={}
 チルト取得件数: 0件（本来6件） 中身={}
-抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x7a3d26b42cf0>]
+抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x78706a47da90>]
 [save_entries] 6 entries saved
-直前情報ページ status_code=200 本文長=43571文字
+直前情報ページ status_code=200 本文長=43636文字
 '展示タイム'という文字列が本文に含まれるか: False
 'チルト'という文字列が本文に含まれるか: True
 水面気象: {}
 展示タイム取得件数: 0件（本来6件） 中身={}
 チルト取得件数: 0件（本来6件） 中身={}
-抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x7a3d26b4d480>]
+抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x787066d97460>]
 [save_entries] 6 entries saved
-直前情報ページ status_code=200 本文長=43571文字
+直前情報ページ status_code=200 本文長=43636文字
 '展示タイム'という文字列が本文に含まれるか: False
 'チルト'という文字列が本文に含まれるか: True
 水面気象: {}
 展示タイム取得件数: 0件（本来6件） 中身={}
 チルト取得件数: 0件（本来6件） 中身={}
-抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x7a3d265720b0>]
+抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x78706a423230>]
 [save_entries] 6 entries saved
-直前情報ページ status_code=200 本文長=43571文字
+直前情報ページ status_code=200 本文長=43636文字
 '展示タイム'という文字列が本文に含まれるか: False
 'チルト'という文字列が本文に含まれるか: True
 水面気象: {}
 展示タイム取得件数: 0件（本来6件） 中身={}
 チルト取得件数: 0件（本来6件） 中身={}
-抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x7a3d265734d0>]
+抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x787066d07af0>]
 [save_entries] 6 entries saved
-直前情報ページ status_code=200 本文長=43571文字
+直前情報ページ status_code=200 本文長=43636文字
 '展示タイム'という文字列が本文に含まれるか: False
 'チルト'という文字列が本文に含まれるか: True
 水面気象: {}
 展示タイム取得件数: 0件（本来6件） 中身={}
 チルト取得件数: 0件（本来6件） 中身={}
-抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x7a3d26ae7230>]
+抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x78706a423230>]
 [save_entries] 6 entries saved
-直前情報ページ status_code=200 本文長=43571文字
+直前情報ページ status_code=200 本文長=43636文字
 '展示タイム'という文字列が本文に含まれるか: False
 'チルト'という文字列が本文に含まれるか: True
 水面気象: {}
 展示タイム取得件数: 0件（本来6件） 中身={}
 チルト取得件数: 0件（本来6件） 中身={}
-抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x7a3d26572190>]
+抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x787066d06cf0>]
 [save_entries] 6 entries saved
-直前情報ページ status_code=200 本文長=43571文字
+直前情報ページ status_code=200 本文長=43636文字
 '展示タイム'という文字列が本文に含まれるか: False
 'チルト'という文字列が本文に含まれるか: True
 水面気象: {}
 展示タイム取得件数: 0件（本来6件） 中身={}
 チルト取得件数: 0件（本来6件） 中身={}
-抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x7a3d265720b0>]
+抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x78706a423230>]
 [save_entries] 6 entries saved
-直前情報ページ status_code=200 本文長=43571文字
+直前情報ページ status_code=200 本文長=43636文字
 '展示タイム'という文字列が本文に含まれるか: False
 'チルト'という文字列が本文に含まれるか: True
 水面気象: {}
 展示タイム取得件数: 0件（本来6件） 中身={}
 チルト取得件数: 0件（本来6件） 中身={}
-抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x7a3d26572430>]
+抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x787066d06f90>]
 [save_entries] 6 entries saved
-直前情報ページ status_code=200 本文長=43571文字
+直前情報ページ status_code=200 本文長=43636文字
 '展示タイム'という文字列が本文に含まれるか: False
 'チルト'という文字列が本文に含まれるか: True
 水面気象: {}
 展示タイム取得件数: 0件（本来6件） 中身={}
 チルト取得件数: 0件（本来6件） 中身={}
-抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x7a3d2672c130>]
+抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x787066380e50>]
 [save_entries] 6 entries saved
-直前情報ページ status_code=200 本文長=43576文字
+直前情報ページ status_code=200 本文長=43641文字
 '展示タイム'という文字列が本文に含まれるか: False
 'チルト'という文字列が本文に含まれるか: True
 水面気象: {}
 展示タイム取得件数: 0件（本来6件） 中身={}
 チルト取得件数: 0件（本来6件） 中身={}
-抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x7a3d26572190>]
+抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x78706525bbd0>]
 [save_entries] 6 entries saved
 3連単オッズ取得件数: 120件（本来120件）
 v2モデル(1着・2着・3着)を使用
@@ -148,85 +148,85 @@ v2モデル(1着・2着・3着)を使用
 オッズ未取得のため見送り
 買い目件数: 0件 indexed件数=6
 【モーニング 鳴門 10R】見送りのため候補外
-直前情報ページ status_code=200 本文長=43728文字
+直前情報ページ status_code=200 本文長=43793文字
 '展示タイム'という文字列が本文に含まれるか: False
 'チルト'という文字列が本文に含まれるか: True
 水面気象: {}
 展示タイム取得件数: 0件（本来6件） 中身={}
 チルト取得件数: 0件（本来6件） 中身={}
-抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x7a3d21924910>]
+抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x787066ce6190>]
 [save_entries] 6 entries saved
-直前情報ページ status_code=200 本文長=43728文字
+直前情報ページ status_code=200 本文長=43793文字
 '展示タイム'という文字列が本文に含まれるか: False
 'チルト'という文字列が本文に含まれるか: True
 水面気象: {}
 展示タイム取得件数: 0件（本来6件） 中身={}
 チルト取得件数: 0件（本来6件） 中身={}
-抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x7a3d26572430>]
+抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x7870666818d0>]
 [save_entries] 6 entries saved
-直前情報ページ status_code=200 本文長=43728文字
+直前情報ページ status_code=200 本文長=43793文字
 '展示タイム'という文字列が本文に含まれるか: False
 'チルト'という文字列が本文に含まれるか: True
-水面気象: {}
+水面気象: {'weather': '晴'}
 展示タイム取得件数: 0件（本来6件） 中身={}
 チルト取得件数: 0件（本来6件） 中身={}
-抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x7a3d21924910>]
+抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x787066ce6190>]
 [save_entries] 6 entries saved
-直前情報ページ status_code=200 本文長=43728文字
+直前情報ページ status_code=200 本文長=43793文字
 '展示タイム'という文字列が本文に含まれるか: False
 'チルト'という文字列が本文に含まれるか: True
 水面気象: {}
 展示タイム取得件数: 0件（本来6件） 中身={}
 チルト取得件数: 0件（本来6件） 中身={}
-抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x7a3d26572430>]
+抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x7870666818d0>]
 [save_entries] 6 entries saved
-直前情報ページ status_code=200 本文長=43728文字
+直前情報ページ status_code=200 本文長=43793文字
 '展示タイム'という文字列が本文に含まれるか: False
 'チルト'という文字列が本文に含まれるか: True
 水面気象: {}
 展示タイム取得件数: 0件（本来6件） 中身={}
 チルト取得件数: 0件（本来6件） 中身={}
-抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x7a3d26560210>]
+抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x78706a2c3690>]
 [save_entries] 6 entries saved
-直前情報ページ status_code=200 本文長=43728文字
+直前情報ページ status_code=200 本文長=43793文字
 '展示タイム'という文字列が本文に含まれるか: False
 'チルト'という文字列が本文に含まれるか: True
 水面気象: {}
 展示タイム取得件数: 0件（本来6件） 中身={}
 チルト取得件数: 0件（本来6件） 中身={}
-抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x7a3d26572190>]
+抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x787064113850>]
 [save_entries] 6 entries saved
-直前情報ページ status_code=200 本文長=43728文字
+直前情報ページ status_code=200 本文長=43793文字
 '展示タイム'という文字列が本文に含まれるか: False
 'チルト'という文字列が本文に含まれるか: True
 水面気象: {}
 展示タイム取得件数: 0件（本来6件） 中身={}
 チルト取得件数: 0件（本来6件） 中身={}
-抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x7a3d23129630>]
+抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x787066ce6190>]
 [save_entries] 6 entries saved
-直前情報ページ status_code=200 本文長=43728文字
+直前情報ページ status_code=200 本文長=43793文字
 '展示タイム'という文字列が本文に含まれるか: False
 'チルト'という文字列が本文に含まれるか: True
 水面気象: {}
 展示タイム取得件数: 0件（本来6件） 中身={}
 チルト取得件数: 0件（本来6件） 中身={}
-抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x7a3d26572430>]
+抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x7870654952b0>]
 [save_entries] 6 entries saved
-直前情報ページ status_code=200 本文長=43728文字
+直前情報ページ status_code=200 本文長=43793文字
 '展示タイム'という文字列が本文に含まれるか: False
 'チルト'という文字列が本文に含まれるか: True
 水面気象: {}
 展示タイム取得件数: 0件（本来6件） 中身={}
 チルト取得件数: 0件（本来6件） 中身={}
-抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x7a3d26560210>]
+抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x78706a2c3690>]
 [save_entries] 6 entries saved
-直前情報ページ status_code=200 本文長=43733文字
+直前情報ページ status_code=200 本文長=43798文字
 '展示タイム'という文字列が本文に含まれるか: False
 'チルト'という文字列が本文に含まれるか: True
-水面気象: {}
+水面気象: {'weather': '晴'}
 展示タイム取得件数: 0件（本来6件） 中身={}
 チルト取得件数: 0件（本来6件） 中身={}
-抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x7a3d26572190>]
+抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x787064e3c3d0>]
 [save_entries] 6 entries saved
 3連単オッズ取得件数: 120件（本来120件）
 買い目件数: 5件 indexed件数=6
@@ -258,85 +258,85 @@ v2モデル(1着・2着・3着)を使用
 オッズ未取得のため見送り
 買い目件数: 0件 indexed件数=6
 【モーニング 徳山 10R】見送りのため候補外
-直前情報ページ status_code=200 本文長=43536文字
+直前情報ページ status_code=200 本文長=43601文字
 '展示タイム'という文字列が本文に含まれるか: False
 'チルト'という文字列が本文に含まれるか: True
 水面気象: {}
 展示タイム取得件数: 0件（本来6件） 中身={}
 チルト取得件数: 0件（本来6件） 中身={}
-抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x7a3d231298d0>]
+抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x787066d07690>]
 [save_entries] 6 entries saved
-直前情報ページ status_code=200 本文長=43536文字
+直前情報ページ status_code=200 本文長=43601文字
 '展示タイム'という文字列が本文に含まれるか: False
 'チルト'という文字列が本文に含まれるか: True
 水面気象: {}
 展示タイム取得件数: 0件（本来6件） 中身={}
 チルト取得件数: 0件（本来6件） 中身={}
-抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x7a3d26572430>]
+抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x787064e3c050>]
 [save_entries] 6 entries saved
-直前情報ページ status_code=200 本文長=43536文字
+直前情報ページ status_code=200 本文長=43601文字
 '展示タイム'という文字列が本文に含まれるか: False
 'チルト'という文字列が本文に含まれるか: True
 水面気象: {}
 展示タイム取得件数: 0件（本来6件） 中身={}
 チルト取得件数: 0件（本来6件） 中身={}
-抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x7a3d219267b0>]
+抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x787065aa0f30>]
 [save_entries] 6 entries saved
-直前情報ページ status_code=200 本文長=43536文字
+直前情報ページ status_code=200 本文長=43601文字
 '展示タイム'という文字列が本文に含まれるか: False
 'チルト'という文字列が本文に含まれるか: True
 水面気象: {}
 展示タイム取得件数: 0件（本来6件） 中身={}
 チルト取得件数: 0件（本来6件） 中身={}
-抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x7a3d26572190>]
+抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x787064e3c3d0>]
 [save_entries] 6 entries saved
-直前情報ページ status_code=200 本文長=43536文字
+直前情報ページ status_code=200 本文長=43601文字
 '展示タイム'という文字列が本文に含まれるか: False
 'チルト'という文字列が本文に含まれるか: True
 水面気象: {}
 展示タイム取得件数: 0件（本来6件） 中身={}
 チルト取得件数: 0件（本来6件） 中身={}
-抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x7a3d26ae7230>]
+抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x787066422510>]
 [save_entries] 6 entries saved
-直前情報ページ status_code=200 本文長=43536文字
+直前情報ページ status_code=200 本文長=43601文字
 '展示タイム'という文字列が本文に含まれるか: False
 'チルト'という文字列が本文に含まれるか: True
 水面気象: {}
 展示タイム取得件数: 0件（本来6件） 中身={}
 チルト取得件数: 0件（本来6件） 中身={}
-抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x7a3d26572430>]
+抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x787064e3c050>]
 [save_entries] 6 entries saved
-直前情報ページ status_code=200 本文長=43536文字
+直前情報ページ status_code=200 本文長=43601文字
 '展示タイム'という文字列が本文に含まれるか: False
 'チルト'という文字列が本文に含まれるか: True
 水面気象: {}
 展示タイム取得件数: 0件（本来6件） 中身={}
 チルト取得件数: 0件（本来6件） 中身={}
-抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x7a3d26ae7230>]
+抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x7870641109f0>]
 [save_entries] 6 entries saved
-直前情報ページ status_code=200 本文長=43536文字
+直前情報ページ status_code=200 本文長=43601文字
 '展示タイム'という文字列が本文に含まれるか: False
 'チルト'という文字列が本文に含まれるか: True
 水面気象: {}
 展示タイム取得件数: 0件（本来6件） 中身={}
 チルト取得件数: 0件（本来6件） 中身={}
-抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x7a3d26572190>]
+抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x787064e3c3d0>]
 [save_entries] 6 entries saved
-直前情報ページ status_code=200 本文長=43536文字
+直前情報ページ status_code=200 本文長=43601文字
 '展示タイム'という文字列が本文に含まれるか: False
 'チルト'という文字列が本文に含まれるか: True
 水面気象: {}
 展示タイム取得件数: 0件（本来6件） 中身={}
 チルト取得件数: 0件（本来6件） 中身={}
-抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x7a3d26ae7230>]
+抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x787064110c90>]
 [save_entries] 6 entries saved
-直前情報ページ status_code=200 本文長=43541文字
+直前情報ページ status_code=200 本文長=43606文字
 '展示タイム'という文字列が本文に含まれるか: False
 'チルト'という文字列が本文に含まれるか: True
 水面気象: {}
 展示タイム取得件数: 0件（本来6件） 中身={}
 チルト取得件数: 0件（本来6件） 中身={}
-抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x7a3d26572430>]
+抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x787064e3c050>]
 [save_entries] 6 entries saved
 オッズ取得失敗 stadium_code='23' race_number=1: 
 オッズ未取得のため見送り
@@ -379,5 +379,5 @@ v2モデル(1着・2着・3着)を使用
 買い目件数: 0件 indexed件数=6
 【モーニング 唐津 10R】見送りのため候補外
 厳選結果: 候補5レース中 0レースを採用 (5レースを見送り)
-厳選レースを保存: plans/2026-11-27_morning.json (5R)
+厳選レースを保存: plans/2026-11-28_morning.json (5R)
 【モーニング】江戸川・津の対象 0R
