@@ -23,7 +23,10 @@ GOAL = 2  # 2連チャン
 # 夢コロガシ(紙上・集計外)。1戦目は自信Sの本予想レースで10,000円、当たれば払戻を全部次の本予想レースへ、3連チャンで成功。
 # 普通のコロガシと同じレース・同じ買い目で並べて記録する(状態は plans/korogashi_yume/日付.json、bet_type "v_koro3")
 KORO = {"dir": DIR, "start": START, "goal": GOAL, "label": "コロガシ(練習)", "bt": "v_koro"}
-YUME = {"dir": os.path.join("plans", "korogashi_yume"), "start": 10000, "goal": 3, "label": "夢コロガシ", "bt": "v_koro3"}
+# 2026-11-27夜 ご主人様「3連ちゃんはS評価のみでやるように！」: 夢コロガシは1戦目だけでなく2戦目・3戦目も自信Sのレースだけで買う
+# (当たった払戻は、次の自信Sのレースまで持ち越す。その日に無ければ翌日の自信Sへ)
+YUME = {"dir": os.path.join("plans", "korogashi_yume"), "start": 10000, "goal": 3, "label": "夢コロガシ", "bt": "v_koro3",
+        "s_only": True}
 
 
 def _path(d: date, cfg: dict | None = None) -> str:

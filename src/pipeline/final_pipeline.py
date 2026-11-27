@@ -1095,8 +1095,8 @@ def _run_ai3(state, target_date, session_name, stadium_code, race_number, odds_m
 
 
 # 2026-11-10 ご主人様「Sレースで2連チャンの練習してみるか」: コロガシ練習(紙上・集計外)。中身は src/tools/korogashi.py
-KORO_RULES = [("v_koro", "コロガシ練習(1戦目は自信S・2戦目は次の本予想で必ず・集計外)"),
-              ("v_koro3", "夢コロガシ(10,000円から・3連チャン目標・集計外)")]
+KORO_RULES = [("v_koro", "コロガシ練習(10,000円から・1戦目は自信S・2戦目は次の本予想で必ず・集計外)"),
+              ("v_koro3", "夢コロガシ(10,000円から・3連チャン目標・1〜3戦目すべて自信Sだけ・集計外)")]
 
 
 def _run_koro(state, target_date, session_name, stadium_code, race_number, picks, odds_s, stadium_name, ana,
@@ -1109,6 +1109,16 @@ def _run_koro(state, target_date, session_name, stadium_code, race_number, picks
         st = K.load(target_date, cfg)
         if not is_s and not st.get("pending") and int(st.get("chain", 0)) == 0:
             return  # 1戦目は自信Sだけ
+        if not is_s and cfg.get("s_only"):
+            # 2026-11-27夜 ご主人様「3連ちゃんはS評価のみでやるように！」: 2戦目・3戦目も自信Sだけ。
+            # 自信S以外のレースでは買わない(前のレースの精算だけして、払戻は次の自信Sへ持ち越す)
+            ok, rep = K.resolve(target_date, st, cfg)
+            if rep:
+                print(rep)
+                notify_discord(rep)
+                time.sleep(1.2)
+            K.save(target_date, st, cfg)
+            return
         ok, rep = K.resolve(target_date, st, cfg)
         if rep:
             print(rep)
@@ -1140,7 +1150,7 @@ def _run_koro(state, target_date, session_name, stadium_code, race_number, picks
         msg = (f"🎲 **{lab}({n}戦目)** {stadium_name}{race_number}R" + (f"(締切{deadline})" if deadline else "")
                + f"  元手{stake:,}円\n" + "\n".join(lines)
                + (f"\n※{n}戦目。当たれば{goal}連チャン成功！" if n >= goal
-                  else f"\n※{n}戦目。当たったら払戻を全部、次の本予想レースへ({goal}連チャンが目標)"))
+                  else f"\n※{n}戦目。当たったら払戻を全部、次の" + ("自信Sのレース" if cfg.get("s_only") else "本予想レース") + f"へ({goal}連チャンが目標)"))
         print(msg)
         notify_discord(msg)
         time.sleep(1.2)
