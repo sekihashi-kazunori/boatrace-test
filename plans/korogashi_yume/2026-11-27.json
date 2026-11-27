@@ -1,23 +1,24 @@
 {
- "bank": 19500,
- "chain": 1,
+ "bank": 52890,
+ "chain": 2,
  "pending": {
-  "stadium_code": "24",
-  "race_number": 7,
-  "name": "大村",
+  "stadium_code": "07",
+  "race_number": 9,
+  "name": "蒲郡",
   "alloc": [
    [
     "1-2-3",
-    12300
+    27800
    ],
    [
     "1-3-2",
-    7200
+    25000
    ]
   ],
-  "stake": 19500,
+  "stake": 52800,
   "chain_races": [
-   "大村5R"
+   "大村5R",
+   "大村7R"
   ],
   "date": "2026-11-27"
  },
@@ -40,6 +41,7 @@
   }
  ],
  "chain_races": [
-  "大村5R"
+  "大村5R",
+  "大村7R"
  ]
 }
