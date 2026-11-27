@@ -1,28 +1,30 @@
 {
- "bank": 35770,
- "chain": 1,
+ "bank": 84600,
+ "chain": 2,
  "pending": {
-  "stadium_code": "11",
-  "race_number": 5,
-  "name": "びわこ",
+  "stadium_code": "17",
+  "race_number": 8,
+  "name": "宮島",
   "alloc": [
    [
-    "1-2-4",
-    14100
+    "1-4-3",
+    36800
    ],
    [
-    "1-4-2",
-    21600
+    "1-3-4",
+    47800
    ]
   ],
-  "stake": 35700,
+  "stake": 84600,
   "chain_races": [
-   "徳山4R"
+   "徳山4R",
+   "びわこ5R"
   ],
   "date": "2026-11-27"
  },
  "log": [],
  "chain_races": [
-  "徳山4R"
+  "徳山4R",
+  "びわこ5R"
  ]
 }
