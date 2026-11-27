@@ -870,6 +870,7 @@ def _run_ai3(state, target_date, session_name, stadium_code, race_number, odds_m
             return
         top6, tier, ana = res
         print(f"執事の本予想 {stadium_name}{race_number}R: 一番の買い目{top6[0][0]} 確率{top6[0][1] * 100:.1f}% 級{tier} 本予想レース{force}")
+        _save_tier(target_date, stadium_code, race_number, tier, top6[0][0], top6[0][1])
         _run_kaigi(state, target_date, session_name, stadium_code, race_number, odds_map, top6, stadium_name)
         if not tier and not force:
             return
@@ -1070,6 +1071,7 @@ def _run_ai3(state, target_date, session_name, stadium_code, race_number, odds_m
         lab = {"S": "自信S", "A": "自信A", "B": "自信B"}.get(tier, "本命レース") + ("・👩レディース" if ladies else "")
         lines = [("・逆転の穴 " if c == ana2 else "・4号艇2着の押さえ " if c == yon else "・万舟の押さえ " if c == man else "・穴 " if ana and c == ana[0] else "・鉄板 ") + x
                  for (c, _p), x in zip(picks, lines)]
+        _save_tier(target_date, stadium_code, race_number, tier, top6[0][0], top6[0][1], main=True)
         msg = (f"🎩 **執事の本予想** {stadium_name}{race_number}R" + (f"(締切{deadline})" if deadline else "")
                + f"  {lab}\n【3連単】\n" + "\n".join(lines)
                + (f"\n【3連複】\n・{trio} {TRIO_AMT}円" if trio else "")
@@ -1092,6 +1094,34 @@ def _run_ai3(state, target_date, session_name, stadium_code, race_number, odds_m
                   ana[0] if ana else None, deadline, is_s=(tier == "S"), cfg=YUME)
     except Exception as e:
         print(f"執事の本予想の失敗 {race_number}R: {e}")
+
+
+# 2026-11-27夜 ご主人様「良いよ！」: 自信S/A/Bがどこにも残らず、自信別の的中率が測れなかった(朝・昼のログにも出ない)。
+# 執事の本予想で読んだレースの自信を plans/tiers/日付.csv に残す(main=1 は本予想として出したレース)。
+def _save_tier(target_date, stadium_code, race_number, tier, top, prob, main=False) -> None:
+    try:
+        import csv as _csv
+        d = os.path.join("plans", "tiers")
+        os.makedirs(d, exist_ok=True)
+        p = os.path.join(d, f"{target_date}.csv")
+        cols = ["stadium_code", "race_number", "tier", "top", "top_prob", "main", "updated"]
+        rows = []
+        if os.path.exists(p):
+            with open(p, encoding="utf-8") as f:
+                rows = list(_csv.DictReader(f))
+        key = (str(stadium_code).zfill(2), str(int(race_number)))
+        old = next((r for r in rows if (r["stadium_code"], r["race_number"]) == key), None)
+        new = {"stadium_code": key[0], "race_number": key[1], "tier": tier or "", "top": top,
+               "top_prob": f"{prob:.4f}", "main": "1" if (main or (old and old.get("main") == "1")) else "0",
+               "updated": datetime.now(JST).strftime("%H:%M:%S")}
+        rows = [r for r in rows if r is not old] + [new]
+        rows.sort(key=lambda r: (r["stadium_code"], int(r["race_number"])))
+        with open(p, "w", encoding="utf-8", newline="") as f:
+            w = _csv.DictWriter(f, fieldnames=cols)
+            w.writeheader()
+            w.writerows(rows)
+    except Exception as e:
+        print(f"自信の記録失敗 {race_number}R: {e}")
 
 
 # 2026-11-10 ご主人様「Sレースで2連チャンの練習してみるか」: コロガシ練習(紙上・集計外)。中身は src/tools/korogashi.py
