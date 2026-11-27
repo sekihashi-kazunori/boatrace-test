@@ -1,23 +1,28 @@
 {
- "bank": 1500,
- "chain": 0,
+ "bank": 5390,
+ "chain": 1,
  "pending": {
-  "stadium_code": "18",
-  "race_number": 4,
-  "name": "徳山",
+  "stadium_code": "11",
+  "race_number": 5,
+  "name": "びわこ",
   "alloc": [
    [
-    "1-2-3",
-    1100
+    "1-2-4",
+    2100
    ],
    [
-    "1-3-2",
-    400
+    "1-4-2",
+    3200
    ]
   ],
-  "stake": 1500,
-  "chain_races": [],
+  "stake": 5300,
+  "chain_races": [
+   "徳山4R"
+  ],
   "date": "2026-11-27"
  },
- "log": []
+ "log": [],
+ "chain_races": [
+  "徳山4R"
+ ]
 }
