@@ -1,0 +1,23 @@
+{
+ "bank": 10000,
+ "chain": 0,
+ "pending": {
+  "stadium_code": "18",
+  "race_number": 4,
+  "name": "徳山",
+  "alloc": [
+   [
+    "1-2-3",
+    7300
+   ],
+   [
+    "1-3-2",
+    2700
+   ]
+  ],
+  "stake": 10000,
+  "chain_races": [],
+  "date": "2026-11-27"
+ },
+ "log": []
+}
