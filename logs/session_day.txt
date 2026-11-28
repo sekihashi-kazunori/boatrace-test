@@ -3,7 +3,7 @@
 締切予定時刻取得件数: 12件（本来12件）
 場コード=02 場名=戸田 1R締切=10:45 判定=day
 締切予定時刻取得件数: 12件（本来12件）
-場コード=03 場名=江戸川 1R締切=10:59 判定=day
+場コード=03 場名=江戸川 1R締切=11:07 判定=day
 締切予定時刻取得件数: 12件（本来12件）
 場コード=06 場名=浜名湖 1R締切=10:29 判定=day
 締切予定時刻取得件数: 12件（本来12件）
@@ -30,82 +30,82 @@ session=day 絞り込み後: 6場（全14場中）
 直前情報ページ status_code=200 本文長=46245文字
 '展示タイム'という文字列が本文に含まれるか: False
 'チルト'という文字列が本文に含まれるか: True
-水面気象: {'wind': 1, 'wave': 1, 'weather': '雨'}
+水面気象: {'wind': 0, 'wave': 0, 'weather': '晴'}
 展示タイム取得件数: 6件（本来6件） 中身={1: 6.82, 2: 6.93, 3: 6.9, 4: 6.87, 5: 6.83, 6: 7.02}
 チルト取得件数: 6件（本来6件） 中身={1: -0.5, 2: -0.5, 3: -0.5, 4: 0.0, 5: -0.5, 6: 0.0}
-抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x76cc29db1a90>]
+抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x70b469ad5a90>]
 [save_entries] 6 entries saved
-直前情報ページ status_code=200 本文長=43544文字
+直前情報ページ status_code=200 本文長=46392文字
 '展示タイム'という文字列が本文に含まれるか: False
 'チルト'という文字列が本文に含まれるか: True
-水面気象: {'wind': 1, 'wave': 1, 'weather': '雨'}
-展示タイム取得件数: 0件（本来6件） 中身={}
-チルト取得件数: 0件（本来6件） 中身={}
-抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x76cc29dbb8a0>]
+水面気象: {'wind': 0, 'wave': 0, 'weather': '雨'}
+展示タイム取得件数: 6件（本来6件） 中身={1: 6.85, 2: 6.9, 3: 6.85, 4: 6.84, 5: 6.97, 6: 7.01}
+チルト取得件数: 6件（本来6件） 中身={1: -0.5, 2: -0.5, 3: -0.5, 4: 0.0, 5: -0.5, 6: -0.5}
+抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x70b469adf8a0>]
 [save_entries] 6 entries saved
-直前情報ページ status_code=200 本文長=43544文字
+直前情報ページ status_code=200 本文長=46329文字
 '展示タイム'という文字列が本文に含まれるか: False
 'チルト'という文字列が本文に含まれるか: True
-水面気象: {'wind': 1, 'wave': 1, 'weather': '雨'}
-展示タイム取得件数: 0件（本来6件） 中身={}
-チルト取得件数: 0件（本来6件） 中身={}
-抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x76cc29d57230>]
+水面気象: {'wind': 0, 'wave': 0, 'weather': '晴'}
+展示タイム取得件数: 6件（本来6件） 中身={1: 6.8, 2: 6.94, 3: 6.9, 4: 6.86, 5: 6.95, 6: 6.93}
+チルト取得件数: 6件（本来6件） 中身={1: -0.5, 2: -0.5, 3: 0.0, 4: 0.0, 5: -0.5, 6: -0.5}
+抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x70b469a7b230>]
 [save_entries] 6 entries saved
-直前情報ページ status_code=200 本文長=43629文字
+直前情報ページ status_code=200 本文長=46432文字
 '展示タイム'という文字列が本文に含まれるか: False
 'チルト'という文字列が本文に含まれるか: True
-水面気象: {'wind': 1, 'wave': 1, 'weather': '雨'}
-展示タイム取得件数: 0件（本来6件） 中身={}
-チルト取得件数: 0件（本来6件） 中身={}
-抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x76cc29a25a90>]
+水面気象: {'wind': 0, 'wave': 0, 'weather': '晴'}
+展示タイム取得件数: 6件（本来6件） 中身={1: 6.77, 2: 6.84, 3: 6.88, 4: 6.81, 5: 6.85, 6: 6.88}
+チルト取得件数: 6件（本来6件） 中身={1: 0.0, 2: 0.0, 3: -0.5, 4: 0.0, 5: 0.0, 6: 0.0}
+抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x70b469917310>]
 [save_entries] 6 entries saved
-直前情報ページ status_code=200 本文長=43461文字
+直前情報ページ status_code=200 本文長=43443文字
 '展示タイム'という文字列が本文に含まれるか: False
 'チルト'という文字列が本文に含まれるか: True
-水面気象: {'wind': 1, 'wave': 1, 'weather': '雨'}
+水面気象: {'wind': 0, 'wave': 0, 'weather': '晴'}
 展示タイム取得件数: 0件（本来6件） 中身={}
-チルト取得件数: 0件（本来6件） 中身={}
-抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x76cc29d57230>]
+チルト取得件数: 6件（本来6件） 中身={1: 0.0, 2: 0.0, 3: -0.5, 4: 0.0, 5: 0.0, 6: -0.5}
+抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x70b4663ef930>]
 [save_entries] 6 entries saved
-直前情報ページ status_code=200 本文長=43462文字
+直前情報ページ status_code=200 本文長=43502文字
 '展示タイム'という文字列が本文に含まれるか: False
 'チルト'という文字列が本文に含まれるか: True
-水面気象: {'wind': 1, 'wave': 1, 'weather': '雨'}
+水面気象: {'wind': 0, 'wave': 0, 'weather': '晴'}
 展示タイム取得件数: 0件（本来6件） 中身={}
 チルト取得件数: 0件（本来6件） 中身={}
-抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x76cc29a257f0>]
+抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x70b469917150>]
 [save_entries] 6 entries saved
-直前情報ページ status_code=200 本文長=43462文字
+直前情報ページ status_code=200 本文長=43673文字
 '展示タイム'という文字列が本文に含まれるか: False
 'チルト'という文字列が本文に含まれるか: True
-水面気象: {'wind': 1, 'wave': 1, 'weather': '雨'}
+水面気象: {'wind': 0, 'wave': 0, 'weather': '晴'}
 展示タイム取得件数: 0件（本来6件） 中身={}
 チルト取得件数: 0件（本来6件） 中身={}
-抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x76cc29d57230>]
+抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x70b469a7b230>]
 [save_entries] 6 entries saved
-直前情報ページ status_code=200 本文長=43462文字
+直前情報ページ status_code=200 本文長=43545文字
 '展示タイム'という文字列が本文に含まれるか: False
 'チルト'という文字列が本文に含まれるか: True
-水面気象: {'wind': 1, 'wave': 1, 'weather': '雨'}
+水面気象: {'wind': 0, 'wave': 0, 'weather': '晴'}
 展示タイム取得件数: 0件（本来6件） 中身={}
 チルト取得件数: 0件（本来6件） 中身={}
-抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x76cc29a25d30>]
+抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x70b469917230>]
 [save_entries] 6 entries saved
-直前情報ページ status_code=200 本文長=43462文字
+直前情報ページ status_code=200 本文長=43588文字
 '展示タイム'という文字列が本文に含まれるか: False
 'チルト'という文字列が本文に含まれるか: True
-水面気象: {'wind': 1, 'wave': 1, 'weather': '雨'}
+水面気象: {'wind': 0, 'wave': 0, 'weather': '晴'}
 展示タイム取得件数: 0件（本来6件） 中身={}
 チルト取得件数: 0件（本来6件） 中身={}
-抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x76cc25cc8e50>]
+抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x70b465a34e50>]
 [save_entries] 6 entries saved
-直前情報ページ status_code=200 本文長=43467文字
+直前情報ページ status_code=200 本文長=43593文字
 '展示タイム'という文字列が本文に含まれるか: False
 'チルト'という文字列が本文に含まれるか: True
-水面気象: {'wind': 1, 'wave': 1, 'weather': '雨'}
+水面気象: {'wind': 0, 'wave': 0, 'weather': '晴'}
 展示タイム取得件数: 0件（本来6件） 中身={}
 チルト取得件数: 0件（本来6件） 中身={}
-抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x76cc25103d90>]
+抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x70b469917150>]
 [save_entries] 6 entries saved
 3連単オッズ取得件数: 120件（本来120件）
 v2モデル(1着・2着・3着)を使用
@@ -128,92 +128,86 @@ v2モデル(1着・2着・3着)を使用
 買い目件数: 5件 indexed件数=6
 3連単オッズ取得件数: 120件（本来120件）
 買い目件数: 5件 indexed件数=6
-直前情報ページ status_code=200 本文長=43780文字
+直前情報ページ status_code=200 本文長=46754文字
 '展示タイム'という文字列が本文に含まれるか: False
 'チルト'という文字列が本文に含まれるか: True
-水面気象: {'wind': 4, 'wave': 5, 'weather': '雨'}
-展示タイム取得件数: 0件（本来6件） 中身={}
+水面気象: {'wind': 1, 'wave': 5, 'weather': '曇り'}
+展示タイム取得件数: 6件（本来6件） 中身={1: 6.85, 2: 6.76, 3: 6.65, 4: 6.74, 5: 6.84, 6: 6.7}
 チルト取得件数: 6件（本来6件） 中身={1: 0.5, 2: 0.5, 3: 1.0, 4: 0.5, 5: 1.0, 6: 1.0}
-抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x76cc26130750>]
+抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x70b465785e10>]
 [save_entries] 6 entries saved
-直前情報ページ status_code=200 本文長=43669文字
+直前情報ページ status_code=200 本文長=46667文字
 '展示タイム'という文字列が本文に含まれるか: False
 'チルト'という文字列が本文に含まれるか: True
-水面気象: {'wind': 4, 'wave': 5, 'weather': '雨'}
-展示タイム取得件数: 0件（本来6件） 中身={}
-チルト取得件数: 0件（本来6件） 中身={}
-抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x76cc25100e50>]
+水面気象: {'wind': 1, 'wave': 5, 'weather': '雨'}
+展示タイム取得件数: 6件（本来6件） 中身={1: 6.78, 2: 6.85, 3: 6.71, 4: 6.81, 5: 6.79, 6: 6.71}
+チルト取得件数: 6件（本来6件） 中身={1: 0.5, 2: 0.5, 3: 1.0, 4: 0.5, 5: 1.0, 6: 1.0}
+抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x70b469917230>]
 [save_entries] 6 entries saved
-直前情報ページ status_code=200 本文長=43669文字
+直前情報ページ status_code=200 本文長=46669文字
 '展示タイム'という文字列が本文に含まれるか: False
 'チルト'という文字列が本文に含まれるか: True
-水面気象: {'wind': 4, 'wave': 5, 'weather': '雨'}
-展示タイム取得件数: 0件（本来6件） 中身={}
-チルト取得件数: 0件（本来6件） 中身={}
-抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x76cc26130750>]
+水面気象: {'wind': 0, 'wave': 5, 'weather': '曇り'}
+展示タイム取得件数: 6件（本来6件） 中身={1: 6.8, 2: 6.7, 3: 6.72, 4: 6.76, 5: 6.74, 6: 6.8}
+チルト取得件数: 6件（本来6件） 中身={1: 1.0, 2: 0.5, 3: 0.5, 4: 1.0, 5: 1.0, 6: 0.5}
+抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x70b465785e10>]
 [save_entries] 6 entries saved
-直前情報ページ status_code=200 本文長=43669文字
+直前情報ページ status_code=200 本文長=46668文字
 '展示タイム'という文字列が本文に含まれるか: False
 'チルト'という文字列が本文に含まれるか: True
-水面気象: {'wind': 4, 'wave': 5, 'weather': '雨'}
-展示タイム取得件数: 0件（本来6件） 中身={}
-チルト取得件数: 0件（本来6件） 中身={}
-抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x76cc1fdf26d0>]
+水面気象: {'wind': 1, 'wave': 5, 'weather': '曇り'}
+展示タイム取得件数: 6件（本来6件） 中身={1: 6.7, 2: 6.73, 3: 6.76, 4: 6.78, 5: 6.78, 6: 6.88}
+チルト取得件数: 6件（本来6件） 中身={1: 0.5, 2: 1.0, 3: 1.0, 4: 1.0, 5: 1.0, 6: 0.5}
+抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x70b45f9a59b0>]
 [save_entries] 6 entries saved
-直前情報ページ status_code=200 本文長=43669文字
+直前情報ページ status_code=200 本文長=43860文字
 '展示タイム'という文字列が本文に含まれるか: False
 'チルト'という文字列が本文に含まれるか: True
-水面気象: {'wind': 4, 'wave': 5, 'weather': '雨'}
+水面気象: {'wind': 1, 'wave': 5, 'weather': '曇り'}
 展示タイム取得件数: 0件（本来6件） 中身={}
 チルト取得件数: 0件（本来6件） 中身={}
-抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x76cc24d33930>]
+抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x70b45f9a66d0>]
 [save_entries] 6 entries saved
-直前情報ページ status_code=200 本文長=43669文字
+直前情報ページ status_code=200 本文長=43860文字
 '展示タイム'という文字列が本文に含まれるか: False
 'チルト'という文字列が本文に含まれるか: True
-水面気象: {'wind': 4, 'wave': 5, 'weather': '雨'}
+水面気象: {'wind': 1, 'wave': 5, 'weather': '曇り'}
 展示タイム取得件数: 0件（本来6件） 中身={}
 チルト取得件数: 0件（本来6件） 中身={}
-抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x76cc26130830>]
+抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x70b465785c50>]
 [save_entries] 6 entries saved
-直前情報ページ status_code=200 本文長=43669文字
+直前情報ページ status_code=200 本文長=43903文字
 '展示タイム'という文字列が本文に含まれるか: False
 'チルト'という文字列が本文に含まれるか: True
-水面気象: {'wind': 4, 'wave': 5, 'weather': '雨'}
+水面気象: {'wind': 1, 'wave': 5, 'weather': '曇り'}
 展示タイム取得件数: 0件（本来6件） 中身={}
 チルト取得件数: 0件（本来6件） 中身={}
-抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x76cc24d33930>]
+抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x70b465787e70>]
 [save_entries] 6 entries saved
-直前情報ページ status_code=200 本文長=43669文字
+直前情報ページ status_code=200 本文長=43946文字
 '展示タイム'という文字列が本文に含まれるか: False
 'チルト'という文字列が本文に含まれるか: True
-水面気象: {'wind': 4, 'wave': 5, 'weather': '雨'}
+水面気象: {'wind': 1, 'wave': 5, 'weather': '曇り'}
 展示タイム取得件数: 0件（本来6件） 中身={}
 チルト取得件数: 0件（本来6件） 中身={}
-抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x76cc2589c590>]
+抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x70b465787310>]
 [save_entries] 6 entries saved
-直前情報ページ status_code=200 本文長=43669文字
+直前情報ページ status_code=200 本文長=43903文字
 '展示タイム'という文字列が本文に含まれるか: False
 'チルト'という文字列が本文に含まれるか: True
-水面気象: {'wind': 4, 'wave': 5, 'weather': '雨'}
+水面気象: {'wind': 1, 'wave': 5, 'weather': '曇り'}
 展示タイム取得件数: 0件（本来6件） 中身={}
 チルト取得件数: 0件（本来6件） 中身={}
-抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x76cc2589d470>]
+抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x70b465784ad0>]
 [save_entries] 6 entries saved
-直前情報ページ status_code=200 本文長=43674文字
+直前情報ページ status_code=200 本文長=43951文字
 '展示タイム'という文字列が本文に含まれるか: False
 'チルト'という文字列が本文に含まれるか: True
-水面気象: {'wind': 4, 'wave': 5, 'weather': '雨'}
+水面気象: {'wind': 1, 'wave': 5, 'weather': '曇り'}
 展示タイム取得件数: 0件（本来6件） 中身={}
 チルト取得件数: 0件（本来6件） 中身={}
-抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x76cc2589e430>]
+抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x70b4657873f0>]
 [save_entries] 6 entries saved
-3連単オッズ取得件数: 120件（本来120件）
-買い目件数: 5件 indexed件数=6
-3連単オッズ取得件数: 120件（本来120件）
-買い目件数: 5件 indexed件数=6
-3連単オッズ取得件数: 120件（本来120件）
-買い目件数: 1件 indexed件数=6
 3連単オッズ取得件数: 120件（本来120件）
 買い目件数: 5件 indexed件数=6
 3連単オッズ取得件数: 120件（本来120件）
@@ -228,185 +222,191 @@ v2モデル(1着・2着・3着)を使用
 買い目件数: 5件 indexed件数=6
 3連単オッズ取得件数: 120件（本来120件）
 買い目件数: 5件 indexed件数=6
-直前情報ページ status_code=200 本文長=46394文字
+3連単オッズ取得件数: 120件（本来120件）
+買い目件数: 4件 indexed件数=6
+3連単オッズ取得件数: 120件（本来120件）
+買い目件数: 5件 indexed件数=6
+3連単オッズ取得件数: 120件（本来120件）
+買い目件数: 5件 indexed件数=6
+直前情報ページ status_code=200 本文長=46393文字
 '展示タイム'という文字列が本文に含まれるか: False
 'チルト'という文字列が本文に含まれるか: True
 水面気象: {'wind': 1, 'wave': 1, 'weather': '曇り'}
 展示タイム取得件数: 6件（本来6件） 中身={1: 6.82, 2: 6.85, 3: 6.8, 4: 6.78, 5: 6.81, 6: 6.89}
 チルト取得件数: 6件（本来6件） 中身={1: 0.0, 2: 0.0, 3: 0.0, 4: -0.5, 5: 0.0, 6: 0.0}
-抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x76cc1f782350>]
+抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x70b4651c0130>]
 [save_entries] 6 entries saved
-直前情報ページ status_code=200 本文長=43530文字
+直前情報ページ status_code=200 本文長=46390文字
 '展示タイム'という文字列が本文に含まれるか: False
 'チルト'という文字列が本文に含まれるか: True
-水面気象: {'wind': 1, 'wave': 1, 'weather': '曇り'}
-展示タイム取得件数: 0件（本来6件） 中身={}
+水面気象: {'wind': 2, 'wave': 1, 'weather': '晴'}
+展示タイム取得件数: 6件（本来6件） 中身={1: 6.83, 2: 6.8, 3: 6.81, 4: 6.86, 5: 6.8, 6: 6.78}
 チルト取得件数: 6件（本来6件） 中身={1: 0.0, 2: -0.5, 3: 0.0, 4: 0.0, 5: 0.0, 6: -0.5}
-抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x76cc1f782a50>]
+抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x70b45f5491d0>]
 [save_entries] 6 entries saved
-直前情報ページ status_code=200 本文長=43546文字
+直前情報ページ status_code=200 本文長=46327文字
+'展示タイム'という文字列が本文に含まれるか: False
+'チルト'という文字列が本文に含まれるか: True
+水面気象: {'wind': 1, 'wave': 1, 'weather': '晴'}
+展示タイム取得件数: 6件（本来6件） 中身={1: 6.84, 2: 6.81, 3: 6.82, 4: 6.86, 5: 6.76, 6: 6.82}
+チルト取得件数: 6件（本来6件） 中身={1: -0.5, 2: 0.0, 3: 0.0, 4: 0.0, 5: 0.0, 6: -0.5}
+抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x70b469917e70>]
+[save_entries] 6 entries saved
+直前情報ページ status_code=200 本文長=46348文字
+'展示タイム'という文字列が本文に含まれるか: False
+'チルト'という文字列が本文に含まれるか: True
+水面気象: {'wind': 2, 'wave': 1, 'weather': '曇り'}
+展示タイム取得件数: 6件（本来6件） 中身={1: 6.78, 2: 6.76, 3: 6.79, 4: 6.78, 5: 6.81, 6: 6.81}
+チルト取得件数: 6件（本来6件） 中身={1: 0.0, 2: 0.0, 3: 0.0, 4: 0.0, 5: 0.0, 6: -0.5}
+抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x70b469a7b230>]
+[save_entries] 6 entries saved
+直前情報ページ status_code=200 本文長=46322文字
+'展示タイム'という文字列が本文に含まれるか: False
+'チルト'という文字列が本文に含まれるか: True
+水面気象: {'wind': 1, 'wave': 1, 'weather': '曇り'}
+展示タイム取得件数: 6件（本来6件） 中身={1: 6.74, 2: 6.74, 3: 6.78, 4: 6.77, 5: 6.72, 6: 6.78}
+チルト取得件数: 6件（本来6件） 中身={1: 0.0, 2: -0.5, 3: 0.0, 4: 0.0, 5: 0.0, 6: 0.0}
+抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x70b469917cb0>]
+[save_entries] 6 entries saved
+直前情報ページ status_code=200 本文長=43568文字
+'展示タイム'という文字列が本文に含まれるか: False
+'チルト'という文字列が本文に含まれるか: True
+水面気象: {'wind': 1, 'wave': 1, 'weather': '曇り'}
+展示タイム取得件数: 0件（本来6件） 中身={}
+チルト取得件数: 6件（本来6件） 中身={1: 0.0, 2: 0.0, 3: 0.0, 4: 0.0, 5: 0.0, 6: -0.5}
+抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x70b45f5491d0>]
+[save_entries] 6 entries saved
+直前情報ページ status_code=200 本文長=43671文字
 '展示タイム'という文字列が本文に含まれるか: False
 'チルト'という文字列が本文に含まれるか: True
 水面気象: {'wind': 1, 'wave': 1, 'weather': '曇り'}
 展示タイム取得件数: 0件（本来6件） 中身={}
 チルト取得件数: 0件（本来6件） 中身={}
-抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x76cc1fe9f150>]
+抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x70b469917e70>]
 [save_entries] 6 entries saved
-直前情報ページ status_code=200 本文長=43546文字
+直前情報ページ status_code=200 本文長=43671文字
 '展示タイム'という文字列が本文に含まれるか: False
 'チルト'という文字列が本文に含まれるか: True
 水面気象: {'wind': 1, 'wave': 1, 'weather': '曇り'}
 展示タイム取得件数: 0件（本来6件） 中身={}
 チルト取得件数: 0件（本来6件） 中身={}
-抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x76cc1fe9edd0>]
+抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x70b469a7b230>]
 [save_entries] 6 entries saved
-直前情報ページ status_code=200 本文長=43546文字
+直前情報ページ status_code=200 本文長=43714文字
 '展示タイム'という文字列が本文に含まれるか: False
 'チルト'という文字列が本文に含まれるか: True
 水面気象: {'wind': 1, 'wave': 1, 'weather': '曇り'}
 展示タイム取得件数: 0件（本来6件） 中身={}
 チルト取得件数: 0件（本来6件） 中身={}
-抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x76cc1fe9f150>]
+抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x70b469917cb0>]
 [save_entries] 6 entries saved
-直前情報ページ status_code=200 本文長=43546文字
+直前情報ページ status_code=200 本文長=43676文字
 '展示タイム'という文字列が本文に含まれるか: False
 'チルト'という文字列が本文に含まれるか: True
 水面気象: {'wind': 1, 'wave': 1, 'weather': '曇り'}
 展示タイム取得件数: 0件（本来6件） 中身={}
 チルト取得件数: 0件（本来6件） 中身={}
-抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x76cc29bf2b30>]
-[save_entries] 6 entries saved
-直前情報ページ status_code=200 本文長=43546文字
-'展示タイム'という文字列が本文に含まれるか: False
-'チルト'という文字列が本文に含まれるか: True
-水面気象: {'wind': 1, 'wave': 1, 'weather': '曇り'}
-展示タイム取得件数: 0件（本来6件） 中身={}
-チルト取得件数: 0件（本来6件） 中身={}
-抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x76cc1f873e70>]
-[save_entries] 6 entries saved
-直前情報ページ status_code=200 本文長=43546文字
-'展示タイム'という文字列が本文に含まれるか: False
-'チルト'という文字列が本文に含まれるか: True
-水面気象: {'wind': 1, 'wave': 1, 'weather': '曇り'}
-展示タイム取得件数: 0件（本来6件） 中身={}
-チルト取得件数: 0件（本来6件） 中身={}
-抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x76cc29bf2b30>]
-[save_entries] 6 entries saved
-直前情報ページ status_code=200 本文長=43546文字
-'展示タイム'という文字列が本文に含まれるか: False
-'チルト'という文字列が本文に含まれるか: True
-水面気象: {'wind': 1, 'wave': 1, 'weather': '曇り'}
-展示タイム取得件数: 0件（本来6件） 中身={}
-チルト取得件数: 0件（本来6件） 中身={}
-抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x76cc1fe9f150>]
-[save_entries] 6 entries saved
-直前情報ページ status_code=200 本文長=43551文字
-'展示タイム'という文字列が本文に含まれるか: False
-'チルト'という文字列が本文に含まれるか: True
-水面気象: {'wind': 1, 'wave': 1, 'weather': '曇り'}
-展示タイム取得件数: 0件（本来6件） 中身={}
-チルト取得件数: 0件（本来6件） 中身={}
-抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x76cc29bf2b30>]
+抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x70b45f5491d0>]
 [save_entries] 6 entries saved
 3連単オッズ取得件数: 120件（本来120件）
 買い目件数: 5件 indexed件数=6
 3連単オッズ取得件数: 120件（本来120件）
-買い目件数: 2件 indexed件数=6
+買い目件数: 5件 indexed件数=6
+3連単オッズ取得件数: 120件（本来120件）
+買い目件数: 5件 indexed件数=6
+3連単オッズ取得件数: 120件（本来120件）
+買い目件数: 5件 indexed件数=6
+3連単オッズ取得件数: 120件（本来120件）
+買い目件数: 5件 indexed件数=6
+3連単オッズ取得件数: 120件（本来120件）
+買い目件数: 5件 indexed件数=6
+3連単オッズ取得件数: 120件（本来120件）
+買い目件数: 5件 indexed件数=6
+3連単オッズ取得件数: 120件（本来120件）
+買い目件数: 5件 indexed件数=6
 3連単オッズ取得件数: 120件（本来120件）
 買い目件数: 4件 indexed件数=6
 3連単オッズ取得件数: 120件（本来120件）
-買い目件数: 5件 indexed件数=6
-3連単オッズ取得件数: 120件（本来120件）
-買い目件数: 5件 indexed件数=6
-3連単オッズ取得件数: 120件（本来120件）
-買い目件数: 5件 indexed件数=6
-3連単オッズ取得件数: 120件（本来120件）
-買い目件数: 5件 indexed件数=6
-3連単オッズ取得件数: 120件（本来120件）
-買い目件数: 3件 indexed件数=6
-3連単オッズ取得件数: 120件（本来120件）
-買い目件数: 2件 indexed件数=6
-3連単オッズ取得件数: 120件（本来120件）
 買い目件数: 4件 indexed件数=6
-直前情報ページ status_code=200 本文長=46927文字
+直前情報ページ status_code=200 本文長=46926文字
 '展示タイム'という文字列が本文に含まれるか: False
 'チルト'という文字列が本文に含まれるか: True
-水面気象: {'wind': 3, 'wave': 1, 'weather': '晴'}
+水面気象: {'wind': 2, 'wave': 1, 'weather': '雨'}
 展示タイム取得件数: 6件（本来6件） 中身={1: 6.56, 2: 6.54, 3: 6.61, 4: 6.61, 5: 6.57, 6: 6.6}
 チルト取得件数: 6件（本来6件） 中身={1: 0.0, 2: 0.0, 3: 0.0, 4: 0.0, 5: 0.0, 6: 0.0}
-抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x76cc29a26b30>]
+抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x70b464e65c50>]
 [save_entries] 6 entries saved
-直前情報ページ status_code=200 本文長=44105文字
+直前情報ページ status_code=200 本文長=46923文字
 '展示タイム'という文字列が本文に含まれるか: False
 'チルト'という文字列が本文に含まれるか: True
-水面気象: {'wind': 3, 'wave': 1, 'weather': '晴'}
-展示タイム取得件数: 0件（本来6件） 中身={}
+水面気象: {'wind': 1, 'wave': 0, 'weather': '晴'}
+展示タイム取得件数: 6件（本来6件） 中身={1: 6.59, 2: 6.61, 3: 6.55, 4: 6.61, 5: 6.59, 6: 6.71}
 チルト取得件数: 6件（本来6件） 中身={1: -0.5, 2: 0.0, 3: 0.0, 4: 0.0, 5: 0.0, 6: 0.0}
-抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x76cc29bf2b30>]
+抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x70b469a7b230>]
 [save_entries] 6 entries saved
-直前情報ページ status_code=200 本文長=44374文字
+直前情報ページ status_code=200 本文長=47158文字
 '展示タイム'という文字列が本文に含まれるか: False
 'チルト'という文字列が本文に含まれるか: True
-水面気象: {'wind': 3, 'wave': 1, 'weather': '晴'}
+水面気象: {'wind': 2, 'wave': 1, 'weather': '曇り'}
+展示タイム取得件数: 6件（本来6件） 中身={1: 6.5, 2: 6.58, 3: 6.52, 4: 6.53, 5: 6.6, 6: 6.61}
+チルト取得件数: 6件（本来6件） 中身={1: 0.0, 2: 0.0, 3: 0.0, 4: -0.5, 5: -0.5, 6: -0.5}
+抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x70b45f1d6350>]
+[save_entries] 6 entries saved
+直前情報ページ status_code=200 本文長=46905文字
+'展示タイム'という文字列が本文に含まれるか: False
+'チルト'という文字列が本文に含まれるか: True
+水面気象: {'wind': 2, 'wave': 1, 'weather': '曇り'}
+展示タイム取得件数: 6件（本来6件） 中身={1: 6.59, 2: 6.59, 3: 6.58, 4: 6.57, 5: 6.52, 6: 6.55}
+チルト取得件数: 6件（本来6件） 中身={1: 0.0, 2: 0.0, 3: -0.5, 4: 0.0, 5: -0.5, 6: 0.0}
+抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x70b45f5491d0>]
+[save_entries] 6 entries saved
+直前情報ページ status_code=200 本文長=47133文字
+'展示タイム'という文字列が本文に含まれるか: False
+'チルト'という文字列が本文に含まれるか: True
+水面気象: {'wind': 2, 'wave': 1, 'weather': '雨'}
+展示タイム取得件数: 6件（本来6件） 中身={1: 6.53, 2: 6.59, 3: 6.57, 4: 6.58, 5: 6.6, 6: 6.56}
+チルト取得件数: 6件（本来6件） 中身={1: 0.0, 2: 0.0, 3: 0.0, 4: 0.0, 5: 0.0, 6: 0.0}
+抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x70b464e65c50>]
+[save_entries] 6 entries saved
+直前情報ページ status_code=200 本文長=44312文字
+'展示タイム'という文字列が本文に含まれるか: False
+'チルト'という文字列が本文に含まれるか: True
+水面気象: {'wind': 2, 'wave': 1, 'weather': '雨'}
+展示タイム取得件数: 0件（本来6件） 中身={}
+チルト取得件数: 6件（本来6件） 中身={1: 0.0, 2: -0.5, 3: 0.0, 4: 0.0, 5: 0.0, 6: 0.0}
+抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x70b469a7b230>]
+[save_entries] 6 entries saved
+直前情報ページ status_code=200 本文長=44333文字
+'展示タイム'という文字列が本文に含まれるか: False
+'チルト'という文字列が本文に含まれるか: True
+水面気象: {'wind': 2, 'wave': 1, 'weather': '雨'}
 展示タイム取得件数: 0件（本来6件） 中身={}
 チルト取得件数: 0件（本来6件） 中身={}
-抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x76cc29d57230>]
+抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x70b464e65c50>]
 [save_entries] 6 entries saved
-直前情報ページ status_code=200 本文長=44122文字
+直前情報ページ status_code=200 本文長=44247文字
 '展示タイム'という文字列が本文に含まれるか: False
 'チルト'という文字列が本文に含まれるか: True
-水面気象: {'wind': 3, 'wave': 1, 'weather': '晴'}
+水面気象: {'wind': 2, 'wave': 1, 'weather': '雨'}
 展示タイム取得件数: 0件（本来6件） 中身={}
 チルト取得件数: 0件（本来6件） 中身={}
-抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x76cc29bf2b30>]
+抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x70b469a7b230>]
 [save_entries] 6 entries saved
-直前情報ページ status_code=200 本文長=44122文字
+直前情報ページ status_code=200 本文長=44247文字
 '展示タイム'という文字列が本文に含まれるか: False
 'チルト'という文字列が本文に含まれるか: True
-水面気象: {'wind': 3, 'wave': 1, 'weather': '晴'}
+水面気象: {'wind': 2, 'wave': 1, 'weather': '雨'}
 展示タイム取得件数: 0件（本来6件） 中身={}
 チルト取得件数: 0件（本来6件） 中身={}
-抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x76cc29a26b30>]
+抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x70b4648a84b0>]
 [save_entries] 6 entries saved
-直前情報ページ status_code=200 本文長=44122文字
+直前情報ページ status_code=200 本文長=44125文字
 '展示タイム'という文字列が本文に含まれるか: False
 'チルト'という文字列が本文に含まれるか: True
-水面気象: {'wind': 3, 'wave': 1, 'weather': '晴'}
+水面気象: {'wind': 2, 'wave': 1, 'weather': '雨'}
 展示タイム取得件数: 0件（本来6件） 中身={}
 チルト取得件数: 0件（本来6件） 中身={}
-抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x76cc241b2430>]
-[save_entries] 6 entries saved
-直前情報ページ status_code=200 本文長=44122文字
-'展示タイム'という文字列が本文に含まれるか: False
-'チルト'という文字列が本文に含まれるか: True
-水面気象: {'wind': 3, 'wave': 1, 'weather': '晴'}
-展示タイム取得件数: 0件（本来6件） 中身={}
-チルト取得件数: 0件（本来6件） 中身={}
-抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x76cc29d57230>]
-[save_entries] 6 entries saved
-直前情報ページ status_code=200 本文長=44122文字
-'展示タイム'という文字列が本文に含まれるか: False
-'チルト'という文字列が本文に含まれるか: True
-水面気象: {'wind': 3, 'wave': 1, 'weather': '晴'}
-展示タイム取得件数: 0件（本来6件） 中身={}
-チルト取得件数: 0件（本来6件） 中身={}
-抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x76cc25dcd2b0>]
-[save_entries] 6 entries saved
-直前情報ページ status_code=200 本文長=44122文字
-'展示タイム'という文字列が本文に含まれるか: False
-'チルト'という文字列が本文に含まれるか: True
-水面気象: {'wind': 3, 'wave': 1, 'weather': '晴'}
-展示タイム取得件数: 0件（本来6件） 中身={}
-チルト取得件数: 0件（本来6件） 中身={}
-抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x76cc29d57230>]
-[save_entries] 6 entries saved
-直前情報ページ status_code=200 本文長=44129文字
-'展示タイム'という文字列が本文に含まれるか: False
-'チルト'という文字列が本文に含まれるか: True
-水面気象: {'wind': 3, 'wave': 1, 'weather': '晴'}
-展示タイム取得件数: 0件（本来6件） 中身={}
-チルト取得件数: 0件（本来6件） 中身={}
-抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x76cc25dceb30>]
+抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x70b469a7b230>]
 [save_entries] 6 entries saved
 3連単オッズ取得件数: 120件（本来120件）
 買い目件数: 5件 indexed件数=6
@@ -428,81 +428,84 @@ v2モデル(1着・2着・3着)を使用
 買い目件数: 5件 indexed件数=6
 3連単オッズ取得件数: 120件（本来120件）
 買い目件数: 5件 indexed件数=6
-直前情報ページ status_code=200 本文長=46539文字
+直前情報ページ status_code=200 本文長=46536文字
 '展示タイム'という文字列が本文に含まれるか: False
 'チルト'という文字列が本文に含まれるか: True
-水面気象: {'wind': 0, 'wave': 0, 'weather': '曇り'}
+水面気象: {'wind': 5, 'wave': 3, 'weather': '晴'}
 展示タイム取得件数: 6件（本来6件） 中身={1: 6.91, 2: 6.84, 3: 6.84, 4: 6.83, 5: 6.87, 6: 6.83}
 チルト取得件数: 6件（本来6件） 中身={1: -0.5, 2: -0.5, 3: -0.5, 4: 0.0, 5: 0.0, 6: -0.5}
-抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x76cc1f573850>]
+抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x70b4642e9d30>]
 [save_entries] 6 entries saved
-直前情報ページ status_code=200 本文長=43570文字
+直前情報ページ status_code=200 本文長=46367文字
 '展示タイム'という文字列が本文に含まれるか: False
 'チルト'という文字列が本文に含まれるか: True
-水面気象: {'wind': 0, 'wave': 0, 'weather': '曇り'}
-展示タイム取得件数: 0件（本来6件） 中身={}
+水面気象: {'wind': 2, 'wave': 0, 'weather': '曇り'}
+展示タイム取得件数: 6件（本来6件） 中身={1: 6.73, 2: 6.85, 3: 6.79, 4: 6.89, 5: 6.82, 6: 6.91}
 チルト取得件数: 6件（本来6件） 中身={1: 0.0, 2: 0.0, 3: -0.5, 4: -0.5, 5: -0.5, 6: -0.5}
-抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x76cc25dcd2b0>]
+抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x70b469a7b230>]
 [save_entries] 6 entries saved
-直前情報ページ status_code=200 本文長=43584文字
+直前情報ページ status_code=200 本文長=46407文字
 '展示タイム'という文字列が本文に含まれるか: False
 'チルト'という文字列が本文に含まれるか: True
-水面気象: {'wind': 0, 'wave': 0, 'weather': '曇り'}
-展示タイム取得件数: 0件（本来6件） 中身={}
-チルト取得件数: 0件（本来6件） 中身={}
-抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x76cc29bf2c10>]
+水面気象: {'wind': 5, 'wave': 3, 'weather': '曇り'}
+展示タイム取得件数: 6件（本来6件） 中身={1: 6.83, 2: 6.79, 3: 6.72, 4: 6.77, 5: 6.83, 6: 6.85}
+チルト取得件数: 6件（本来6件） 中身={1: 0.0, 2: 0.0, 3: 0.0, 4: -0.5, 5: -0.5, 6: 0.0}
+抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x70b4642eb310>]
 [save_entries] 6 entries saved
-直前情報ページ status_code=200 本文長=43584文字
+直前情報ページ status_code=200 本文長=46409文字
 '展示タイム'という文字列が本文に含まれるか: False
 'チルト'という文字列が本文に含まれるか: True
-水面気象: {'wind': 0, 'wave': 0, 'weather': '曇り'}
-展示タイム取得件数: 0件（本来6件） 中身={}
-チルト取得件数: 0件（本来6件） 中身={}
-抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x76cc25103150>]
+水面気象: {'wind': 3, 'wave': 0, 'weather': '曇り'}
+展示タイム取得件数: 6件（本来6件） 中身={1: 6.79, 2: 6.78, 3: 6.76, 4: 6.83, 5: 6.77, 6: 6.77}
+チルト取得件数: 6件（本来6件） 中身={1: -0.5, 2: -0.5, 3: 0.0, 4: -0.5, 5: -0.5, 6: 2.0}
+抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x70b469a7b230>]
 [save_entries] 6 entries saved
-直前情報ページ status_code=200 本文長=43753文字
+直前情報ページ status_code=200 本文長=46537文字
 '展示タイム'という文字列が本文に含まれるか: False
 'チルト'という文字列が本文に含まれるか: True
-水面気象: {'wind': 0, 'wave': 0, 'weather': '曇り'}
-展示タイム取得件数: 0件（本来6件） 中身={}
-チルト取得件数: 0件（本来6件） 中身={}
-抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x76cc29bf2970>]
+水面気象: {'wind': 5, 'wave': 3, 'weather': '晴'}
+展示タイム取得件数: 6件（本来6件） 中身={1: 6.87, 2: 6.85, 3: 6.76, 4: 6.78, 5: 6.76, 6: 6.83}
+チルト取得件数: 6件（本来6件） 中身={1: -0.5, 2: -0.5, 3: -0.5, 4: -0.5, 5: -0.5, 6: -0.5}
+抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x70b465097930>]
 [save_entries] 6 entries saved
-直前情報ページ status_code=200 本文長=43584文字
+直前情報ページ status_code=200 本文長=43650文字
 '展示タイム'という文字列が本文に含まれるか: False
 'チルト'という文字列が本文に含まれるか: True
-水面気象: {'wind': 0, 'wave': 0, 'weather': '曇り'}
+水面気象: {'wind': 5, 'wave': 3, 'weather': '晴'}
 展示タイム取得件数: 0件（本来6件） 中身={}
-チルト取得件数: 0件（本来6件） 中身={}
-抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x76cc29a26190>]
+チルト取得件数: 6件（本来6件） 中身={1: -0.5, 2: -0.5, 3: -0.5, 4: 0.0, 5: -0.5, 6: 0.0}
+抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x70b469a7b230>]
 [save_entries] 6 entries saved
-直前情報ページ status_code=200 本文長=43584文字
+直前情報ページ status_code=200 本文長=43664文字
 '展示タイム'という文字列が本文に含まれるか: False
 'チルト'という文字列が本文に含まれるか: True
-水面気象: {'wind': 0, 'wave': 0, 'weather': '曇り'}
+水面気象: {'wind': 5, 'wave': 3, 'weather': '晴'}
 展示タイム取得件数: 0件（本来6件） 中身={}
 チルト取得件数: 0件（本来6件） 中身={}
-抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x76cc29a260b0>]
+抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x70b465096b30>]
 [save_entries] 6 entries saved
-直前情報ページ status_code=200 本文長=43584文字
+直前情報ページ status_code=200 本文長=43750文字
 '展示タイム'という文字列が本文に含まれるか: False
 'チルト'という文字列が本文に含まれるか: True
-水面気象: {'wind': 0, 'wave': 0, 'weather': '曇り'}
+水面気象: {'wind': 5, 'wave': 3, 'weather': '晴'}
 展示タイム取得件数: 0件（本来6件） 中身={}
 チルト取得件数: 0件（本来6件） 中身={}
-抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x76cc29a266d0>]
+抽出結果: 6件 中身=[<src.storage.db.RaceEntry object at 0x70b469a7b230>]
 Traceback (most recent call last):
-  File "/home/runner/venv/lib/python3.14/site-packages/sqlalchemy/engine/base.py", line 1977, in _exec_single_context
-    self.dialect.do_execute(
-    ~~~~~~~~~~~~~~~~~~~~~~~^
-        cursor, str_statement, effective_parameters, context
-        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/venv/lib/python3.14/site-packages/sqlalchemy/engine/base.py", line 2113, in _exec_insertmany_context
+    dialect.do_execute(
+    ~~~~~~~~~~~~~~~~~~^
+        cursor,
+        ^^^^^^^
+    ...<2 lines>...
+        context,
+        ^^^^^^^^
     )
     ^
   File "/home/runner/venv/lib/python3.14/site-packages/sqlalchemy/engine/default.py", line 1192, in do_execute
     cursor.execute(statement, parameters)
     ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
-sqlite3.DatabaseError: database disk image is malformed
+sqlite3.OperationalError: attempt to write a readonly database
 
 The above exception was the direct cause of the following exception:
 
@@ -515,49 +518,68 @@ Traceback (most recent call last):
   File "/home/runner/work/boatrace-test/boatrace-test/src/pipeline/session_pipeline.py", line 133, in run_session
     save_entries(engine, entries)
     ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/boatrace-test/boatrace-test/src/storage/db.py", line 64, in save_entries
-    ).delete()
-      ~~~~~~^^
-  File "/home/runner/venv/lib/python3.14/site-packages/sqlalchemy/orm/query.py", line 3275, in delete
-    self.session.execute(
-    ~~~~~~~~~~~~~~~~~~~~^
-        delete_,
-        ^^^^^^^^
+  File "/home/runner/work/boatrace-test/boatrace-test/src/storage/db.py", line 68, in save_entries
+    session.commit()
+    ~~~~~~~~~~~~~~^^
+  File "/home/runner/venv/lib/python3.14/site-packages/sqlalchemy/orm/session.py", line 2177, in commit
+    trans.commit(_to_root=True)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "<sqlalchemy generated _go() wrapper for sqlalchemy.orm.session.SessionTransaction.commit>", line 2, in commit
+    return target(fn, self, _to_root=_to_root)
+  File "/home/runner/venv/lib/python3.14/site-packages/sqlalchemy/orm/state_changes.py", line 137, in _go
+    ret_value = fn(self, *arg, **kw)
+  File "/home/runner/venv/lib/python3.14/site-packages/sqlalchemy/orm/session.py", line 1412, in commit
+    self._prepare_impl()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "<sqlalchemy generated _go() wrapper for sqlalchemy.orm.session.SessionTransaction._prepare_impl>", line 2, in _prepare_impl
+    return target(fn, self)
+  File "/home/runner/venv/lib/python3.14/site-packages/sqlalchemy/orm/state_changes.py", line 137, in _go
+    ret_value = fn(self, *arg, **kw)
+  File "/home/runner/venv/lib/python3.14/site-packages/sqlalchemy/orm/session.py", line 1386, in _prepare_impl
+    self.session.flush()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "/home/runner/venv/lib/python3.14/site-packages/sqlalchemy/orm/session.py", line 4626, in flush
+    self._flush(objects)
+    ~~~~~~~~~~~^^^^^^^^^
+  File "<sqlalchemy generated warned() wrapper for sqlalchemy.orm.session.Session._flush>", line 2, in _flush
+    return target(fn, self, objects=objects)
+  File "/home/runner/venv/lib/python3.14/site-packages/sqlalchemy/util/deprecations.py", line 281, in warned
+    return fn(*args, **kwargs)  # type: ignore[no-any-return]
+  File "/home/runner/venv/lib/python3.14/site-packages/sqlalchemy/orm/session.py", line 4769, in _flush
+    with util.safe_reraise():
+         ~~~~~~~~~~~~~~~~~^^
+  File "/home/runner/venv/lib/python3.14/site-packages/sqlalchemy/util/langhelpers.py", line 166, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "/home/runner/venv/lib/python3.14/site-packages/sqlalchemy/orm/session.py", line 4730, in _flush
+    flush_context.execute()
+    ~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/runner/venv/lib/python3.14/site-packages/sqlalchemy/orm/unitofwork.py", line 467, in execute
+    rec.execute(self)
+    ~~~~~~~~~~~^^^^^^
+  File "/home/runner/venv/lib/python3.14/site-packages/sqlalchemy/orm/unitofwork.py", line 643, in execute
+    util.preloaded.orm_persistence._save_obj(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        self.mapper,
+        ^^^^^^^^^^^^
+        uow.states_for_mapper_hierarchy(self.mapper, False, False),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        uow,
+        ^^^^
+    )
+    ^
+  File "/home/runner/venv/lib/python3.14/site-packages/sqlalchemy/orm/persistence.py", line 92, in _save_obj
+    _emit_insert_statements(
+    ~~~~~~~~~~~~~~~~~~~~~~~^
+        base_mapper,
+        ^^^^^^^^^^^^
     ...<3 lines>...
-        ),
-        ^^
-    ),
-    ^
-  File "/home/runner/venv/lib/python3.14/site-packages/sqlalchemy/orm/session.py", line 2555, in execute
-    return self._execute_internal(
-           ~~~~~~~~~~~~~~~~~~~~~~^
-        statement,
-        ^^^^^^^^^^
-    ...<4 lines>...
-        _add_event=_add_event,
-        ^^^^^^^^^^^^^^^^^^^^^^
+        insert,
+        ^^^^^^^
     )
     ^
-  File "/home/runner/venv/lib/python3.14/site-packages/sqlalchemy/orm/session.py", line 2445, in _execute_internal
-    compile_state_cls.orm_execute_statement(
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
-        self,
-        ^^^^^
-    ...<4 lines>...
-        conn,
-        ^^^^^
-    )
-    ^
-  File "/home/runner/venv/lib/python3.14/site-packages/sqlalchemy/orm/bulk_persistence.py", line 2068, in orm_execute_statement
-    return super().orm_execute_statement(
-           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
-        session, statement, params, execution_options, bind_arguments, conn
-        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    )
-    ^
-  File "/home/runner/venv/lib/python3.14/site-packages/sqlalchemy/orm/context.py", line 357, in orm_execute_statement
-    result = conn.execute(
-        statement, params or {}, execution_options=execution_options
+  File "/home/runner/venv/lib/python3.14/site-packages/sqlalchemy/orm/persistence.py", line 1160, in _emit_insert_statements
+    result = connection.execute(
+        statement, multiparams, execution_options=execution_options
     )
   File "/home/runner/venv/lib/python3.14/site-packages/sqlalchemy/engine/base.py", line 1494, in execute
     return meth(
@@ -578,33 +600,35 @@ Traceback (most recent call last):
     ...<9 lines>...
         param_dict=param_dict,
     )
-  File "/home/runner/venv/lib/python3.14/site-packages/sqlalchemy/engine/base.py", line 1868, in _execute_context
-    return self._exec_single_context(
-           ~~~~~~~~~~~~~~~~~~~~~~~~~^
-        dialect, context, statement, parameters
-        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    )
-    ^
-  File "/home/runner/venv/lib/python3.14/site-packages/sqlalchemy/engine/base.py", line 1996, in _exec_single_context
+  File "/home/runner/venv/lib/python3.14/site-packages/sqlalchemy/engine/base.py", line 1866, in _execute_context
+    return self._exec_insertmany_context(dialect, context)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/home/runner/venv/lib/python3.14/site-packages/sqlalchemy/engine/base.py", line 2130, in _exec_insertmany_context
     self._handle_dbapi_exception(
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
-        e, str_statement, effective_parameters, cursor, context
-        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        e,
+        ^^
+    ...<4 lines>...
+        is_sub_exec=True,
+        ^^^^^^^^^^^^^^^^^
     )
     ^
   File "/home/runner/venv/lib/python3.14/site-packages/sqlalchemy/engine/base.py", line 2351, in _handle_dbapi_exception
     raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
-  File "/home/runner/venv/lib/python3.14/site-packages/sqlalchemy/engine/base.py", line 1977, in _exec_single_context
-    self.dialect.do_execute(
-    ~~~~~~~~~~~~~~~~~~~~~~~^
-        cursor, str_statement, effective_parameters, context
-        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/venv/lib/python3.14/site-packages/sqlalchemy/engine/base.py", line 2113, in _exec_insertmany_context
+    dialect.do_execute(
+    ~~~~~~~~~~~~~~~~~~^
+        cursor,
+        ^^^^^^^
+    ...<2 lines>...
+        context,
+        ^^^^^^^^
     )
     ^
   File "/home/runner/venv/lib/python3.14/site-packages/sqlalchemy/engine/default.py", line 1192, in do_execute
     cursor.execute(statement, parameters)
     ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
-sqlalchemy.exc.DatabaseError: (sqlite3.DatabaseError) database disk image is malformed
-[SQL: DELETE FROM race_entries WHERE race_entries.race_date = ? AND race_entries.stadium_code = ? AND race_entries.race_number = ?]
-[parameters: ('2026-11-28', '13', 8)]
-(Background on this error at: https://sqlalche.me/e/21/4xp6)
+sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) attempt to write a readonly database
+[SQL: INSERT INTO race_entries (race_date, stadium_code, race_number, lane_number, racer_id, national_win_rate, local_win_rate, motor_2rate, boat_2rate, exhibition_time, tilt, start_timing, win_odds, finish_position, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id]
+[parameters: ('2026-11-28', '13', 8, 1, None, 4.02, 3.87, 43.71, 34.21, None, None, None, None, None, '2026-11-28 03:19:41.535251')]
+(Background on this error at: https://sqlalche.me/e/21/e3q8)
