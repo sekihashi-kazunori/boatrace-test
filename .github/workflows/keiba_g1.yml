@@ -1,0 +1,33 @@
+name: keiba G1 (2026年の中央競馬G1の結果と全券種の払戻を残す)
+
+# 2026-11-28 ご主人様「執事君は2026のG1のデータは全て取っておいて!」(有馬記念に向けた紙上検証の材料)
+# netkeiba を1.2秒に1回のゆっくりした間隔で読む。保存済みのレースは飛ばす。毎週月曜の朝に、週末のG1を足す。
+on:
+  workflow_dispatch:
+    inputs:
+      start:
+        default: "2026-01-01"
+      end:
+        default: "2026-12-31"
+  schedule:
+    - cron: "13 1 * * 1"   # 月曜 10:13 JST
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - name: python (システムのPythonを使う)
+        run: python3 -m venv "$HOME/venv" && echo "$HOME/venv/bin" >> "$GITHUB_PATH"
+      - run: pip install requests
+      - run: python -m src.tools.keiba_g1 --start "${{ inputs.start || '2026-01-01' }}" --end "${{ inputs.end || '2026-12-31' }}" --max-minutes 100
+      - name: save
+        if: always()
+        run: |
+          git config user.name "predictor-bot"
+          git config user.email "bot@example.com"
+          git add keiba/g1
+          git commit -q -m "chore: keiba G1 data" || exit 0
+          for i in 1 2 3 4 5; do git pull --rebase --autostash -q && git push -q && exit 0; sleep $((i*5)); done
+          exit 1
