@@ -16,10 +16,10 @@ The above exception was the direct cause of the following exception:
 Traceback (most recent call last):
   File "<frozen runpy>", line 198, in _run_module_as_main
   File "<frozen runpy>", line 88, in _run_code
-  File "/home/runner/work/boatrace-test/boatrace-test/src/pipeline/final_pipeline.py", line 1771, in <module>
+  File "/home/runner/work/boatrace-test/boatrace-test/src/pipeline/final_pipeline.py", line 1811, in <module>
     run_final()
     ~~~~~~~~~^^
-  File "/home/runner/work/boatrace-test/boatrace-test/src/pipeline/final_pipeline.py", line 1597, in run_final
+  File "/home/runner/work/boatrace-test/boatrace-test/src/pipeline/final_pipeline.py", line 1637, in run_final
     init_db(engine)
     ~~~~~~~^^^^^^^^
   File "/home/runner/work/boatrace-test/boatrace-test/src/storage/db.py", line 155, in init_db
